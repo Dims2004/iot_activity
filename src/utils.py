@@ -1,9 +1,7 @@
 """
-utils.py — Fungsi bantu: preprocessing, normalisasi, logging
+utils.py — Fungsi bantu: preprocessing, normalisasi, BPM imputation, logging
 """
-
-import os
-import logging
+import os, logging
 import numpy as np
 import pandas as pd
 from datetime import datetime
@@ -11,68 +9,39 @@ from sklearn.preprocessing import MinMaxScaler
 import joblib
 
 from config import (
-    LOG_FILE, LOG_LEVEL, SCALER_PATH,
-    FEATURES, TARGET, CLASSES, CLASS_MAP
+    LOG_FILE, LOG_LEVEL, SCALER_PATH, BPM_MED_PATH,
+    FEATURES, TARGET, CLASSES, CLASS_MAP,
+    BPM_MEDIAN_DEFAULT, BPM_GLOBAL_MEDIAN
 )
-
 
 # ═══════════════════════════════════════════════════════════
 #  LOGGING
 # ═══════════════════════════════════════════════════════════
 def get_logger(name: str = "aiot") -> logging.Logger:
-    """
-    Kembalikan logger yang menulis ke file dan console sekaligus.
-    Panggil sekali di tiap modul: logger = get_logger(__name__)
-    """
     logger = logging.getLogger(name)
     if logger.handlers:
-        return logger                           # hindari duplikasi handler
-
+        return logger
     level = getattr(logging, LOG_LEVEL.upper(), logging.INFO)
     logger.setLevel(level)
-
     fmt = logging.Formatter(
         "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S"
     )
-
-    # Handler ke file
     fh = logging.FileHandler(LOG_FILE, encoding="utf-8")
-    fh.setFormatter(fmt)
-    logger.addHandler(fh)
-
-    # Handler ke console
+    fh.setFormatter(fmt); logger.addHandler(fh)
     ch = logging.StreamHandler()
-    ch.setFormatter(fmt)
-    logger.addHandler(ch)
-
+    ch.setFormatter(fmt); logger.addHandler(ch)
     return logger
 
-
 # ═══════════════════════════════════════════════════════════
-#  VALIDASI & PARSING PAYLOAD MQTT
+#  VALIDASI PAYLOAD MQTT
 # ═══════════════════════════════════════════════════════════
 def parse_sensor_payload(payload: dict) -> dict | None:
-    """
-    Validasi dan bersihkan payload JSON dari ESP32.
-    Kembalikan dict yang sudah bersih, atau None jika tidak valid.
-
-    Payload yang diharapkan:
-    {
-        "device_id":    "ESP32_001",
-        "timestamp":    <millis>,
-        "accel_stddev": <float>,
-        "gyro_stddev":  <float>,
-        "bpm":          <int>,
-        "user":         "User_001",
-        "local_act":    "DUDUK" | "BERJALAN" | "BERLARI"   (opsional)
-    }
-    """
+    """Validasi dan bersihkan payload JSON dari ESP32."""
     required = ["accel_stddev", "gyro_stddev", "bpm"]
     for key in required:
         if key not in payload:
             return None
-
     try:
         accel = float(payload["accel_stddev"])
         gyro  = float(payload["gyro_stddev"])
@@ -80,9 +49,8 @@ def parse_sensor_payload(payload: dict) -> dict | None:
     except (ValueError, TypeError):
         return None
 
-    # Sanity check nilai sensor
-    if not (0.0 <= accel <= 10.0):   return None   # g
-    if not (0.0 <= gyro  <= 600.0):  return None   # °/s
+    if not (0.0 <= accel <= 10.0): return None
+    if not (0.0 <= gyro  <= 600.0): return None
     if bpm != 0 and not (30 <= bpm <= 220): return None
 
     return {
@@ -96,19 +64,13 @@ def parse_sensor_payload(payload: dict) -> dict | None:
         "received_at":  datetime.now().isoformat()
     }
 
-
 # ═══════════════════════════════════════════════════════════
 #  PREPROCESSING DATASET
 # ═══════════════════════════════════════════════════════════
 def load_and_clean_dataset(csv_path: str) -> pd.DataFrame:
-    """
-    Muat dataset CSV, bersihkan, dan kembalikan DataFrame siap pakai.
-
-    Kolom minimum yang diharapkan: accel_stddev, gyro_stddev, activity
-    """
+    """Muat dan bersihkan dataset CSV."""
     df = pd.read_csv(csv_path)
 
-    # Rename kolom jika perlu (toleransi variasi nama)
     rename_map = {
         "accel_std": "accel_stddev",
         "gyro_std":  "gyro_stddev",
@@ -117,43 +79,104 @@ def load_and_clean_dataset(csv_path: str) -> pd.DataFrame:
     }
     df = df.rename(columns={k: v for k, v in rename_map.items() if k in df.columns})
 
-    # Hapus kolom yang tidak diperlukan
-    useful_cols = FEATURES + [TARGET] + ["bpm", "user", "received_at"]
-    df = df[[c for c in useful_cols if c in df.columns]]
+    base_feats = ["accel_stddev", "gyro_stddev", "bpm", TARGET]
+    extra = ["bpm_filled", "participant_id", "participant_no", "received_at"]
+    keep = [c for c in base_feats + extra if c in df.columns]
+    df = df[keep].copy()
 
-    # Hapus baris dengan NaN di fitur atau label
-    df = df.dropna(subset=FEATURES + [TARGET])
-
-    # Validasi label
+    df = df.dropna(subset=["accel_stddev", "gyro_stddev", TARGET])
     df = df[df[TARGET].isin(CLASSES)]
 
-    # Hapus outlier ekstrem (z-score > 4)
-    for feat in FEATURES:
-        mean, std = df[feat].mean(), df[feat].std()
-        if std > 0:
-            df = df[((df[feat] - mean) / std).abs() <= 4]
+    # Pastikan kolom bpm ada
+    if "bpm" not in df.columns:
+        df["bpm"] = 0
 
+    # Reset index
     df = df.reset_index(drop=True)
     return df
 
-
-def normalize_features(
-    df: pd.DataFrame,
-    fit: bool = True,
-    scaler: MinMaxScaler | None = None
-) -> tuple[pd.DataFrame, MinMaxScaler]:
+# ═══════════════════════════════════════════════════════════
+#  BPM IMPUTATION  ← FITUR BARU
+# ═══════════════════════════════════════════════════════════
+def impute_bpm(df: pd.DataFrame,
+               bpm_medians: dict | None = None,
+               fit: bool = True) -> tuple[pd.DataFrame, dict]:
     """
-    Normalisasi fitur dengan MinMaxScaler.
+    Isi nilai BPM = 0 dengan median BPM per kelas aktivitas.
 
     Args:
-        df    : DataFrame dengan kolom FEATURES
-        fit   : True → fit scaler baru; False → gunakan scaler yang diberikan
-        scaler: scaler existing jika fit=False
+        df          : DataFrame dengan kolom 'bpm' dan TARGET
+        bpm_medians : dict {"DUDUK":72, ...} — gunakan jika fit=False (inference)
+        fit         : True → hitung median dari data; False → pakai bpm_medians
 
     Returns:
-        df_norm  : DataFrame ternormalisasi
-        scaler   : scaler yang dipakai
+        df dengan kolom baru 'bpm_filled'
+        dict median per kelas (untuk disimpan bersama model)
     """
+    df = df.copy()
+
+    if fit:
+        # Hitung median dari data valid (BPM > 0) per kelas
+        bpm_medians = {}
+        for cls in CLASSES:
+            valid = df[(df[TARGET] == cls) & (df["bpm"] > 0)]["bpm"]
+            bpm_medians[cls] = int(valid.median()) if len(valid) > 0 else BPM_MEDIAN_DEFAULT[cls]
+
+        # Global median sebagai fallback
+        all_valid = df[df["bpm"] > 0]["bpm"]
+        global_med = int(all_valid.median()) if len(all_valid) > 0 else BPM_GLOBAL_MEDIAN
+        bpm_medians["_global"] = global_med
+
+        print("BPM Median per kelas (untuk imputasi):")
+        for k, v in bpm_medians.items():
+            print(f"  {k}: {v} bpm")
+
+    # Terapkan imputasi
+    def fill_bpm(row):
+        if row["bpm"] > 0:
+            return row["bpm"]
+        cls = row.get(TARGET, "")
+        return bpm_medians.get(cls, bpm_medians.get("_global", BPM_GLOBAL_MEDIAN))
+
+    df["bpm_filled"] = df.apply(fill_bpm, axis=1).astype(float)
+    return df, bpm_medians
+
+def impute_bpm_single(bpm: int, activity_hint: str = "",
+                      bpm_medians: dict | None = None) -> float:
+    """
+    Imputasi BPM untuk satu sampel (dipakai saat inference di server).
+
+    Args:
+        bpm           : nilai BPM dari sensor (0 jika tidak terbaca)
+        activity_hint : kelas yang diprediksi sebelumnya (opsional)
+        bpm_medians   : dict dari training (load dari file .pkl)
+    """
+    if bpm > 0:
+        return float(bpm)
+    if bpm_medians is None:
+        return float(BPM_MEDIAN_DEFAULT.get(activity_hint, BPM_GLOBAL_MEDIAN))
+    return float(bpm_medians.get(activity_hint,
+                                  bpm_medians.get("_global", BPM_GLOBAL_MEDIAN)))
+
+# ═══════════════════════════════════════════════════════════
+#  NORMALISASI
+# ═══════════════════════════════════════════════════════════
+def normalize_features(df: pd.DataFrame,
+                        fit: bool = True,
+                        scaler: MinMaxScaler | None = None
+                        ) -> tuple[pd.DataFrame, MinMaxScaler]:
+    """
+    Normalisasi kolom FEATURES (accel_stddev, gyro_stddev, bpm_filled).
+    Pastikan kolom bpm_filled sudah ada sebelum memanggil ini.
+    """
+    # Pastikan semua kolom FEATURES ada
+    for f in FEATURES:
+        if f not in df.columns:
+            raise ValueError(
+                f"Kolom '{f}' tidak ditemukan. "
+                f"Jalankan impute_bpm() dulu untuk membuat 'bpm_filled'."
+            )
+
     if fit:
         scaler = MinMaxScaler()
         df[FEATURES] = scaler.fit_transform(df[FEATURES])
@@ -162,39 +185,30 @@ def normalize_features(
         if scaler is None:
             raise ValueError("Scaler harus diberikan jika fit=False")
         df[FEATURES] = scaler.transform(df[FEATURES])
-
     return df, scaler
 
-
 def encode_labels(df: pd.DataFrame) -> pd.DataFrame:
-    """Tambahkan kolom label numerik berdasarkan CLASS_MAP."""
     df["label"] = df[TARGET].map(CLASS_MAP)
     return df
 
+# ═══════════════════════════════════════════════════════════
+#  HAPUS OUTLIER Z-SCORE
+# ═══════════════════════════════════════════════════════════
+def remove_outliers(df: pd.DataFrame, z_thresh: float = 3.5) -> pd.DataFrame:
+    """Hapus baris dengan z-score > z_thresh pada kolom sensor."""
+    raw_feats = ["accel_stddev", "gyro_stddev", "bpm_filled"]
+    for feat in raw_feats:
+        if feat not in df.columns:
+            continue
+        mean, std = df[feat].mean(), df[feat].std()
+        if std > 0:
+            df = df[((df[feat] - mean) / std).abs() <= z_thresh]
+    return df.reset_index(drop=True)
 
 # ═══════════════════════════════════════════════════════════
-#  FITUR TAMBAHAN (opsional, bisa diaktifkan)
-# ═══════════════════════════════════════════════════════════
-def add_bpm_feature(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Tambahkan BPM sebagai fitur ke-3 jika tersedia.
-    BPM=0 (tidak terbaca) diisi dengan median BPM valid.
-    """
-    if "bpm" not in df.columns:
-        return df
-
-    valid_bpm  = df.loc[df["bpm"] > 0, "bpm"]
-    median_bpm = int(valid_bpm.median()) if len(valid_bpm) > 0 else 75
-
-    df["bpm_filled"] = df["bpm"].replace(0, median_bpm)
-    return df
-
-
-# ═══════════════════════════════════════════════════════════
-#  UTILITAS UMUM
+#  LOAD UTILITIES
 # ═══════════════════════════════════════════════════════════
 def load_scaler() -> MinMaxScaler:
-    """Muat scaler yang sudah disimpan saat training."""
     if not os.path.exists(SCALER_PATH):
         raise FileNotFoundError(
             f"Scaler tidak ditemukan di {SCALER_PATH}. "
@@ -202,15 +216,17 @@ def load_scaler() -> MinMaxScaler:
         )
     return joblib.load(SCALER_PATH)
 
+def load_bpm_medians() -> dict:
+    if not os.path.exists(BPM_MED_PATH):
+        print(f"[WARN] bpm_medians tidak ditemukan, pakai default.")
+        return {**BPM_MEDIAN_DEFAULT, "_global": BPM_GLOBAL_MEDIAN}
+    return joblib.load(BPM_MED_PATH)
 
-def timestamp_filename(prefix: str = "data", ext: str = "csv") -> str:
-    """Hasilkan nama file dengan timestamp, misal: data_20250612_153045.csv"""
-    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-    return f"{prefix}_{ts}.{ext}"
-
-
-def class_distribution(df: pd.DataFrame) -> pd.Series:
-    """Tampilkan distribusi kelas dalam persen."""
+def class_distribution(df: pd.DataFrame) -> pd.DataFrame:
     counts = df[TARGET].value_counts()
     pct    = (counts / len(df) * 100).round(2)
     return pd.DataFrame({"count": counts, "pct": pct})
+
+def timestamp_filename(prefix: str = "data", ext: str = "csv") -> str:
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    return f"{prefix}_{ts}.{ext}"
