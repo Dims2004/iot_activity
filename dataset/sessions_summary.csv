@@ -1,0 +1,2 @@
+participant_no,participant_id,timestamp,final_activity,final_bpm,count_duduk,count_berjalan,count_berlari,total_samples,durasi_detik,sumber_hasil
+1,PAR-01,2026-04-07T09:38:31.778504,BERJALAN,87,171,231,194,596,300.2,esp32

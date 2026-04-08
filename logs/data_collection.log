@@ -1,0 +1,58 @@
+2026-03-31 19:55:48,130 - utils - INFO - Data collector connected to MQTT broker
+2026-03-31 19:55:48,145 - utils - INFO - Subscribed to sensor/raw/data
+2026-04-04 17:53:35 | INFO     | Database initialized at C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\data\measurements.db
+2026-04-04 17:53:35 | INFO     | Database initialized at C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\data\measurements.db
+2026-04-04 17:53:35 | INFO     | Starting Data Collector...
+2026-04-04 17:53:37 | INFO     | Data Collector is running. Press Ctrl+C to stop.
+2026-04-04 17:53:37 | INFO     | Connected to MQTT Broker at localhost:1883
+2026-04-04 17:53:37 | INFO     | Subscribed to: sensor/esp32/data
+2026-04-04 17:53:37 | INFO     | Subscribed to: status/esp32
+2026-04-04 18:29:09 | INFO     | Received interrupt signal, shutting down...
+2026-04-04 18:29:09 | INFO     | Stopping Data Collector...
+2026-04-04 18:29:09 | WARNING  | Disconnected from MQTT broker, return code: 0
+2026-04-04 18:29:09 | INFO     | Total measurements collected: 0
+2026-04-04 18:29:09 | INFO     | Data Collector stopped
+2026-04-04 18:29:20 | INFO     | Database initialized at C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\data\measurements.db
+2026-04-04 18:29:20 | INFO     | Database initialized at C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\data\measurements.db
+2026-04-04 18:29:20 | INFO     | Starting Data Collector...
+2026-04-04 18:29:22 | INFO     | Connected to MQTT Broker at localhost:1883
+2026-04-04 18:29:22 | INFO     | Data Collector is running. Press Ctrl+C to stop.
+2026-04-04 18:29:22 | INFO     | Subscribed to: sensor/esp32/data
+2026-04-04 18:29:22 | INFO     | Subscribed to: status/esp32
+2026-04-04 18:29:50 | INFO     | ESP32 Status: online
+2026-04-04 18:29:53 | INFO     | [1] Data saved - Device: ESP32_001, Accel StdDev: 0.155, Gyro StdDev: 0.419, BPM: 0
+2026-04-04 18:29:55 | INFO     | [2] Data saved - Device: ESP32_001, Accel StdDev: 0.000, Gyro StdDev: 0.012, BPM: 0
+2026-04-04 18:29:55 | INFO     | ESP32 Status: alive
+2026-04-04 18:29:57 | INFO     | [3] Data saved - Device: ESP32_001, Accel StdDev: 0.001, Gyro StdDev: 0.010, BPM: 0
+2026-04-04 18:29:59 | INFO     | [4] Data saved - Device: ESP32_001, Accel StdDev: 0.000, Gyro StdDev: 0.011, BPM: 0
+2026-04-04 18:30:01 | INFO     | [5] Data saved - Device: ESP32_001, Accel StdDev: 0.000, Gyro StdDev: 0.007, BPM: 0
+2026-04-04 18:30:03 | INFO     | [6] Data saved - Device: ESP32_001, Accel StdDev: 0.000, Gyro StdDev: 0.010, BPM: 0
+2026-04-04 18:30:05 | INFO     | [7] Data saved - Device: ESP32_001, Accel StdDev: 0.000, Gyro StdDev: 0.008, BPM: 0
+2026-04-04 18:30:05 | INFO     | ESP32 Status: alive
+2026-04-04 18:30:07 | INFO     | [8] Data saved - Device: ESP32_001, Accel StdDev: 0.000, Gyro StdDev: 0.008, BPM: 0
+2026-04-04 18:30:09 | INFO     | [9] Data saved - Device: ESP32_001, Accel StdDev: 0.000, Gyro StdDev: 0.009, BPM: 0
+2026-04-04 18:30:11 | INFO     | [10] Data saved - Device: ESP32_001, Accel StdDev: 0.000, Gyro StdDev: 0.014, BPM: 0
+2026-04-04 18:30:13 | INFO     | [11] Data saved - Device: ESP32_001, Accel StdDev: 0.000, Gyro StdDev: 0.011, BPM: 0
+2026-04-04 18:30:15 | INFO     | [12] Data saved - Device: ESP32_001, Accel StdDev: 0.000, Gyro StdDev: 0.014, BPM: 0
+2026-04-04 18:30:15 | INFO     | ESP32 Status: alive
+2026-04-04 18:30:17 | INFO     | [13] Data saved - Device: ESP32_001, Accel StdDev: 0.000, Gyro StdDev: 0.009, BPM: 0
+2026-04-04 18:30:19 | INFO     | [14] Data saved - Device: ESP32_001, Accel StdDev: 0.001, Gyro StdDev: 0.010, BPM: 0
+2026-04-04 18:30:21 | INFO     | [15] Data saved - Device: ESP32_001, Accel StdDev: 0.000, Gyro StdDev: 0.021, BPM: 0
+2026-04-04 18:30:23 | INFO     | [16] Data saved - Device: ESP32_001, Accel StdDev: 0.000, Gyro StdDev: 0.010, BPM: 0
+2026-04-04 18:30:25 | INFO     | [17] Data saved - Device: ESP32_001, Accel StdDev: 0.000, Gyro StdDev: 0.009, BPM: 0
+2026-04-04 18:30:25 | INFO     | ESP32 Status: alive
+2026-04-04 18:30:27 | INFO     | [18] Data saved - Device: ESP32_001, Accel StdDev: 0.000, Gyro StdDev: 0.006, BPM: 0
+2026-04-04 18:30:29 | INFO     | [19] Data saved - Device: ESP32_001, Accel StdDev: 0.000, Gyro StdDev: 0.013, BPM: 0
+2026-04-04 18:30:31 | INFO     | [20] Data saved - Device: ESP32_001, Accel StdDev: 0.000, Gyro StdDev: 0.008, BPM: 0
+2026-04-04 18:30:33 | INFO     | [21] Data saved - Device: ESP32_001, Accel StdDev: 0.000, Gyro StdDev: 0.008, BPM: 0
+2026-04-04 18:30:35 | INFO     | [22] Data saved - Device: ESP32_001, Accel StdDev: 0.000, Gyro StdDev: 0.010, BPM: 0
+2026-04-04 18:30:35 | INFO     | ESP32 Status: alive
+2026-04-04 18:30:37 | INFO     | [23] Data saved - Device: ESP32_001, Accel StdDev: 0.000, Gyro StdDev: 0.010, BPM: 0
+2026-04-04 18:30:39 | INFO     | [24] Data saved - Device: ESP32_001, Accel StdDev: 0.000, Gyro StdDev: 0.009, BPM: 0
+2026-04-04 18:30:41 | INFO     | [25] Data saved - Device: ESP32_001, Accel StdDev: 0.000, Gyro StdDev: 0.007, BPM: 0
+2026-04-04 18:34:47 | INFO     | Received interrupt signal, shutting down...
+2026-04-04 18:34:47 | INFO     | Stopping Data Collector...
+2026-04-04 18:34:47 | INFO     | Batch saved to C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\dataset\batch_20260404_183447.json (25 records)
+2026-04-04 18:34:48 | WARNING  | Disconnected from MQTT broker, return code: 0
+2026-04-04 18:34:48 | INFO     | Total measurements collected: 25
+2026-04-04 18:34:48 | INFO     | Data Collector stopped

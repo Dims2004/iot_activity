@@ -1,0 +1,227 @@
+[
+  {
+    "device_id": "ESP32_001",
+    "timestamp": 8077,
+    "accel_stddev": 0.154525,
+    "gyro_stddev": 0.419078,
+    "bpm": 0,
+    "raw_accel": 0.094895,
+    "raw_gyro": 2.471828
+  },
+  {
+    "device_id": "ESP32_001",
+    "timestamp": 10077,
+    "accel_stddev": 0.000324,
+    "gyro_stddev": 0.011598,
+    "bpm": 0,
+    "raw_accel": 0.094551,
+    "raw_gyro": 2.484051
+  },
+  {
+    "device_id": "ESP32_001",
+    "timestamp": 12081,
+    "accel_stddev": 0.000529,
+    "gyro_stddev": 0.010269,
+    "bpm": 0,
+    "raw_accel": 0.09601,
+    "raw_gyro": 2.503366
+  },
+  {
+    "device_id": "ESP32_001",
+    "timestamp": 14084,
+    "accel_stddev": 0.000319,
+    "gyro_stddev": 0.010641,
+    "bpm": 0,
+    "raw_accel": 0.09539,
+    "raw_gyro": 2.488172
+  },
+  {
+    "device_id": "ESP32_001",
+    "timestamp": 16087,
+    "accel_stddev": 0.000443,
+    "gyro_stddev": 0.007089,
+    "bpm": 0,
+    "raw_accel": 0.095136,
+    "raw_gyro": 2.49163
+  },
+  {
+    "device_id": "ESP32_001",
+    "timestamp": 18089,
+    "accel_stddev": 0.000452,
+    "gyro_stddev": 0.010168,
+    "bpm": 0,
+    "raw_accel": 0.095204,
+    "raw_gyro": 2.501952
+  },
+  {
+    "device_id": "ESP32_001",
+    "timestamp": 20092,
+    "accel_stddev": 0.000384,
+    "gyro_stddev": 0.007928,
+    "bpm": 0,
+    "raw_accel": 0.094122,
+    "raw_gyro": 2.485253
+  },
+  {
+    "device_id": "ESP32_001",
+    "timestamp": 22095,
+    "accel_stddev": 0.000449,
+    "gyro_stddev": 0.008225,
+    "bpm": 0,
+    "raw_accel": 0.094599,
+    "raw_gyro": 2.490983
+  },
+  {
+    "device_id": "ESP32_001",
+    "timestamp": 24095,
+    "accel_stddev": 0.000429,
+    "gyro_stddev": 0.00869,
+    "bpm": 0,
+    "raw_accel": 0.095297,
+    "raw_gyro": 2.473931
+  },
+  {
+    "device_id": "ESP32_001",
+    "timestamp": 26095,
+    "accel_stddev": 0.000325,
+    "gyro_stddev": 0.014068,
+    "bpm": 0,
+    "raw_accel": 0.095552,
+    "raw_gyro": 2.495497
+  },
+  {
+    "device_id": "ESP32_001",
+    "timestamp": 28098,
+    "accel_stddev": 0.000367,
+    "gyro_stddev": 0.011342,
+    "bpm": 0,
+    "raw_accel": 0.095567,
+    "raw_gyro": 2.503002
+  },
+  {
+    "device_id": "ESP32_001",
+    "timestamp": 30101,
+    "accel_stddev": 0.000413,
+    "gyro_stddev": 0.01354,
+    "bpm": 0,
+    "raw_accel": 0.094304,
+    "raw_gyro": 2.483753
+  },
+  {
+    "device_id": "ESP32_001",
+    "timestamp": 32105,
+    "accel_stddev": 0.00032,
+    "gyro_stddev": 0.009429,
+    "bpm": 0,
+    "raw_accel": 0.095371,
+    "raw_gyro": 2.495223
+  },
+  {
+    "device_id": "ESP32_001",
+    "timestamp": 34108,
+    "accel_stddev": 0.000525,
+    "gyro_stddev": 0.009567,
+    "bpm": 0,
+    "raw_accel": 0.094395,
+    "raw_gyro": 2.483191
+  },
+  {
+    "device_id": "ESP32_001",
+    "timestamp": 36111,
+    "accel_stddev": 0.000247,
+    "gyro_stddev": 0.020996,
+    "bpm": 0,
+    "raw_accel": 0.095411,
+    "raw_gyro": 2.489823
+  },
+  {
+    "device_id": "ESP32_001",
+    "timestamp": 38115,
+    "accel_stddev": 0.000303,
+    "gyro_stddev": 0.009953,
+    "bpm": 0,
+    "raw_accel": 0.095278,
+    "raw_gyro": 2.484437
+  },
+  {
+    "device_id": "ESP32_001",
+    "timestamp": 40117,
+    "accel_stddev": 0.000443,
+    "gyro_stddev": 0.00947,
+    "bpm": 0,
+    "raw_accel": 0.094528,
+    "raw_gyro": 2.514825
+  },
+  {
+    "device_id": "ESP32_001",
+    "timestamp": 42121,
+    "accel_stddev": 0.000272,
+    "gyro_stddev": 0.005889,
+    "bpm": 0,
+    "raw_accel": 0.094856,
+    "raw_gyro": 2.484388
+  },
+  {
+    "device_id": "ESP32_001",
+    "timestamp": 44125,
+    "accel_stddev": 0.000271,
+    "gyro_stddev": 0.012501,
+    "bpm": 0,
+    "raw_accel": 0.094606,
+    "raw_gyro": 2.49952
+  },
+  {
+    "device_id": "ESP32_001",
+    "timestamp": 46128,
+    "accel_stddev": 0.000248,
+    "gyro_stddev": 0.007733,
+    "bpm": 0,
+    "raw_accel": 0.09477,
+    "raw_gyro": 2.484491
+  },
+  {
+    "device_id": "ESP32_001",
+    "timestamp": 48130,
+    "accel_stddev": 0.00031,
+    "gyro_stddev": 0.007601,
+    "bpm": 0,
+    "raw_accel": 0.095399,
+    "raw_gyro": 2.494915
+  },
+  {
+    "device_id": "ESP32_001",
+    "timestamp": 50128,
+    "accel_stddev": 0.000392,
+    "gyro_stddev": 0.010185,
+    "bpm": 0,
+    "raw_accel": 0.095019,
+    "raw_gyro": 2.475916
+  },
+  {
+    "device_id": "ESP32_001",
+    "timestamp": 52132,
+    "accel_stddev": 0.000305,
+    "gyro_stddev": 0.010117,
+    "bpm": 0,
+    "raw_accel": 0.095065,
+    "raw_gyro": 2.490357
+  },
+  {
+    "device_id": "ESP32_001",
+    "timestamp": 54134,
+    "accel_stddev": 0.000308,
+    "gyro_stddev": 0.008903,
+    "bpm": 0,
+    "raw_accel": 0.095781,
+    "raw_gyro": 2.495012
+  },
+  {
+    "device_id": "ESP32_001",
+    "timestamp": 56136,
+    "accel_stddev": 0.000373,
+    "gyro_stddev": 0.00717,
+    "bpm": 0,
+    "raw_accel": 0.094622,
+    "raw_gyro": 2.482618
+  }
+]

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AIoT Dashboard</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Chart.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+  <!-- MQTT.js (WebSocket) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ══ HEADER ══════════════════════════════════════════════ -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-logo">
+        <span class="header-icon">⬡</span>
+        <div>
+          <div class="header-title">DASHBOARD</div>
+          <div class="header-sub">KLASIFIKASI AKTIVITAS &amp; MONITORING KESEHATAN</div>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="clock" id="clock">--:--:--</div>
+        
+        <!-- Dark Mode Toggle Button -->
+        <div class="theme-toggle" id="themeToggle">
+          <span class="theme-icon" id="themeIcon">🌞</span>
+          <span class="theme-text" id="themeText">Light</span>
+        </div>
+        
+        <div class="mqtt-badge" id="mqttBadge">
+          <span class="badge-dot" id="badgeDot"></span>
+          <span id="badgeLabel">Connecting…</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══ MAIN CONTENT WRAPPER (CENTERED) ════════════════════ -->
+  <div class="main-content">
+
+    <!-- ══ STAT CARDS ══════════════════════════════════════════ -->
+    <section class="stat-row">
+      <div class="card stat-card" id="cardActivity">
+        <div class="stat-label">Current Activity</div>
+        <div class="stat-icon" id="actIcon">🚶</div>
+        <div class="stat-value activity-value" id="activityValue">--</div>
+        <div class="stat-sub" id="actSub">Menunggu data...</div>
+      </div>
+
+      <div class="card stat-card card-bpm">
+        <div class="bpm-glow" id="bpmGlow"></div>
+        <div class="stat-label">DETAK JANTUNG (BPM)</div>
+        <div class="stat-value bpm-value" id="bpmValue">--</div>
+        <div class="bpm-status" id="bpmStatus">Menunggu data...</div>
+        <div class="bpm-bar-wrap">
+          <div class="bpm-bar" id="bpmBar"></div>
+        </div>
+      </div>
+
+      <div class="card stat-card">
+        <div class="stat-label">KNN Accuracy</div>
+        <div class="accuracy-ring-wrap">
+          <svg class="accuracy-ring" viewBox="0 0 80 80">
+            <circle class="ring-bg" cx="40" cy="40" r="32" />
+            <circle class="ring-fill" cx="40" cy="40" r="32" id="ringFill" />
+          </svg>
+          <div class="ring-text" id="accuracyValue">--%</div>
+        </div>
+        <div class="stat-sub" id="confSub">Confidence KNN</div>
+      </div>
+    </section>
+
+    <!-- ══ MAIN CONTENT ════════════════════════════════════════ -->
+    <main class="main-grid">
+
+      <!-- LEFT — Real-time sensor chart -->
+      <section class="card chart-card">
+        <div class="card-header">
+          <span class="card-title">Real-Time Sensor Data MPU6050</span>
+          <div class="chart-legend">
+            <span class="leg-dot" style="background:#60A5FA"></span> Accel StdDev (g)
+            <span class="leg-dot" style="background:#34D399"></span> Gyro StdDev (°/s ÷10)
+            <span class="leg-dot" style="background:#F87171"></span> BPM ÷100
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="sensorChart"></canvas>
+        </div>
+      </section>
+
+      <!-- RIGHT column -->
+      <div class="right-col">
+
+        <!-- Activity bar chart -->
+        <section class="card activity-card">
+          <div class="card-header">
+            <span class="card-title activity-title">ACTIVITY RESULT <span class="hour-tag">(Last Hour)</span></span>
+          </div>
+          <div class="bar-chart-wrap">
+            <canvas id="activityChart"></canvas>
+          </div>
+        </section>
+
+        <!-- System info -->
+        <section class="card info-card">
+          <div class="card-header">
+            <span class="card-title info-title">INFO SISTEM IOT</span>
+          </div>
+          <ul class="info-list">
+            <li class="info-row">
+              <span class="info-key">Processor</span>
+              <span class="info-val">ESP32</span>
+            </li>
+            <li class="info-row">
+              <span class="info-key">Protocol</span>
+              <span class="info-val">MQTT / WebSocket</span>
+            </li>
+            <li class="info-row">
+              <span class="info-key">Broker</span>
+              <span class="info-val" id="infobroker">192.168.18.7:9001</span>
+            </li>
+            <li class="info-row">
+              <span class="info-key">Status</span>
+              <span class="info-val">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="statusText">Connecting</span>
+              </span>
+            </li>
+            <li class="info-row">
+              <span class="info-key">Device ID</span>
+              <span class="info-val" id="infoDevice">--</span>
+            </li>
+            <li class="info-row">
+              <span class="info-key">User</span>
+              <span class="info-val" id="infoUser">--</span>
+            </li>
+            <li class="info-row">
+              <span class="info-key">Last Msg</span>
+              <span class="info-val" id="infoLastMsg">--</span>
+            </li>
+            <li class="info-row">
+              <span class="info-key">Total Msg</span>
+              <span class="info-val" id="infoTotal">0</span>
+            </li>
+          </ul>
+        </section>
+
+      </div><!-- /right-col -->
+    </main>
+
+    <!-- ══ HISTORY PESERTA ════════════════════════════════ -->
+    <section class="history-section">
+      <div class="card history-card">
+        <div class="card-header history-header">
+          <span class="card-title history-title">RIWAYAT HASIL PENGAMBILAN DATA PESERTA</span>
+          <div class="history-stats">
+            <span class="hstat" id="hstatTotal">0 Peserta</span>
+            <span class="hstat hstat-duduk" id="hstatDuduk">Duduk: 0</span>
+            <span class="hstat hstat-jalan" id="hstatJalan">Jalan: 0</span>
+            <span class="hstat hstat-lari" id="hstatLari">Lari: 0</span>
+            <button class="btn-clear" onclick="clearHistory()">Hapus Riwayat</button>
+          </div>
+        </div>
+        <div class="history-table-wrap">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>ID Peserta</th>
+                <th>Aktivitas Final</th>
+                <th>BPM</th>
+                <th>Duduk</th>
+                <th>Jalan</th>
+                <th>Lari</th>
+                <th>Sampel</th>
+                <th>Waktu Selesai</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody">
+              <tr class="history-empty">
+                <td colspan="9">Menunggu hasil sesi peserta pertama...</td>
+               </tr>
+            </tbody>
+           </table>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /main-content -->
+
+  <script src="script.js"></script>
+  
+  <!-- Dark Mode Script -->
+  <script>
+    // Dark Mode Toggle Function
+    function initDarkMode() {
+      const toggle = document.getElementById('themeToggle');
+      const themeIcon = document.getElementById('themeIcon');
+      const themeText = document.getElementById('themeText');
+      
+      // Check localStorage for saved theme
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        themeIcon.textContent = '🌙';
+        themeText.textContent = 'Dark';
+      } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+        themeIcon.textContent = '🌞';
+        themeText.textContent = 'Light';
+      }
+      
+      // Toggle on click
+      if (toggle) {
+        toggle.addEventListener('click', () => {
+          const currentTheme = document.documentElement.getAttribute('data-theme');
+          if (currentTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme', 'light');
+            themeIcon.textContent = '🌞';
+            themeText.textContent = 'Light';
+          } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+            themeIcon.textContent = '🌙';
+            themeText.textContent = 'Dark';
+          }
+        });
+      }
+    }
+    
+    // Clock function
+    function updateClock() {
+      const now = new Date();
+      const timeString = now.toLocaleTimeString('id-ID', { hour12: false });
+      const clock = document.getElementById('clock');
+      if (clock) clock.textContent = timeString;
+    }
+    
+    // Initialize
+    initDarkMode();
+    updateClock();
+    setInterval(updateClock, 1000);
+  </script>
+</body>
+</html>

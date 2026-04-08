@@ -1,0 +1,3 @@
+participant_no,participant_id,timestamp,final_activity,final_bpm,count_duduk,count_berjalan,count_berlari,total_samples,durasi_detik
+1,dimas,2026-04-06T21:09:23.753180,,0,0,0,0,147,390.0
+2,dupong,2026-04-07T09:07:11.813218,DUDUK,174,236,179,181,596,300.2,esp32
