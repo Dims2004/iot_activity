@@ -1,5 +1,6 @@
 {
   "platformio-ide.autoOpenPlatformIOIniFile": false,
   "platformio-ide.disablePIOHomeStartup": true,
-  "singular-blockly.theme": "light"
+  "singular-blockly.theme": "light",
+  "vscode-autoGit.enabled": true
 }
