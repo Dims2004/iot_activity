@@ -81,6 +81,7 @@ def on_connect(client, userdata, flags, rc, properties=None):
         client.subscribe(TOPIC_SENSOR_DATA)
         client.subscribe(TOPIC_STATUS)
         print(f"\n  ✅ Terhubung ke EMQX Cloud!")
+        print(f"     Topic Command: {TOPIC_COMMAND}")
     else:
         logger.error(f"MQTT gagal rc={rc}")
 
@@ -130,7 +131,7 @@ def send_start(client, participant_id, participant_no):
     })
     r = client.publish(TOPIC_COMMAND, payload, qos=1)
     r.wait_for_publish(timeout=3)
-    logger.info(f"START → P{participant_no} [{participant_id}]")
+    logger.info(f"START → P{participant_no} [{participant_id}] via {TOPIC_COMMAND}")
 
 def save_raw_session(participant_id, participant_no):
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -358,6 +359,7 @@ def run_collection_loop(client):
             pass
 
     print(f"\n  ✅ MQTT terhubung ke {MQTT_BROKER}:{MQTT_PORT}")
+    print(f"  ℹ Topic Command: {TOPIC_COMMAND}")
     print(f"  ℹ Durasi per sesi: {SESSION_DURATION//60} menit")
     print(f"  ℹ Jumlah peserta: TIDAK TERBATAS")
     print(f"\n  Perintah: [r]estart | [s]kip | [q]uit\n")
