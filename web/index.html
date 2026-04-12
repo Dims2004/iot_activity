@@ -15,7 +15,480 @@
   <!-- MQTT.js (WebSocket) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js"></script>
 
-  <link rel="stylesheet" href="style.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #0A0F2E;
+      --bg-secondary: #0F1535;
+      --card-bg: #0F1535;
+      --text-primary: #E5E7EB;
+      --text-secondary: #6B7280;
+      --border: #1E2546;
+      --accent-blue: #60A5FA;
+      --accent-green: #34D399;
+      --accent-red: #F87171;
+      --accent-purple: #A78BFA;
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #F3F4F6;
+      --bg-secondary: #FFFFFF;
+      --card-bg: #FFFFFF;
+      --text-primary: #111827;
+      --text-secondary: #6B7280;
+      --border: #E5E7EB;
+      --accent-blue: #3B82F6;
+      --accent-green: #10B981;
+      --accent-red: #EF4444;
+      --accent-purple: #8B5CF6;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    /* Header */
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-icon {
+      font-size: 32px;
+      color: var(--accent-purple);
+    }
+
+    .header-title {
+      font-family: 'Rajdhani', monospace;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .header-sub {
+      font-size: 11px;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .clock {
+      font-family: 'Rajdhani', monospace;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--accent-blue);
+    }
+
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 6px 12px;
+      background: var(--bg-primary);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+
+    .theme-toggle:hover {
+      transform: scale(1.05);
+    }
+
+    .mqtt-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(96,165,250,0.1);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #EF4444;
+    }
+
+    .badge-dot.online {
+      background: #22C55E;
+      box-shadow: 0 0 8px #22C55E;
+    }
+
+    /* Main Content */
+    .main-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px 32px;
+    }
+
+    /* Stat Cards */
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      transition: all 0.3s;
+    }
+
+    .stat-card {
+      text-align: center;
+      position: relative;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    .stat-icon {
+      font-size: 48px;
+      margin: 10px 0;
+      transition: transform 0.2s;
+    }
+
+    .stat-value {
+      font-size: 36px;
+      font-weight: 700;
+      margin: 10px 0;
+    }
+
+    .activity-value {
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .bpm-value {
+      font-family: 'Rajdhani', monospace;
+      font-size: 48px;
+      font-weight: 700;
+      color: var(--accent-red);
+    }
+
+    .bpm-status {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin: 8px 0;
+    }
+
+    .bpm-bar-wrap {
+      background: var(--bg-primary);
+      border-radius: 10px;
+      height: 6px;
+      margin-top: 12px;
+      overflow: hidden;
+    }
+
+    .bpm-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-green), var(--accent-red));
+      border-radius: 10px;
+      transition: width 0.3s;
+    }
+
+    .bpm-glow {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 20px;
+      pointer-events: none;
+      transition: box-shadow 0.3s;
+    }
+
+    /* Accuracy Ring */
+    .accuracy-ring-wrap {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      margin: 10px auto;
+    }
+
+    .accuracy-ring {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .ring-bg {
+      fill: none;
+      stroke: var(--border);
+      stroke-width: 6;
+    }
+
+    .ring-fill {
+      fill: none;
+      stroke: var(--accent-green);
+      stroke-width: 6;
+      stroke-linecap: round;
+      stroke-dasharray: 201;
+      stroke-dashoffset: 201;
+      transition: stroke-dashoffset 0.5s, stroke 0.3s;
+    }
+
+    .ring-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    /* Main Grid */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .chart-card {
+      padding: 20px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .chart-legend {
+      display: flex;
+      gap: 16px;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .leg-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 4px;
+    }
+
+    .chart-wrap {
+      height: 280px;
+      position: relative;
+    }
+
+    .right-col {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .bar-chart-wrap {
+      height: 200px;
+      position: relative;
+    }
+
+    .hour-tag {
+      font-size: 10px;
+      font-weight: normal;
+    }
+
+    /* Info List */
+    .info-list {
+      list-style: none;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+
+    .info-key {
+      color: var(--text-secondary);
+    }
+
+    .info-val {
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #EF4444;
+    }
+
+    .status-dot.online {
+      background: #22C55E;
+    }
+
+    /* History Section */
+    .history-section {
+      margin-top: 24px;
+    }
+
+    .history-card {
+      padding: 20px;
+    }
+
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .history-stats {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .hstat {
+      font-size: 12px;
+      padding: 4px 10px;
+      background: var(--bg-primary);
+      border-radius: 20px;
+    }
+
+    .btn-clear {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      color: var(--accent-red);
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.2s;
+    }
+
+    .btn-clear:hover {
+      background: rgba(248,113,113,0.1);
+    }
+
+    .history-table-wrap {
+      overflow-x: auto;
+    }
+
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .history-table th,
+    .history-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .history-table th {
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .act-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .act-badge.DUDUK { background: rgba(96,165,250,0.2); color: var(--accent-blue); }
+    .act-badge.BERJALAN { background: rgba(52,211,153,0.2); color: var(--accent-green); }
+    .act-badge.BERLARI { background: rgba(248,113,113,0.2); color: var(--accent-red); }
+
+    .new-row {
+      animation: highlight 1s ease-out;
+    }
+
+    @keyframes highlight {
+      0% { background: rgba(96,165,250,0.3); }
+      100% { background: transparent; }
+    }
+
+    .history-empty td {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-secondary);
+    }
+
+    @media (max-width: 1024px) {
+      .main-grid { grid-template-columns: 1fr; }
+      .stat-row { grid-template-columns: 1fr; }
+      .header-inner { flex-direction: column; gap: 12px; }
+      .header-right { width: 100%; justify-content: space-between; }
+    }
+  </style>
 </head>
 <body>
 
@@ -25,7 +498,7 @@
       <div class="header-logo">
         <span class="header-icon">⬡</span>
         <div>
-          <div class="header-title">DASHBOARD</div>
+          <div class="header-title">AIoT WATCH DASHBOARD</div>
           <div class="header-sub">KLASIFIKASI AKTIVITAS &amp; MONITORING KESEHATAN</div>
         </div>
       </div>
@@ -128,7 +601,7 @@
             </li>
             <li class="info-row">
               <span class="info-key">Broker</span>
-              <span class="info-val" id="infobroker">192.168.18.7:9001</span>
+              <span class="info-val" id="infobroker">broker.emqx.io:8083</span>
             </li>
             <li class="info-row">
               <span class="info-key">Status</span>
@@ -209,7 +682,6 @@
       const themeIcon = document.getElementById('themeIcon');
       const themeText = document.getElementById('themeText');
       
-      // Check localStorage for saved theme
       const savedTheme = localStorage.getItem('theme');
       if (savedTheme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -221,7 +693,6 @@
         themeText.textContent = 'Light';
       }
       
-      // Toggle on click
       if (toggle) {
         toggle.addEventListener('click', () => {
           const currentTheme = document.documentElement.getAttribute('data-theme');
@@ -240,7 +711,6 @@
       }
     }
     
-    // Clock function
     function updateClock() {
       const now = new Date();
       const timeString = now.toLocaleTimeString('id-ID', { hour12: false });
@@ -248,7 +718,6 @@
       if (clock) clock.textContent = timeString;
     }
     
-    // Initialize
     initDarkMode();
     updateClock();
     setInterval(updateClock, 1000);
