@@ -12223,3 +12223,10 @@ Jalankan notebook 02_training_model.ipynb terlebih dahulu.
 2026-04-12 17:38:57 | ERROR    | data_collection | Tidak bisa konek: [WinError 10061] No connection could be made because the target machine actively refused it
 2026-04-12 17:49:34 | INFO     | data_collection | Terhubung ke broker 192.168.18.7:1883
 2026-04-12 17:49:57 | WARNING  | data_collection | Tidak ada data yang terkumpul.
+2026-04-12 18:30:04 | INFO     | data_collection | Terhubung ke broker 192.168.18.7:1883
+2026-04-12 18:30:05 | INFO     | data_collection | Perintah terkirim: START - Label: DUDUK, Durasi: 900s
+2026-04-12 18:30:24 | INFO     | data_collection | Perintah terkirim: STOP - Label: , Durasi: 0s
+2026-04-12 18:30:24 | INFO     | data_collection | Perintah terkirim: STOP - Label: , Durasi: 0s
+2026-04-12 18:30:25 | WARNING  | data_collection | Tidak ada data yang terkumpul.
+2026-04-12 18:32:33 | INFO     | collect_participants | MQTT terhubung 192.168.18.7:1883
+2026-04-12 18:33:00 | INFO     | collect_participants | START → P1 [PSR-1]
