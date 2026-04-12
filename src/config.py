@@ -17,43 +17,48 @@ for _d in [DATA_RAW_DIR, DATA_PROC_DIR, DATASET_DIR, MODEL_DIR, LOG_DIR]:
     os.makedirs(_d, exist_ok=True)
 
 # ─────────────────────────────────────────────
-#  MQTT
+#  MQTT - CLOUD BROKER (EMQX Public)
 # ─────────────────────────────────────────────
-MQTT_BROKER    = "10.67.39.220"
+# EMQX Public Broker (gratis, tanpa registrasi)
+# Bisa diakses dari mana saja selama ada internet
+MQTT_BROKER    = "broker.emqx.io"
 MQTT_PORT      = 1883
 MQTT_CLIENT_ID = "python_server_001"
 
-TOPIC_SENSOR_DATA    = "sensor/esp32/data"
-TOPIC_COMMAND        = "esp32/command"          # ← TAMBAHKAN BARIS INI untuk perintah ke ESP32
-TOPIC_CLASSIFICATION = "classification/result"
-TOPIC_STATUS         = "status/esp32"
+# Untuk WebSocket (dashboard)
+MQTT_WS_PORT   = 8083  # WebSocket port untuk EMQX
+MQTT_WS_PATH   = "/mqtt"
+
+# Optional: jika menggunakan broker dengan autentikasi
+# MQTT_USERNAME = ""
+# MQTT_PASSWORD = ""
+
+TOPIC_SENSOR_DATA    = "aiot/sensor/data"
+TOPIC_COMMAND        = "aiot/command"
+TOPIC_CLASSIFICATION = "aiot/classification/result"
+TOPIC_STATUS         = "aiot/status"
 
 # ─────────────────────────────────────────────
 #  PENGAMBILAN DATA
 # ─────────────────────────────────────────────
-# Durasi sesi labeling & participant (15 menit)
 SESSION_DURATION_SEC = 15 * 60   # 900 detik
 
 # ─────────────────────────────────────────────
-#  DATASET & FITUR  ← BPM ditambahkan sebagai fitur ke-3
+#  DATASET & FITUR
 # ─────────────────────────────────────────────
-# accel_stddev : std-dev percepatan (g)
-# gyro_stddev  : std-dev kecepatan sudut (°/s)
-# bpm_filled   : detak jantung (BPM), nilai 0 diimputasi dengan median per kelas
 FEATURES = ["accel_stddev", "gyro_stddev", "bpm_filled"]
 TARGET   = "activity"
 
 CLASSES   = ["DUDUK", "BERJALAN", "BERLARI"]
 CLASS_MAP = {label: idx for idx, label in enumerate(CLASSES)}
 
-# BPM median default per kelas (dipakai saat inference jika BPM=0)
-# Akan di-override oleh nilai dari dataset setelah training
+# BPM median default per kelas
 BPM_MEDIAN_DEFAULT = {
     "DUDUK":    72,
     "BERJALAN": 95,
     "BERLARI":  145,
 }
-BPM_GLOBAL_MEDIAN = 90   # fallback jika kelas tidak diketahui
+BPM_GLOBAL_MEDIAN = 90
 
 # ─────────────────────────────────────────────
 #  MODEL KNN
@@ -64,7 +69,7 @@ KNN_WEIGHTS = "distance"
 
 MODEL_PATH    = os.path.join(MODEL_DIR, "knn_model.pkl")
 SCALER_PATH   = os.path.join(MODEL_DIR, "scaler.pkl")
-BPM_MED_PATH  = os.path.join(MODEL_DIR, "bpm_medians.pkl")   # simpan median BPM dari training
+BPM_MED_PATH  = os.path.join(MODEL_DIR, "bpm_medians.pkl")
 DATASET_PATH  = os.path.join(DATASET_DIR, "dataset.csv")
 
 # ─────────────────────────────────────────────
