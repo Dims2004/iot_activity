@@ -24,6 +24,7 @@ MQTT_PORT      = 1883
 MQTT_CLIENT_ID = "python_server_001"
 
 TOPIC_SENSOR_DATA    = "sensor/esp32/data"
+TOPIC_COMMAND        = "esp32/command"          # ← TAMBAHKAN BARIS INI untuk perintah ke ESP32
 TOPIC_CLASSIFICATION = "classification/result"
 TOPIC_STATUS         = "status/esp32"
 
