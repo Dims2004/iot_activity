@@ -19,7 +19,7 @@ for _d in [DATA_RAW_DIR, DATA_PROC_DIR, DATASET_DIR, MODEL_DIR, LOG_DIR]:
 # ─────────────────────────────────────────────
 #  MQTT
 # ─────────────────────────────────────────────
-MQTT_BROKER    = "192.168.18.7"
+MQTT_BROKER    = "10.67.39.220"
 MQTT_PORT      = 1883
 MQTT_CLIENT_ID = "python_server_001"
 
