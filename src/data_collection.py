@@ -38,30 +38,43 @@ start_time    = 0.0
 duration_sec  = 0
 
 # Gunakan topic yang SAMA dengan collect_participants.py
-TOPIC_CONTROL = "control/session"  # ← SAMA PERSIS dengan collect_participants.py
+TOPIC_CONTROL = "control/session"
 
 FIELDNAMES = [
     "received_at", "device_id", "participant_id",
     "accel_stddev", "gyro_stddev", "bpm",
-    "activity",    # ← label untuk KNN
+    "activity",
     "local_act", "timestamp"
 ]
 
 # ─────────────────────────────────────────────
-#  MQTT CALLBACKS (dengan 5 parameter untuk API v2)
+#  MQTT CALLBACKS
 # ─────────────────────────────────────────────
 def on_connect(client, userdata, flags, rc, properties=None):
-    """Callback ketika terhubung ke MQTT broker (5 parameter untuk API v2)"""
     if rc == 0:
         logger.info(f"Terhubung ke broker {MQTT_BROKER}:{MQTT_PORT}")
         client.subscribe(TOPIC_SENSOR_DATA)
-        print(f"\n  ✅ MQTT terhubung. Siap mengirim perintah ke ESP32.\n")
+        # Juga subscribe ke semua topic untuk debug
+        client.subscribe("#")
+        print(f"\n  ✅ MQTT terhubung. Subscribe ke: {TOPIC_SENSOR_DATA}")
+        print(f"  📡 Juga monitoring semua topic (debug)\n")
     else:
         logger.error(f"Gagal connect MQTT, rc={rc}")
 
 def on_message(client, userdata, msg):
-    """Callback ketika menerima pesan MQTT"""
     global collected_rows, start_time, duration_sec
+
+    # Debug: tampilkan semua pesan yang masuk
+    print(f"\n  📨 [MQTT] Topic: {msg.topic}")
+    try:
+        payload_str = msg.payload.decode("utf-8")
+        print(f"     Payload: {payload_str[:200]}")
+    except:
+        print(f"     Payload: (binary)")
+    
+    # Hanya proses data dari topic sensor
+    if msg.topic != TOPIC_SENSOR_DATA:
+        return
 
     elapsed = time.time() - start_time
     if duration_sec > 0 and elapsed >= duration_sec:
@@ -70,11 +83,13 @@ def on_message(client, userdata, msg):
 
     try:
         payload = json.loads(msg.payload.decode("utf-8"))
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        print(f"     ❌ JSON decode error: {e}")
         return
 
     row = parse_sensor_payload(payload)
     if row is None:
+        print(f"     ❌ parse_sensor_payload returned None")
         return
 
     row["activity"]       = current_label
@@ -83,9 +98,10 @@ def on_message(client, userdata, msg):
     collected_rows.append(row)
 
     count = len(collected_rows)
-    if count % 10 == 0:
+    if count % 5 == 0:  # Lebih sering tampilkan
         remaining = max(0, duration_sec - elapsed)
         bpm_ok    = sum(1 for r in collected_rows if r.get("bpm", 0) > 0)
+        print(f"\n  ✅ Data ke-{count} diterima!")
         logger.info(
             f"[{current_label}] n={count} | "
             f"aStd={row['accel_stddev']:.4f} | "
@@ -94,33 +110,27 @@ def on_message(client, userdata, msg):
         )
 
 # ─────────────────────────────────────────────
-#  KIRIM PERINTAH KE ESP32 (FORMAT SAMA DENGAN collect_participants)
+#  KIRIM PERINTAH KE ESP32
 # ─────────────────────────────────────────────
 def send_start(client, label: str, duration: int):
-    """
-    Kirim perintah START ke ESP32 melalui MQTT.
-    Format SAMA PERSIS dengan collect_participants.py
-    """
     payload = json.dumps({
         "cmd":            "START",
         "participant_id": f"data_collection_{label}",
         "participant_no": 0,
-        "total":          1  # hanya 1 sesi
+        "total":          1
     })
     
     try:
         result = client.publish(TOPIC_CONTROL, payload, qos=1)
         result.wait_for_publish(timeout=3)
-        logger.info(f"Perintah START terkirim untuk label: {label}, durasi: {duration}s")
+        logger.info(f"Perintah START terkirim untuk label: {label}")
+        print(f"  📤 Payload: {payload}")
         return True
     except Exception as e:
         logger.error(f"Gagal mengirim perintah: {e}")
         return False
 
 def send_stop(client):
-    """
-    Kirim perintah STOP ke ESP32 (opsional, untuk memberitahu bahwa sesi selesai)
-    """
     payload = json.dumps({
         "cmd": "STOP",
         "participant_no": 0
@@ -161,13 +171,9 @@ def append_to_dataset():
     logger.info(f"Dataset +{added} baris → {DATASET_PATH}")
 
 # ─────────────────────────────────────────────
-#  MODE INTERAKTIF — tampilkan menu pilihan
+#  MODE INTERAKTIF
 # ─────────────────────────────────────────────
 def interactive_menu() -> tuple[str, int]:
-    """
-    Tampilkan menu pilihan jika script dijalankan tanpa argumen.
-    Return (label, duration_detik).
-    """
     print()
     print("╔══════════════════════════════════════════════════╗")
     print("║     AIoT Watch — Pengambilan Data Training       ║")
@@ -181,7 +187,6 @@ def interactive_menu() -> tuple[str, int]:
     print("    3. BERLARI")
     print()
 
-    # Pilih label
     while True:
         pilih = input("  Masukkan pilihan (1/2/3) atau nama langsung: ").strip().upper()
         if pilih in ("1", "DUDUK"):    label = "DUDUK";    break
@@ -189,7 +194,6 @@ def interactive_menu() -> tuple[str, int]:
         if pilih in ("3", "BERLARI"):  label = "BERLARI";  break
         print("  ⚠  Pilihan tidak valid. Coba lagi.")
 
-    # Pilih durasi
     print()
     print(f"  Durasi pengambilan data:")
     print(f"    1. 15 menit  (900 detik)  ← default")
@@ -223,7 +227,6 @@ def print_summary(label: str, duration: int, no_append: bool):
     bpm_valid = sum(1 for r in collected_rows if r.get("bpm", 0) > 0)
     bpm_pct   = round(bpm_valid / total * 100, 1) if total > 0 else 0
 
-    # Hitung rata-rata nilai sensor
     if total > 0:
         avg_accel = sum(r["accel_stddev"] for r in collected_rows) / total
         avg_gyro  = sum(r["gyro_stddev"]  for r in collected_rows) / total
@@ -248,64 +251,42 @@ def print_summary(label: str, duration: int, no_append: bool):
         print("     • ESP32 sudah menyala dan terkoneksi WiFi?")
         print("     • MQTT broker berjalan?")
         print(f"     • Broker: {MQTT_BROKER}:{MQTT_PORT}")
-        print("     • Topic yang digunakan ESP32 untuk mengirim data?")
+        print("     • ESP32 publish ke topic yang benar?")
         print(f"     • Python subscribe ke: {TOPIC_SENSOR_DATA}")
+        print("     • Cek serial monitor ESP32 untuk melihat error")
         return
 
     if not no_append:
         print(f"  ✅ Data sudah ditambahkan ke dataset/dataset.csv")
     print(f"  ✅ Raw CSV disimpan di data/raw/")
-    print()
-    print("  Langkah berikutnya:")
-    remaining = [c for c in CLASSES if c != label]
-    for cls in remaining:
-        print(f"    python src/data_collection.py --label {cls}")
-    print("  Atau jalankan tanpa argumen untuk menu interaktif.")
-    print()
 
 # ─────────────────────────────────────────────
 #  COUNTDOWN DISPLAY
 # ─────────────────────────────────────────────
 def show_countdown():
-    """Menampilkan countdown selama sesi berlangsung"""
+    last_count = 0
     while not stop_event.is_set():
         elapsed   = time.time() - start_time
         remaining = max(0, duration_sec - elapsed)
-        bpm_ok    = sum(1 for r in collected_rows if r.get("bpm", 0) > 0)
-        m, s      = int(remaining // 60), int(remaining % 60)
-
-        print(
-            f"\r  [{current_label}]  Sisa: {m:02d}:{s:02d}  |  "
-            f"Sampel: {len(collected_rows):4d}  |  "
-            f"BPM valid: {bpm_ok:3d}   ",
-            end="", flush=True
-        )
+        
+        # Tampilkan setiap detik atau jika ada data baru
+        current_count = len(collected_rows)
+        if current_count != last_count or int(elapsed) % 2 == 0:
+            bpm_ok = sum(1 for r in collected_rows if r.get("bpm", 0) > 0)
+            m, s = int(remaining // 60), int(remaining % 60)
+            print(
+                f"\r  [{current_label}]  Sisa: {m:02d}:{s:02d}  |  "
+                f"Sampel: {current_count:4d}  |  "
+                f"BPM valid: {bpm_ok:3d}   ",
+                end="", flush=True
+            )
+            last_count = current_count
 
         if duration_sec > 0 and elapsed >= duration_sec:
             stop_event.set()
             break
 
         time.sleep(0.5)
-
-# ─────────────────────────────────────────────
-#  MONITOR ALL MQTT TRAFFIC (DEBUG)
-# ─────────────────────────────────────────────
-def monitor_traffic():
-    """Monitor semua traffic MQTT untuk debug"""
-    import threading
-    def monitor():
-        client = mqtt.Client(client_id="monitor", callback_api_version=mqtt.CallbackAPIVersion.VERSION2)
-        def on_msg(client, userdata, msg):
-            print(f"\n  📨 [MONITOR] Topic: {msg.topic}")
-            print(f"     Payload: {msg.payload.decode('utf-8')[:200]}")
-        client.on_message = on_msg
-        client.connect(MQTT_BROKER, MQTT_PORT)
-        client.subscribe("#")
-        client.loop_forever()
-    
-    t = threading.Thread(target=monitor, daemon=True)
-    t.start()
-    return t
 
 # ─────────────────────────────────────────────
 #  MAIN
@@ -315,47 +296,14 @@ def main():
 
     os.makedirs(DATA_RAW_DIR, exist_ok=True)
 
-    # ── Parse argumen ────────────────────────────────────────
     parser = argparse.ArgumentParser(
-        description="Kumpulkan data training per label aktivitas.",
-        formatter_class=argparse.RawTextHelpFormatter,
-        epilog=(
-            "Contoh:\n"
-            "  python src/data_collection.py               ← mode interaktif\n"
-            "  python src/data_collection.py -l DUDUK      ← langsung rekam\n"
-            "  python src/data_collection.py -l BERLARI -d 300\n"
-        )
+        description="Kumpulkan data training per label aktivitas."
     )
-    parser.add_argument(
-        "--label", "-l",
-        choices=CLASSES,
-        default=None,
-        help=f"Label aktivitas: {CLASSES}\n(Opsional — jika tidak diisi, muncul menu interaktif)"
-    )
-    parser.add_argument(
-        "--duration", "-d",
-        type=int,
-        default=None,
-        help=f"Durasi (detik). Default={SESSION_DURATION_SEC} (15 menit)."
-    )
-    parser.add_argument(
-        "--no-append",
-        action="store_true",
-        help="Jangan tambahkan ke dataset gabungan (simpan raw saja)."
-    )
-    parser.add_argument(
-        "--debug",
-        action="store_true",
-        help="Aktifkan monitoring MQTT traffic untuk debug"
-    )
+    parser.add_argument("--label", "-l", choices=CLASSES, default=None)
+    parser.add_argument("--duration", "-d", type=int, default=None)
+    parser.add_argument("--no-append", action="store_true")
     args = parser.parse_args()
 
-    # Aktifkan monitor jika debug
-    if args.debug:
-        print("\n  🔍 DEBUG MODE: Memonitor semua traffic MQTT...")
-        monitor_traffic()
-
-    # ── Tentukan label & durasi ──────────────────────────────
     if args.label is None:
         label, duration = interactive_menu()
     else:
@@ -365,25 +313,19 @@ def main():
     current_label = label
     duration_sec  = duration
 
-    # ── Konfirmasi sebelum mulai ─────────────────────────────
     print()
     print("  ┌──────────────────────────────────────────────┐")
     print(f"  │  Label   : {label:<34}│")
-    print(f"  │  Durasi  : {duration} detik ({duration//60} menit {duration%60} detik){' '*(17-len(str(duration)))}│")
+    print(f"  │  Durasi  : {duration} detik ({duration//60} menit {duration%60} detik){(17-len(str(duration)))*' '}│")
     print(f"  │  Broker  : {MQTT_BROKER}:{MQTT_PORT:<25}│")
     print(f"  │  Topic Sensor : {TOPIC_SENSOR_DATA:<25}│")
     print(f"  │  Topic Control: {TOPIC_CONTROL:<25}│")
     print("  └──────────────────────────────────────────────┘")
     print()
 
-    try:
-        mulai = input("  Tekan ENTER untuk mulai, Ctrl+C untuk batal: ")
-    except KeyboardInterrupt:
-        print("\n  Dibatalkan.")
-        sys.exit(0)
+    input("  Tekan ENTER untuk mulai, Ctrl+C untuk batal: ")
 
-    # ── Setup MQTT ───────────────────────────────────────────
-    # Gunakan callback API version 2
+    # Setup MQTT
     client = mqtt.Client(client_id=f"{MQTT_CLIENT_ID}_collector", 
                           callback_api_version=mqtt.CallbackAPIVersion.VERSION2)
     client.on_connect = on_connect
@@ -401,47 +343,37 @@ def main():
         client.connect(MQTT_BROKER, MQTT_PORT, keepalive=60)
     except Exception as e:
         print(f"\n  ❌ Tidak bisa konek ke MQTT broker: {e}")
-        print(f"     Pastikan broker berjalan di {MQTT_BROKER}:{MQTT_PORT}")
         sys.exit(1)
 
     client.loop_start()
-    
-    # Tunggu sebentar agar koneksi stabil
     time.sleep(2)
     
-    # ── Kirim perintah START ke ESP32 ──────────────────────────
+    # Kirim perintah START
     print(f"\n  📤 Mengirim perintah START ke ESP32...")
-    if send_start(client, label, duration):
-        print(f"  ✅ Perintah START terkirim ke topic '{TOPIC_CONTROL}'")
-        print(f"     ESP32 akan menampilkan pesan di OLED")
-    else:
-        print(f"  ⚠️  Gagal mengirim perintah START. Pastikan ESP32 terhubung.")
+    send_start(client, label, duration)
     
-    # Beri waktu ESP32 memproses perintah
-    time.sleep(2)
+    time.sleep(1)
     
     start_time = time.time()
 
-    # ── Tampilkan countdown ──────────────────────────────────
     print(f"\n  🟢 Merekam [{label}] selama {duration} detik...")
     print("     Tekan Ctrl+C untuk berhenti lebih awal.\n")
     
-    # Jalankan countdown display
+    # Jalankan countdown display (akan berjalan sampai stop_event.set())
     show_countdown()
 
     print()  # newline setelah countdown
     
-    # Kirim perintah STOP setelah selesai
+    # Kirim perintah STOP
     print(f"\n  📤 Mengirim perintah STOP ke ESP32...")
     send_stop(client)
     
-    # Tunggu sebentar agar data terakhir terkirim
-    time.sleep(2)
+    time.sleep(1)
     
     client.loop_stop()
     client.disconnect()
 
-    # ── Simpan data ──────────────────────────────────────────
+    # Simpan data
     if collected_rows:
         save_raw_session(label)
         if not args.no_append:
@@ -449,7 +381,6 @@ def main():
     else:
         logger.warning("Tidak ada data yang terkumpul.")
 
-    # ── Tampilkan ringkasan ──────────────────────────────────
     print_summary(label, duration, args.no_append)
 
 
