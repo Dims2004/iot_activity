@@ -19,24 +19,18 @@ for _d in [DATA_RAW_DIR, DATA_PROC_DIR, DATASET_DIR, MODEL_DIR, LOG_DIR]:
 # ─────────────────────────────────────────────
 #  MQTT - CLOUD BROKER (EMQX Public)
 # ─────────────────────────────────────────────
-# EMQX Public Broker (gratis, tanpa registrasi)
-# Bisa diakses dari mana saja selama ada internet
 MQTT_BROKER    = "broker.emqx.io"
 MQTT_PORT      = 1883
 MQTT_CLIENT_ID = "python_server_001"
 
-# Untuk WebSocket (dashboard)
-MQTT_WS_PORT   = 8083  # WebSocket port untuk EMQX
+# WebSocket port untuk dashboard
+MQTT_WS_PORT   = 8083
 MQTT_WS_PATH   = "/mqtt"
 
-# Optional: jika menggunakan broker dengan autentikasi
-# MQTT_USERNAME = ""
-# MQTT_PASSWORD = ""
-
-TOPIC_SENSOR_DATA    = "aiot/sensor/data"
-TOPIC_COMMAND        = "aiot/command"
-TOPIC_CLASSIFICATION = "aiot/classification/result"
-TOPIC_STATUS         = "aiot/status"
+TOPIC_SENSOR_DATA    = "sensor/esp32/data"
+TOPIC_COMMAND        = "control/session"           # ← Topic untuk perintah
+TOPIC_CLASSIFICATION = "classification/result"
+TOPIC_STATUS         = "status/esp32"
 
 # ─────────────────────────────────────────────
 #  PENGAMBILAN DATA
@@ -52,7 +46,6 @@ TARGET   = "activity"
 CLASSES   = ["DUDUK", "BERJALAN", "BERLARI"]
 CLASS_MAP = {label: idx for idx, label in enumerate(CLASSES)}
 
-# BPM median default per kelas
 BPM_MEDIAN_DEFAULT = {
     "DUDUK":    72,
     "BERJALAN": 95,
