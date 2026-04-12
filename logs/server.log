@@ -12221,3 +12221,5 @@ Jalankan notebook 02_training_model.ipynb terlebih dahulu.
 2026-04-12 17:38:55 | INFO     | data_collection | =======================================================
 2026-04-12 17:38:55 | INFO     | data_collection | Lakukan aktivitas sesuai label setelah terhubung...
 2026-04-12 17:38:57 | ERROR    | data_collection | Tidak bisa konek: [WinError 10061] No connection could be made because the target machine actively refused it
+2026-04-12 17:49:34 | INFO     | data_collection | Terhubung ke broker 192.168.18.7:1883
+2026-04-12 17:49:57 | WARNING  | data_collection | Tidak ada data yang terkumpul.
