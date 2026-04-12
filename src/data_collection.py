@@ -23,7 +23,7 @@ import paho.mqtt.client as mqtt
 sys.path.insert(0, os.path.dirname(__file__))
 from config import (
     MQTT_BROKER, MQTT_PORT, MQTT_CLIENT_ID,
-    TOPIC_SENSOR_DATA, TOPIC_COMMAND,  # Tambahkan TOPIC_COMMAND
+    TOPIC_SENSOR_DATA,  # sensor/esp32/data
     CLASSES,
     DATA_RAW_DIR, DATASET_PATH, SESSION_DURATION_SEC
 )
@@ -36,6 +36,9 @@ stop_event    = Event()
 current_label = ""
 start_time    = 0.0
 duration_sec  = 0
+
+# Gunakan topic yang SAMA dengan collect_participants.py
+TOPIC_CONTROL = "control/session"  # ← SAMA PERSIS dengan collect_participants.py
 
 FIELDNAMES = [
     "received_at", "device_id", "participant_id",
@@ -89,26 +92,45 @@ def on_message(client, userdata, msg):
         )
 
 # ─────────────────────────────────────────────
-#  KIRIM PERINTAH KE ESP32
+#  KIRIM PERINTAH KE ESP32 (FORMAT SAMA DENGAN collect_participants)
 # ─────────────────────────────────────────────
-def send_command(client, command: str, label: str = "", duration: int = 0):
+def send_start(client, label: str, duration: int):
     """
-    Kirim perintah ke ESP32 melalui MQTT.
-    command: "START", "STOP", "STATUS"
+    Kirim perintah START ke ESP32 melalui MQTT.
+    Format SAMA PERSIS dengan collect_participants.py
     """
-    cmd_payload = {
-        "command": command,
-        "label": label,
-        "duration": duration,
-        "timestamp": datetime.now().isoformat()
-    }
+    payload = json.dumps({
+        "cmd":            "START",
+        "participant_id": f"data_collection_{label}",
+        "participant_no": 0,
+        "total":          1  # hanya 1 sesi
+    })
     
     try:
-        client.publish(TOPIC_COMMAND, json.dumps(cmd_payload))
-        logger.info(f"Perintah terkirim: {command} - Label: {label}, Durasi: {duration}s")
+        result = client.publish(TOPIC_CONTROL, payload, qos=1)
+        result.wait_for_publish(timeout=3)
+        logger.info(f"Perintah START terkirim untuk label: {label}, durasi: {duration}s")
         return True
     except Exception as e:
         logger.error(f"Gagal mengirim perintah: {e}")
+        return False
+
+def send_stop(client):
+    """
+    Kirim perintah STOP ke ESP32 (opsional, untuk memberitahu bahwa sesi selesai)
+    """
+    payload = json.dumps({
+        "cmd": "STOP",
+        "participant_no": 0
+    })
+    
+    try:
+        result = client.publish(TOPIC_CONTROL, payload, qos=1)
+        result.wait_for_publish(timeout=3)
+        logger.info("Perintah STOP terkirim")
+        return True
+    except Exception as e:
+        logger.error(f"Gagal mengirim STOP: {e}")
         return False
 
 # ─────────────────────────────────────────────
@@ -238,6 +260,30 @@ def print_summary(label: str, duration: int, no_append: bool):
     print()
 
 # ─────────────────────────────────────────────
+#  COUNTDOWN DISPLAY
+# ─────────────────────────────────────────────
+def show_countdown():
+    """Menampilkan countdown selama sesi berlangsung"""
+    while not stop_event.is_set():
+        elapsed   = time.time() - start_time
+        remaining = max(0, duration_sec - elapsed)
+        bpm_ok    = sum(1 for r in collected_rows if r.get("bpm", 0) > 0)
+        m, s      = int(remaining // 60), int(remaining % 60)
+
+        print(
+            f"\r  [{current_label}]  Sisa: {m:02d}:{s:02d}  |  "
+            f"Sampel: {len(collected_rows):4d}  |  "
+            f"BPM valid: {bpm_ok:3d}   ",
+            end="", flush=True
+        )
+
+        if duration_sec > 0 and elapsed >= duration_sec:
+            stop_event.set()
+            break
+
+        time.sleep(0.5)
+
+# ─────────────────────────────────────────────
 #  MAIN
 # ─────────────────────────────────────────────
 def main():
@@ -259,7 +305,7 @@ def main():
     parser.add_argument(
         "--label", "-l",
         choices=CLASSES,
-        default=None,       # ← tidak wajib, None = mode interaktif
+        default=None,
         help=f"Label aktivitas: {CLASSES}\n(Opsional — jika tidak diisi, muncul menu interaktif)"
     )
     parser.add_argument(
@@ -277,7 +323,6 @@ def main():
 
     # ── Tentukan label & durasi ──────────────────────────────
     if args.label is None:
-        # Mode interaktif
         label, duration = interactive_menu()
     else:
         label    = args.label
@@ -302,15 +347,15 @@ def main():
         sys.exit(0)
 
     # ── Setup MQTT ───────────────────────────────────────────
-    client = mqtt.Client(client_id=f"{MQTT_CLIENT_ID}_collector")
+    # Gunakan versi callback API yang baru
+    client = mqtt.Client(client_id=f"{MQTT_CLIENT_ID}_collector", 
+                          callback_api_version=mqtt.CallbackAPIVersion.VERSION2)
     client.on_connect = on_connect
     client.on_message = on_message
 
     def _stop(sig, frame):
-        print("\n  Dihentikan manual (Ctrl+C).")
-        # Kirim perintah STOP ke ESP32
-        if 'client' in locals():
-            send_command(client, "STOP")
+        print("\n\n  ⏹️  Dihentikan manual (Ctrl+C).")
+        send_stop(client)
         stop_event.set()
 
     signal.signal(signal.SIGINT, _stop)
@@ -330,44 +375,31 @@ def main():
     
     # ── Kirim perintah START ke ESP32 ──────────────────────────
     print(f"\n  📤 Mengirim perintah START ke ESP32...")
-    if send_command(client, "START", label, duration):
+    if send_start(client, label, duration):
         print(f"  ✅ Perintah START terkirim. OLED akan menampilkan pesan.")
     else:
         print(f"  ⚠️  Gagal mengirim perintah START. Pastikan ESP32 terhubung.")
     
     # Beri waktu ESP32 memproses perintah
-    time.sleep(0.5)
+    time.sleep(1)
     
     start_time = time.time()
 
-    # ── Loop countdown display ───────────────────────────────
-    print(f"\n  Merekam [{label}]... Tekan Ctrl+C untuk berhenti lebih awal.")
-    print()
-
-    while not stop_event.is_set():
-        elapsed   = time.time() - start_time
-        remaining = max(0, duration_sec - elapsed)
-        bpm_ok    = sum(1 for r in collected_rows if r.get("bpm", 0) > 0)
-        m, s      = int(remaining // 60), int(remaining % 60)
-
-        print(
-            f"\r  [{label}]  Sisa: {m:02d}:{s:02d}  |  "
-            f"Sampel: {len(collected_rows):4d}  |  "
-            f"BPM valid: {bpm_ok:3d}   ",
-            end="", flush=True
-        )
-
-        if duration_sec > 0 and elapsed >= duration_sec:
-            stop_event.set()
-            break
-
-        time.sleep(0.5)
+    # ── Tampilkan countdown ──────────────────────────────────
+    print(f"\n  🟢 Merekam [{label}] selama {duration} detik...")
+    print("     Tekan Ctrl+C untuk berhenti lebih awal.\n")
+    
+    # Jalankan countdown display
+    show_countdown()
 
     print()  # newline setelah countdown
     
     # Kirim perintah STOP setelah selesai
     print(f"\n  📤 Mengirim perintah STOP ke ESP32...")
-    send_command(client, "STOP")
+    send_stop(client)
+    
+    # Tunggu sebentar agar data terakhir terkirim
+    time.sleep(1)
     
     client.loop_stop()
     client.disconnect()
