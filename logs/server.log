@@ -12230,3 +12230,7 @@ Jalankan notebook 02_training_model.ipynb terlebih dahulu.
 2026-04-12 18:30:25 | WARNING  | data_collection | Tidak ada data yang terkumpul.
 2026-04-12 18:32:33 | INFO     | collect_participants | MQTT terhubung 192.168.18.7:1883
 2026-04-12 18:33:00 | INFO     | collect_participants | START → P1 [PSR-1]
+2026-04-12 19:25:39 | INFO     | data_collection | Perintah START terkirim untuk label: DUDUK, durasi: 900s
+2026-04-12 19:26:26 | INFO     | data_collection | Perintah STOP terkirim
+2026-04-12 19:26:29 | INFO     | data_collection | Perintah STOP terkirim
+2026-04-12 19:26:30 | WARNING  | data_collection | Tidak ada data yang terkumpul.

@@ -23,7 +23,7 @@ import paho.mqtt.client as mqtt
 sys.path.insert(0, os.path.dirname(__file__))
 from config import (
     MQTT_BROKER, MQTT_PORT, MQTT_CLIENT_ID,
-    TOPIC_SENSOR_DATA,  # sensor/esp32/data
+    TOPIC_SENSOR_DATA,
     CLASSES,
     DATA_RAW_DIR, DATASET_PATH, SESSION_DURATION_SEC
 )
@@ -48,9 +48,10 @@ FIELDNAMES = [
 ]
 
 # ─────────────────────────────────────────────
-#  MQTT CALLBACKS
+#  MQTT CALLBACKS (dengan 5 parameter untuk API v2)
 # ─────────────────────────────────────────────
-def on_connect(client, userdata, flags, rc):
+def on_connect(client, userdata, flags, rc, properties=None):
+    """Callback ketika terhubung ke MQTT broker (5 parameter untuk API v2)"""
     if rc == 0:
         logger.info(f"Terhubung ke broker {MQTT_BROKER}:{MQTT_PORT}")
         client.subscribe(TOPIC_SENSOR_DATA)
@@ -59,6 +60,7 @@ def on_connect(client, userdata, flags, rc):
         logger.error(f"Gagal connect MQTT, rc={rc}")
 
 def on_message(client, userdata, msg):
+    """Callback ketika menerima pesan MQTT"""
     global collected_rows, start_time, duration_sec
 
     elapsed = time.time() - start_time
@@ -246,6 +248,8 @@ def print_summary(label: str, duration: int, no_append: bool):
         print("     • ESP32 sudah menyala dan terkoneksi WiFi?")
         print("     • MQTT broker berjalan?")
         print(f"     • Broker: {MQTT_BROKER}:{MQTT_PORT}")
+        print("     • Topic yang digunakan ESP32 untuk mengirim data?")
+        print(f"     • Python subscribe ke: {TOPIC_SENSOR_DATA}")
         return
 
     if not no_append:
@@ -284,6 +288,26 @@ def show_countdown():
         time.sleep(0.5)
 
 # ─────────────────────────────────────────────
+#  MONITOR ALL MQTT TRAFFIC (DEBUG)
+# ─────────────────────────────────────────────
+def monitor_traffic():
+    """Monitor semua traffic MQTT untuk debug"""
+    import threading
+    def monitor():
+        client = mqtt.Client(client_id="monitor", callback_api_version=mqtt.CallbackAPIVersion.VERSION2)
+        def on_msg(client, userdata, msg):
+            print(f"\n  📨 [MONITOR] Topic: {msg.topic}")
+            print(f"     Payload: {msg.payload.decode('utf-8')[:200]}")
+        client.on_message = on_msg
+        client.connect(MQTT_BROKER, MQTT_PORT)
+        client.subscribe("#")
+        client.loop_forever()
+    
+    t = threading.Thread(target=monitor, daemon=True)
+    t.start()
+    return t
+
+# ─────────────────────────────────────────────
 #  MAIN
 # ─────────────────────────────────────────────
 def main():
@@ -319,7 +343,17 @@ def main():
         action="store_true",
         help="Jangan tambahkan ke dataset gabungan (simpan raw saja)."
     )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Aktifkan monitoring MQTT traffic untuk debug"
+    )
     args = parser.parse_args()
+
+    # Aktifkan monitor jika debug
+    if args.debug:
+        print("\n  🔍 DEBUG MODE: Memonitor semua traffic MQTT...")
+        monitor_traffic()
 
     # ── Tentukan label & durasi ──────────────────────────────
     if args.label is None:
@@ -337,6 +371,8 @@ def main():
     print(f"  │  Label   : {label:<34}│")
     print(f"  │  Durasi  : {duration} detik ({duration//60} menit {duration%60} detik){' '*(17-len(str(duration)))}│")
     print(f"  │  Broker  : {MQTT_BROKER}:{MQTT_PORT:<25}│")
+    print(f"  │  Topic Sensor : {TOPIC_SENSOR_DATA:<25}│")
+    print(f"  │  Topic Control: {TOPIC_CONTROL:<25}│")
     print("  └──────────────────────────────────────────────┘")
     print()
 
@@ -347,7 +383,7 @@ def main():
         sys.exit(0)
 
     # ── Setup MQTT ───────────────────────────────────────────
-    # Gunakan versi callback API yang baru
+    # Gunakan callback API version 2
     client = mqtt.Client(client_id=f"{MQTT_CLIENT_ID}_collector", 
                           callback_api_version=mqtt.CallbackAPIVersion.VERSION2)
     client.on_connect = on_connect
@@ -371,17 +407,18 @@ def main():
     client.loop_start()
     
     # Tunggu sebentar agar koneksi stabil
-    time.sleep(1)
+    time.sleep(2)
     
     # ── Kirim perintah START ke ESP32 ──────────────────────────
     print(f"\n  📤 Mengirim perintah START ke ESP32...")
     if send_start(client, label, duration):
-        print(f"  ✅ Perintah START terkirim. OLED akan menampilkan pesan.")
+        print(f"  ✅ Perintah START terkirim ke topic '{TOPIC_CONTROL}'")
+        print(f"     ESP32 akan menampilkan pesan di OLED")
     else:
         print(f"  ⚠️  Gagal mengirim perintah START. Pastikan ESP32 terhubung.")
     
     # Beri waktu ESP32 memproses perintah
-    time.sleep(1)
+    time.sleep(2)
     
     start_time = time.time()
 
@@ -399,7 +436,7 @@ def main():
     send_stop(client)
     
     # Tunggu sebentar agar data terakhir terkirim
-    time.sleep(1)
+    time.sleep(2)
     
     client.loop_stop()
     client.disconnect()
