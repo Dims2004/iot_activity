@@ -23,7 +23,8 @@ import paho.mqtt.client as mqtt
 sys.path.insert(0, os.path.dirname(__file__))
 from config import (
     MQTT_BROKER, MQTT_PORT, MQTT_CLIENT_ID,
-    TOPIC_SENSOR_DATA, CLASSES,
+    TOPIC_SENSOR_DATA, TOPIC_COMMAND,  # Tambahkan TOPIC_COMMAND
+    CLASSES,
     DATA_RAW_DIR, DATASET_PATH, SESSION_DURATION_SEC
 )
 from utils import get_logger, parse_sensor_payload
@@ -50,7 +51,7 @@ def on_connect(client, userdata, flags, rc):
     if rc == 0:
         logger.info(f"Terhubung ke broker {MQTT_BROKER}:{MQTT_PORT}")
         client.subscribe(TOPIC_SENSOR_DATA)
-        print(f"\n  ✅ MQTT terhubung. Mulai lakukan aktivitas [{current_label}]!\n")
+        print(f"\n  ✅ MQTT terhubung. Siap mengirim perintah ke ESP32.\n")
     else:
         logger.error(f"Gagal connect MQTT, rc={rc}")
 
@@ -86,6 +87,29 @@ def on_message(client, userdata, msg):
             f"gStd={row['gyro_stddev']:.2f} | "
             f"BPM={row['bpm']} | sisa={remaining:.0f}s"
         )
+
+# ─────────────────────────────────────────────
+#  KIRIM PERINTAH KE ESP32
+# ─────────────────────────────────────────────
+def send_command(client, command: str, label: str = "", duration: int = 0):
+    """
+    Kirim perintah ke ESP32 melalui MQTT.
+    command: "START", "STOP", "STATUS"
+    """
+    cmd_payload = {
+        "command": command,
+        "label": label,
+        "duration": duration,
+        "timestamp": datetime.now().isoformat()
+    }
+    
+    try:
+        client.publish(TOPIC_COMMAND, json.dumps(cmd_payload))
+        logger.info(f"Perintah terkirim: {command} - Label: {label}, Durasi: {duration}s")
+        return True
+    except Exception as e:
+        logger.error(f"Gagal mengirim perintah: {e}")
+        return False
 
 # ─────────────────────────────────────────────
 #  SIMPAN DATA
@@ -284,6 +308,9 @@ def main():
 
     def _stop(sig, frame):
         print("\n  Dihentikan manual (Ctrl+C).")
+        # Kirim perintah STOP ke ESP32
+        if 'client' in locals():
+            send_command(client, "STOP")
         stop_event.set()
 
     signal.signal(signal.SIGINT, _stop)
@@ -297,10 +324,24 @@ def main():
         sys.exit(1)
 
     client.loop_start()
+    
+    # Tunggu sebentar agar koneksi stabil
+    time.sleep(1)
+    
+    # ── Kirim perintah START ke ESP32 ──────────────────────────
+    print(f"\n  📤 Mengirim perintah START ke ESP32...")
+    if send_command(client, "START", label, duration):
+        print(f"  ✅ Perintah START terkirim. OLED akan menampilkan pesan.")
+    else:
+        print(f"  ⚠️  Gagal mengirim perintah START. Pastikan ESP32 terhubung.")
+    
+    # Beri waktu ESP32 memproses perintah
+    time.sleep(0.5)
+    
     start_time = time.time()
 
     # ── Loop countdown display ───────────────────────────────
-    print(f"  Merekam [{label}]... Tekan Ctrl+C untuk berhenti lebih awal.")
+    print(f"\n  Merekam [{label}]... Tekan Ctrl+C untuk berhenti lebih awal.")
     print()
 
     while not stop_event.is_set():
@@ -323,6 +364,11 @@ def main():
         time.sleep(0.5)
 
     print()  # newline setelah countdown
+    
+    # Kirim perintah STOP setelah selesai
+    print(f"\n  📤 Mengirim perintah STOP ke ESP32...")
+    send_command(client, "STOP")
+    
     client.loop_stop()
     client.disconnect()
 
