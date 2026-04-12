@@ -1,9 +1,5 @@
 """
 data_collection.py — Kumpulkan data training per label aktivitas (15 menit/sesi)
-
-Cara pakai:
-    python src/data_collection.py
-    python src/data_collection.py --label DUDUK --duration 300
 """
 import argparse, csv, json, os, signal, sys, time
 from datetime import datetime
@@ -42,7 +38,8 @@ def on_connect(client, userdata, flags, rc, properties=None):
         logger.info(f"Terhubung ke cloud broker {MQTT_BROKER}:{MQTT_PORT}")
         client.subscribe(TOPIC_SENSOR_DATA)
         print(f"\n  ✅ MQTT terhubung ke EMQX Cloud!")
-        print(f"     Broker: {MQTT_BROKER}:{MQTT_PORT}\n")
+        print(f"     Broker: {MQTT_BROKER}:{MQTT_PORT}")
+        print(f"     Topic Command: {TOPIC_COMMAND}\n")
     else:
         logger.error(f"Gagal connect MQTT, rc={rc}")
 
@@ -73,9 +70,8 @@ def on_message(client, userdata, msg):
     count = len(collected_rows)
     if count % 10 == 0:
         remaining = max(0, duration_sec - elapsed)
-        bpm_ok = sum(1 for r in collected_rows if r.get("bpm", 0) > 0)
         logger.info(f"[{current_label}] n={count} | aStd={row['accel_stddev']:.4f} | "
-                   f"gStd={row['gyro_stddev']:.2f} | BPM={row['bpm']} | sisa={remaining:.0f}s")
+                   f"gStd={row['gyro_stddev']:.2f} | BPM={row['bpm']}")
 
 # ─────────────────────────────────────────────
 #  KIRIM PERINTAH KE ESP32
@@ -85,15 +81,13 @@ def send_start(client, label: str, duration: int):
         "cmd": "START",
         "participant_id": f"data_collection_{label}",
         "participant_no": 0,
-        "total": 1,
-        "label": label,
-        "duration": duration
+        "total": 1
     })
     
     try:
         result = client.publish(TOPIC_COMMAND, payload, qos=1)
         result.wait_for_publish(timeout=3)
-        logger.info(f"START terkirim untuk label: {label}")
+        logger.info(f"START terkirim ke {TOPIC_COMMAND} untuk label: {label}")
         print(f"  📤 Payload: {payload}")
         return True
     except Exception as e:
@@ -101,11 +95,14 @@ def send_start(client, label: str, duration: int):
         return False
 
 def send_stop(client):
-    payload = json.dumps({"cmd": "STOP", "participant_no": 0})
+    payload = json.dumps({
+        "cmd": "STOP",
+        "participant_no": 0
+    })
     try:
         result = client.publish(TOPIC_COMMAND, payload, qos=1)
         result.wait_for_publish(timeout=3)
-        logger.info("STOP terkirim")
+        logger.info(f"STOP terkirim ke {TOPIC_COMMAND}")
         return True
     except Exception as e:
         logger.error(f"Gagal kirim STOP: {e}")
@@ -145,6 +142,7 @@ def interactive_menu() -> tuple[str, int]:
     print("║     AIoT Watch — Pengambilan Data Training       ║")
     print("╚══════════════════════════════════════════════════╝")
     print(f"\n  Broker Cloud: {MQTT_BROKER}:{MQTT_PORT}")
+    print(f"  Topic Command: {TOPIC_COMMAND}")
     print(f"  Output      : {DATA_RAW_DIR}/")
     print()
     print("  Pilih label aktivitas:")
@@ -258,11 +256,12 @@ def main():
     duration_sec = duration
 
     print()
-    print("  ┌──────────────────────────────────────────────┐")
-    print(f"  │ Label   : {label:<34}│")
-    print(f"  │ Durasi  : {duration} detik ({duration//60} menit){(17-len(str(duration)))*' '}│")
-    print(f"  │ Broker  : {MQTT_BROKER}:{MQTT_PORT:<25}│")
-    print("  └──────────────────────────────────────────────┘")
+    print("  ┌──────────────────────────────────────────────────┐")
+    print(f"  │ Label        : {label:<33}│")
+    print(f"  │ Durasi       : {duration} detik ({duration//60} menit){(17-len(str(duration)))*' '}│")
+    print(f"  │ Broker       : {MQTT_BROKER}:{MQTT_PORT:<25}│")
+    print(f"  │ Topic Command: {TOPIC_COMMAND:<25}│")
+    print("  └──────────────────────────────────────────────────┘")
     print()
     input("  Tekan ENTER untuk mulai... ")
 
@@ -288,7 +287,7 @@ def main():
     client.loop_start()
     time.sleep(2)
 
-    print(f"\n  📤 Mengirim START ke ESP32...")
+    print(f"\n  📤 Mengirim START ke topic '{TOPIC_COMMAND}'...")
     send_start(client, label, duration)
     time.sleep(1)
 
@@ -296,7 +295,7 @@ def main():
     print(f"\n  🟢 Merekam [{label}] selama {duration} detik...\n")
     show_countdown()
 
-    print(f"\n  📤 Mengirim STOP ke ESP32...")
+    print(f"\n  📤 Mengirim STOP ke topic '{TOPIC_COMMAND}'...")
     send_stop(client)
     time.sleep(1)
 
