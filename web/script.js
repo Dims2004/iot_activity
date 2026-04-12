@@ -1,22 +1,20 @@
 /**
  * script.js — AIoT Watch Dashboard
  *
- * MQTT WebSocket: ws://192.168.18.7:9001
- * Tambahkan di mosquitto.conf:
- *   listener 9001
- *   protocol websockets
- *   allow_anonymous true
+ * MQTT WebSocket: broker.emqx.io:8083/mqtt (Cloud Broker)
+ * Bisa diakses dari mana saja tanpa perlu Mosquitto lokal
  */
 
 'use strict';
 
 // ═══════════════════════════════════════════════════════════
-//  CONFIG
+//  CONFIG — CLOUD BROKER EMQX
 // ═══════════════════════════════════════════════════════════
 const CONFIG = {
-  broker:   '192.168.18.7',
-  port:     9001,
-  clientId: 'dashboard_' + Math.random().toString(16).slice(2, 8),
+  broker:   'broker.emqx.io',      // Cloud broker EMQX (gratis)
+  port:     8083,                   // WebSocket port untuk EMQX
+  path:     '/mqtt',                // WebSocket path
+  clientId: 'dashboard_' + Math.random().toString(16).slice(2, 10),
   topics: {
     sensorData:     'sensor/esp32/data',
     classification: 'classification/result',
@@ -24,7 +22,7 @@ const CONFIG = {
   },
 };
 
-const STORAGE_KEY = 'aiot_history_v2';   // localStorage key untuk history
+const STORAGE_KEY = 'aiot_history_cloud_v2';   // localStorage key untuk history
 
 // ═══════════════════════════════════════════════════════════
 //  SENSOR CHART
@@ -88,7 +86,8 @@ function addHistoryRecord(data) {
   }
 
   const record = { no, pid, activity, bpm, cDuduk, cBerjalan, cBerlari, totalSamp, waktu };
-  historyRecords.push(record);
+  // Tambahkan di awal array (terbaru di atas)
+  historyRecords.unshift(record);
 
   // Simpan ke localStorage
   saveHistoryToStorage(historyRecords);
@@ -107,8 +106,8 @@ function renderHistory(animateNew = false) {
     return;
   }
 
-  const sorted = [...historyRecords].sort((a, b) => b.no - a.no);
-  tbody.innerHTML = sorted.map((r, i) => `
+  // Tidak perlu sorting lagi karena sudah unshift
+  tbody.innerHTML = historyRecords.map((r, i) => `
     <tr class="${animateNew && i === 0 ? 'new-row' : ''}">
       <td>${r.no}</td>
       <td><strong>${r.pid}</strong></td>
@@ -243,7 +242,7 @@ function pushSensorData(accel, gyro, bpm) {
     sensorBuffer.labels.shift(); sensorBuffer.accel.shift();
     sensorBuffer.gyro.shift();   sensorBuffer.bpm.shift();
   }
-  sensorChart.update('none');
+  if (sensorChart) sensorChart.update('none');
 }
 
 function pushActivityResult(activity) {
@@ -253,8 +252,10 @@ function pushActivityResult(activity) {
   while (activityHistory.length > 0 && activityHistory[0].time < cutoff) activityHistory.shift();
   const c = { DUDUK: 0, BERJALAN: 0, BERLARI: 0 };
   activityHistory.forEach(r => { if (c[r.activity] !== undefined) c[r.activity]++; });
-  activityChart.data.datasets[0].data = [c.DUDUK, c.BERJALAN, c.BERLARI];
-  activityChart.update();
+  if (activityChart) {
+    activityChart.data.datasets[0].data = [c.DUDUK, c.BERJALAN, c.BERLARI];
+    activityChart.update();
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -304,8 +305,10 @@ function updateAccuracy(confidence) {
   const pct  = Math.round(confidence * 100);
   const ring = document.getElementById('ringFill');
   const text = document.getElementById('accuracyValue');
+  const circumference = 2 * Math.PI * 32;
   if (ring) {
-    ring.style.strokeDashoffset = 201 - (pct / 100) * 201;
+    ring.style.strokeDasharray = circumference;
+    ring.style.strokeDashoffset = circumference - (pct / 100) * circumference;
     ring.style.stroke = pct >= 85 ? '#34D399' : pct >= 65 ? '#F5A623' : '#F87171';
   }
   if (text) text.textContent = pct + '%';
@@ -339,7 +342,7 @@ function setConnectionStatus(online, label = '') {
 }
 
 // ═══════════════════════════════════════════════════════════
-//  DEMO MODE
+//  DEMO MODE (fallback jika MQTT gagal)
 // ═══════════════════════════════════════════════════════════
 let demoInterval = null;
 
@@ -347,9 +350,9 @@ function startDemoMode() {
   console.warn('[DEMO] MQTT tidak terhubung — data simulasi.');
   setConnectionStatus(false, 'Demo Mode');
   const acts = ['DUDUK', 'BERJALAN', 'BERLARI'];
-  let t = 0, dc = 0;
+  let t = 0;
   demoInterval = setInterval(() => {
-    t += 0.1; dc++;
+    t += 0.1;
     const act = acts[Math.floor(t / 20) % 3];
     let accel, gyro, bpm;
     if      (act === 'DUDUK')    { accel = 0.01 + Math.random()*0.02; gyro = 3  + Math.random()*8;   bpm = 68  + Math.random()*8; }
@@ -367,33 +370,57 @@ function startDemoMode() {
 function stopDemoMode() { if (demoInterval) { clearInterval(demoInterval); demoInterval = null; } }
 
 // ═══════════════════════════════════════════════════════════
-//  MQTT
+//  MQTT — CLOUD BROKER EMQX
 // ═══════════════════════════════════════════════════════════
 function connectMQTT() {
   let client;
+  const wsUrl = `ws://${CONFIG.broker}:${CONFIG.port}${CONFIG.path}`;
+  console.log(`[MQTT] Menghubungkan ke cloud broker: ${wsUrl}`);
+  
   try {
-    client = mqtt.connect(`ws://${CONFIG.broker}:${CONFIG.port}/mqtt`, {
-      clientId: CONFIG.clientId, connectTimeout: 6000, reconnectPeriod: 5000,
+    client = mqtt.connect(wsUrl, {
+      clientId: CONFIG.clientId,
+      connectTimeout: 10000,
+      reconnectPeriod: 5000,
     });
-  } catch (e) { startDemoMode(); return; }
+  } catch (e) { 
+    console.error('[MQTT] Error koneksi:', e);
+    startDemoMode(); 
+    return; 
+  }
 
   const timeout = setTimeout(() => {
-    if (!client.connected) { client.end(true); startDemoMode(); }
-  }, 8000);
+    if (!client.connected) { 
+      console.warn('[MQTT] Timeout koneksi');
+      client.end(true); 
+      startDemoMode(); 
+    }
+  }, 10000);
 
   client.on('connect', () => {
     clearTimeout(timeout);
     stopDemoMode();
     setConnectionStatus(true);
-    Object.values(CONFIG.topics).forEach(t => client.subscribe(t, { qos: 0 }));
+    console.log('[MQTT] Terhubung ke EMQX Cloud!');
+    Object.values(CONFIG.topics).forEach(t => {
+      client.subscribe(t, { qos: 0 });
+      console.log(`[MQTT] Subscribe ke: ${t}`);
+    });
   });
 
-  client.on('close', () => setConnectionStatus(false, 'Reconnecting…'));
-  client.on('error', e => console.error('[MQTT]', e.message));
+  client.on('close', () => {
+    console.log('[MQTT] Koneksi ditutup');
+    setConnectionStatus(false, 'Reconnecting…');
+  });
+  
+  client.on('error', (err) => {
+    console.error('[MQTT] Error:', err.message);
+    setConnectionStatus(false, 'Error');
+  });
 
   client.on('message', (topic, payload) => {
     let data;
-    try { data = JSON.parse(payload.toString()); } catch { return; }
+    try { data = JSON.parse(payload.toString()); } catch(e) { return; }
 
     if (topic === CONFIG.topics.sensorData) {
       const accel = parseFloat(data.accel_stddev) || 0;
@@ -416,12 +443,10 @@ function connectMQTT() {
     }
 
     else if (topic === CONFIG.topics.status) {
-      // Hasil akhir sesi peserta — tambahkan ke history
       console.log('[STATUS AKHIR]', data);
       if (data.final_activity) {
         updateActivity(data.final_activity.toUpperCase());
       }
-      // ↓ Tambah ke history dan SIMPAN ke localStorage otomatis
       addHistoryRecord(data);
     }
   });
@@ -443,6 +468,6 @@ document.addEventListener('DOMContentLoaded', () => {
   renderHistory();
   updateHistoryStats();
 
-  // Connect MQTT
+  // Connect MQTT ke cloud broker
   connectMQTT();
 });
