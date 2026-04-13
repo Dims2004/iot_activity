@@ -12424,3 +12424,48 @@ Jalankan notebook 02_training_model.ipynb terlebih dahulu.
 2026-04-13 10:16:54 | INFO     | data_collection | START terkirim ke control/session untuk label: BERJALAN
 2026-04-13 10:17:14 | INFO     | data_collection | [BERJALAN] n=10 | aStd=0.0390 | gStd=14.31 | BPM=134
 2026-04-13 10:17:34 | INFO     | data_collection | [BERJALAN] n=20 | aStd=0.0328 | gStd=10.64 | BPM=106
+2026-04-13 10:17:54 | INFO     | data_collection | [BERJALAN] n=30 | aStd=0.0301 | gStd=9.48 | BPM=98
+2026-04-13 10:18:14 | INFO     | data_collection | [BERJALAN] n=40 | aStd=0.0630 | gStd=14.53 | BPM=130
+2026-04-13 10:18:34 | INFO     | data_collection | [BERJALAN] n=50 | aStd=0.0841 | gStd=14.54 | BPM=115
+2026-04-13 10:18:54 | INFO     | data_collection | [BERJALAN] n=60 | aStd=0.0459 | gStd=12.49 | BPM=98
+2026-04-13 10:19:15 | INFO     | data_collection | [BERJALAN] n=70 | aStd=0.0681 | gStd=18.34 | BPM=103
+2026-04-13 10:19:35 | INFO     | data_collection | [BERJALAN] n=80 | aStd=0.0373 | gStd=9.29 | BPM=169
+2026-04-13 10:19:55 | INFO     | data_collection | [BERJALAN] n=90 | aStd=0.0542 | gStd=12.38 | BPM=89
+2026-04-13 10:20:15 | INFO     | data_collection | [BERJALAN] n=100 | aStd=0.0493 | gStd=8.43 | BPM=87
+2026-04-13 10:20:35 | INFO     | data_collection | [BERJALAN] n=110 | aStd=0.0764 | gStd=17.35 | BPM=112
+2026-04-13 10:20:55 | INFO     | data_collection | [BERJALAN] n=120 | aStd=0.0495 | gStd=12.64 | BPM=107
+2026-04-13 10:21:15 | INFO     | data_collection | [BERJALAN] n=130 | aStd=0.0402 | gStd=9.71 | BPM=181
+2026-04-13 10:21:35 | INFO     | data_collection | [BERJALAN] n=140 | aStd=0.0565 | gStd=14.94 | BPM=119
+2026-04-13 10:21:55 | INFO     | data_collection | [BERJALAN] n=150 | aStd=0.0492 | gStd=17.04 | BPM=116
+2026-04-13 10:22:16 | INFO     | data_collection | [BERJALAN] n=160 | aStd=0.0449 | gStd=23.08 | BPM=159
+2026-04-13 10:22:36 | INFO     | data_collection | [BERJALAN] n=170 | aStd=0.0471 | gStd=11.66 | BPM=105
+2026-04-13 10:22:56 | INFO     | data_collection | [BERJALAN] n=180 | aStd=0.0445 | gStd=11.09 | BPM=120
+2026-04-13 10:23:16 | INFO     | data_collection | [BERJALAN] n=190 | aStd=0.0422 | gStd=8.47 | BPM=122
+2026-04-13 10:23:36 | INFO     | data_collection | [BERJALAN] n=200 | aStd=0.0320 | gStd=13.91 | BPM=125
+2026-04-13 10:23:56 | INFO     | data_collection | [BERJALAN] n=210 | aStd=0.0396 | gStd=11.86 | BPM=88
+2026-04-13 10:24:16 | INFO     | data_collection | [BERJALAN] n=220 | aStd=0.0393 | gStd=9.76 | BPM=114
+2026-04-13 10:24:36 | INFO     | data_collection | [BERJALAN] n=230 | aStd=0.0416 | gStd=9.47 | BPM=92
+2026-04-13 10:24:56 | INFO     | data_collection | [BERJALAN] n=240 | aStd=0.0429 | gStd=11.56 | BPM=128
+2026-04-13 10:25:16 | INFO     | data_collection | [BERJALAN] n=250 | aStd=0.0423 | gStd=10.37 | BPM=155
+2026-04-13 10:25:37 | INFO     | data_collection | [BERJALAN] n=260 | aStd=0.0466 | gStd=7.79 | BPM=157
+2026-04-13 10:25:57 | INFO     | data_collection | [BERJALAN] n=270 | aStd=0.0794 | gStd=12.77 | BPM=115
+2026-04-13 10:26:17 | INFO     | data_collection | [BERJALAN] n=280 | aStd=0.0530 | gStd=11.69 | BPM=130
+2026-04-13 10:26:37 | INFO     | data_collection | [BERJALAN] n=290 | aStd=0.0433 | gStd=7.55 | BPM=129
+2026-04-13 10:26:57 | INFO     | data_collection | [BERJALAN] n=300 | aStd=0.0680 | gStd=16.90 | BPM=103
+2026-04-13 10:27:17 | INFO     | data_collection | [BERJALAN] n=310 | aStd=0.0405 | gStd=10.95 | BPM=140
+2026-04-13 10:27:37 | INFO     | data_collection | [BERJALAN] n=320 | aStd=0.0525 | gStd=8.81 | BPM=164
+2026-04-13 10:27:57 | INFO     | data_collection | [BERJALAN] n=330 | aStd=0.0555 | gStd=17.75 | BPM=89
+2026-04-13 10:28:17 | INFO     | data_collection | [BERJALAN] n=340 | aStd=0.0500 | gStd=10.58 | BPM=0
+2026-04-13 10:28:41 | INFO     | data_collection | [BERJALAN] n=350 | aStd=0.0476 | gStd=11.18 | BPM=51
+2026-04-13 10:29:02 | INFO     | data_collection | [BERJALAN] n=360 | aStd=0.0327 | gStd=6.90 | BPM=109
+2026-04-13 10:29:22 | INFO     | data_collection | [BERJALAN] n=370 | aStd=0.0461 | gStd=8.22 | BPM=115
+2026-04-13 10:29:42 | INFO     | data_collection | [BERJALAN] n=380 | aStd=0.0658 | gStd=13.65 | BPM=130
+2026-04-13 10:30:02 | INFO     | data_collection | [BERJALAN] n=390 | aStd=0.0389 | gStd=9.01 | BPM=97
+2026-04-13 10:30:22 | INFO     | data_collection | [BERJALAN] n=400 | aStd=0.0983 | gStd=18.03 | BPM=110
+2026-04-13 10:30:42 | INFO     | data_collection | [BERJALAN] n=410 | aStd=0.0429 | gStd=8.34 | BPM=138
+2026-04-13 10:31:02 | INFO     | data_collection | [BERJALAN] n=420 | aStd=0.0374 | gStd=11.81 | BPM=148
+2026-04-13 10:31:22 | INFO     | data_collection | [BERJALAN] n=430 | aStd=0.1722 | gStd=25.87 | BPM=110
+2026-04-13 10:31:42 | INFO     | data_collection | [BERJALAN] n=440 | aStd=0.0354 | gStd=7.44 | BPM=102
+2026-04-13 10:31:56 | INFO     | data_collection | STOP terkirim ke control/session
+2026-04-13 10:31:58 | INFO     | data_collection | Raw disimpan → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\data\raw\raw_BERJALAN_20260413_103158.csv (446 baris)
+2026-04-13 10:31:58 | INFO     | data_collection | Dataset +446 baris → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\dataset\dataset.csv
