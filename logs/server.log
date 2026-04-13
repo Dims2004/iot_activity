@@ -12469,3 +12469,32 @@ Jalankan notebook 02_training_model.ipynb terlebih dahulu.
 2026-04-13 10:31:56 | INFO     | data_collection | STOP terkirim ke control/session
 2026-04-13 10:31:58 | INFO     | data_collection | Raw disimpan → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\data\raw\raw_BERJALAN_20260413_103158.csv (446 baris)
 2026-04-13 10:31:58 | INFO     | data_collection | Dataset +446 baris → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\dataset\dataset.csv
+2026-04-13 10:35:03 | INFO     | data_collection | Terhubung ke cloud broker broker.emqx.io:1883
+2026-04-13 10:35:05 | INFO     | data_collection | START terkirim ke control/session untuk label: BERLARI
+2026-04-13 10:35:27 | INFO     | data_collection | [BERLARI] n=10 | aStd=0.2547 | gStd=16.59 | BPM=145
+2026-04-13 10:35:47 | INFO     | data_collection | [BERLARI] n=20 | aStd=0.0220 | gStd=15.44 | BPM=0
+2026-04-13 10:36:07 | INFO     | data_collection | [BERLARI] n=30 | aStd=0.1295 | gStd=28.38 | BPM=165
+2026-04-13 10:36:27 | INFO     | data_collection | [BERLARI] n=40 | aStd=0.3702 | gStd=29.65 | BPM=99
+2026-04-13 10:36:47 | INFO     | data_collection | [BERLARI] n=50 | aStd=0.1526 | gStd=34.12 | BPM=144
+2026-04-13 10:37:07 | INFO     | data_collection | [BERLARI] n=60 | aStd=0.1546 | gStd=28.00 | BPM=118
+2026-04-13 10:37:27 | INFO     | data_collection | [BERLARI] n=70 | aStd=0.2783 | gStd=32.97 | BPM=137
+2026-04-13 10:37:48 | INFO     | data_collection | [BERLARI] n=80 | aStd=0.1651 | gStd=31.56 | BPM=142
+2026-04-13 10:38:08 | INFO     | data_collection | [BERLARI] n=90 | aStd=0.1411 | gStd=35.89 | BPM=134
+2026-04-13 10:38:28 | INFO     | data_collection | [BERLARI] n=100 | aStd=0.1651 | gStd=49.86 | BPM=128
+2026-04-13 10:38:48 | INFO     | data_collection | [BERLARI] n=110 | aStd=0.1795 | gStd=31.98 | BPM=136
+2026-04-13 10:39:08 | INFO     | data_collection | [BERLARI] n=120 | aStd=0.1434 | gStd=48.66 | BPM=131
+2026-04-13 10:39:28 | INFO     | data_collection | [BERLARI] n=130 | aStd=0.4838 | gStd=47.63 | BPM=145
+2026-04-13 10:39:48 | INFO     | data_collection | [BERLARI] n=140 | aStd=0.2848 | gStd=35.78 | BPM=153
+2026-04-13 10:40:08 | INFO     | data_collection | [BERLARI] n=150 | aStd=0.2214 | gStd=30.38 | BPM=156
+2026-04-13 10:40:28 | INFO     | data_collection | [BERLARI] n=160 | aStd=0.3057 | gStd=31.34 | BPM=161
+2026-04-13 10:40:49 | INFO     | data_collection | [BERLARI] n=170 | aStd=0.3356 | gStd=37.51 | BPM=166
+2026-04-13 10:41:09 | INFO     | data_collection | [BERLARI] n=180 | aStd=0.3272 | gStd=26.59 | BPM=164
+2026-04-13 10:41:29 | INFO     | data_collection | [BERLARI] n=190 | aStd=0.3597 | gStd=27.99 | BPM=167
+2026-04-13 10:41:49 | INFO     | data_collection | [BERLARI] n=200 | aStd=0.3829 | gStd=28.28 | BPM=168
+2026-04-13 10:42:09 | INFO     | data_collection | [BERLARI] n=210 | aStd=0.3488 | gStd=31.37 | BPM=168
+2026-04-13 10:42:29 | INFO     | data_collection | [BERLARI] n=220 | aStd=0.4356 | gStd=40.90 | BPM=165
+2026-04-13 10:42:49 | INFO     | data_collection | [BERLARI] n=230 | aStd=0.2987 | gStd=22.74 | BPM=166
+2026-04-13 10:45:29 | ERROR    | data_collection | Gagal kirim STOP: Message publish failed: The client is not currently connected.
+2026-04-13 10:45:30 | ERROR    | data_collection | Gagal kirim STOP: Message publish failed: The client is not currently connected.
+2026-04-13 10:45:32 | INFO     | data_collection | Raw disimpan → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\data\raw\raw_BERLARI_20260413_104532.csv (232 baris)
+2026-04-13 10:45:32 | INFO     | data_collection | Dataset +232 baris → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\dataset\dataset.csv
