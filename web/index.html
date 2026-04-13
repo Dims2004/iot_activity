@@ -5,14 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>AIoT Dashboard</title>
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 
-  <!-- Chart.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-
-  <!-- MQTT.js (WebSocket) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js"></script>
 
   <style>
@@ -33,7 +29,6 @@
       --accent-green: #34D399;
       --accent-red: #F87171;
       --accent-purple: #A78BFA;
-      --accent-yellow: #FBBF24;
     }
 
     [data-theme="light"] {
@@ -47,17 +42,15 @@
       --accent-green: #10B981;
       --accent-red: #EF4444;
       --accent-purple: #8B5CF6;
-      --accent-yellow: #F59E0B;
     }
 
     body {
       font-family: 'Inter', sans-serif;
       background: var(--bg-primary);
       color: var(--text-primary);
-      transition: background 0.3s ease, color 0.3s ease;
+      transition: background 0.3s ease;
     }
 
-    /* Header */
     .header {
       background: var(--bg-secondary);
       border-bottom: 1px solid var(--border);
@@ -77,46 +70,12 @@
       gap: 16px;
     }
 
-    .header-logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .header-icon {
-      font-size: 32px;
-      color: var(--accent-purple);
-    }
-
-    .header-title {
-      font-family: 'Inter', sans-serif;
-      font-size: 20px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-
-    .header-sub {
-      font-size: 11px;
-      color: var(--text-secondary);
-      letter-spacing: 0.5px;
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .clock {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--accent-blue);
-    }
+    .header-logo { display: flex; align-items: center; gap: 12px; }
+    .header-icon { font-size: 32px; color: var(--accent-purple); }
+    .header-title { font-size: 20px; font-weight: 700; background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .header-sub { font-size: 11px; color: var(--text-secondary); }
+    .header-right { display: flex; align-items: center; gap: 20px; }
+    .clock { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 600; color: var(--accent-blue); }
 
     .theme-toggle {
       display: flex;
@@ -128,10 +87,6 @@
       border-radius: 20px;
       border: 1px solid var(--border);
       transition: all 0.2s;
-    }
-
-    .theme-toggle:hover {
-      transform: scale(1.05);
     }
 
     .mqtt-badge {
@@ -156,7 +111,6 @@
       box-shadow: 0 0 8px #22C55E;
     }
 
-    /* Main Content */
     .main-content {
       max-width: 1400px;
       margin: 0 auto;
@@ -179,51 +133,14 @@
       transition: all 0.3s;
     }
 
-    .stat-card {
-      text-align: center;
-      position: relative;
-    }
-
-    .stat-label {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      color: var(--text-secondary);
-      margin-bottom: 12px;
-    }
-
-    .stat-icon {
-      font-size: 48px;
-      margin: 10px 0;
-      transition: transform 0.2s;
-    }
-
-    .stat-value {
-      font-size: 36px;
-      font-weight: 700;
-      margin: 10px 0;
-    }
-
-    .activity-value {
-      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-
-    .bpm-value {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 48px;
-      font-weight: 700;
-      color: var(--accent-red);
-    }
-
-    .bpm-status {
-      font-size: 12px;
-      color: var(--text-secondary);
-      margin: 8px 0;
-    }
-
+    .stat-card { text-align: center; position: relative; }
+    .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--text-secondary); margin-bottom: 12px; }
+    .stat-icon { font-size: 48px; margin: 10px 0; }
+    .stat-value { font-size: 36px; font-weight: 700; margin: 10px 0; }
+    .activity-value { background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .bpm-value { font-family: 'JetBrains Mono', monospace; font-size: 48px; font-weight: 700; color: var(--accent-red); }
+    .bpm-status { font-size: 12px; color: var(--text-secondary); margin: 8px 0; }
+    
     .bpm-bar-wrap {
       background: var(--bg-primary);
       border-radius: 10px;
@@ -231,53 +148,14 @@
       margin-top: 12px;
       overflow: hidden;
     }
-
-    .bpm-bar {
-      width: 0%;
-      height: 100%;
-      background: linear-gradient(90deg, var(--accent-green), var(--accent-red));
-      border-radius: 10px;
-      transition: width 0.3s;
-    }
+    .bpm-bar { width: 0%; height: 100%; background: linear-gradient(90deg, var(--accent-green), var(--accent-red)); border-radius: 10px; transition: width 0.3s; }
 
     /* Accuracy Ring */
-    .accuracy-ring-wrap {
-      position: relative;
-      width: 100px;
-      height: 100px;
-      margin: 10px auto;
-    }
-
-    .accuracy-ring {
-      width: 100%;
-      height: 100%;
-      transform: rotate(-90deg);
-    }
-
-    .ring-bg {
-      fill: none;
-      stroke: var(--border);
-      stroke-width: 6;
-    }
-
-    .ring-fill {
-      fill: none;
-      stroke: var(--accent-green);
-      stroke-width: 6;
-      stroke-linecap: round;
-      stroke-dasharray: 201;
-      stroke-dashoffset: 201;
-      transition: stroke-dashoffset 0.5s, stroke 0.3s;
-    }
-
-    .ring-text {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 20px;
-      font-weight: 700;
-    }
+    .accuracy-ring-wrap { position: relative; width: 100px; height: 100px; margin: 10px auto; }
+    .accuracy-ring { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .ring-bg { fill: none; stroke: var(--border); stroke-width: 6; }
+    .ring-fill { fill: none; stroke: var(--accent-green); stroke-width: 6; stroke-linecap: round; stroke-dasharray: 201; stroke-dashoffset: 201; transition: stroke-dashoffset 0.5s, stroke 0.3s; }
+    .ring-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 20px; font-weight: 700; }
 
     /* Main Grid */
     .main-grid {
@@ -287,202 +165,59 @@
       margin-bottom: 24px;
     }
 
-    .chart-card {
-      padding: 20px;
-    }
+    .chart-card { padding: 20px; }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+    .card-title { font-size: 14px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; }
+    .chart-legend { display: flex; gap: 16px; font-size: 11px; color: var(--text-secondary); }
+    .leg-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; }
 
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .card-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .chart-legend {
-      display: flex;
-      gap: 16px;
-      font-size: 11px;
-      color: var(--text-secondary);
-    }
-
-    .leg-dot {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      margin-right: 4px;
-    }
-
+    /* FIX: Chart container dengan fixed height */
     .chart-wrap {
-      height: 300px;
-      position: relative;
+      height: 320px;
       width: 100%;
+      position: relative;
     }
-
+    
+    /* FIX: Canvas rendering sharp */
     canvas {
+      display: block;
       width: 100% !important;
       height: 100% !important;
       image-rendering: crisp-edges;
       image-rendering: pixelated;
     }
 
-    .right-col {
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
+    .right-col { display: flex; flex-direction: column; gap: 24px; }
+    .bar-chart-wrap { height: 240px; width: 100%; position: relative; }
+    .hour-tag { font-size: 10px; font-weight: normal; }
 
-    .bar-chart-wrap {
-      height: 220px;
-      position: relative;
-      width: 100%;
-    }
+    .info-list { list-style: none; }
+    .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+    .info-key { color: var(--text-secondary); }
+    .info-val { font-weight: 500; display: flex; align-items: center; gap: 6px; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #EF4444; }
+    .status-dot.online { background: #22C55E; }
 
-    .hour-tag {
-      font-size: 10px;
-      font-weight: normal;
-    }
-
-    /* Info List */
-    .info-list {
-      list-style: none;
-    }
-
-    .info-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--border);
-      font-size: 13px;
-    }
-
-    .info-key {
-      color: var(--text-secondary);
-    }
-
-    .info-val {
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #EF4444;
-    }
-
-    .status-dot.online {
-      background: #22C55E;
-    }
-
-    /* History Section */
-    .history-section {
-      margin-top: 24px;
-    }
-
-    .history-card {
-      padding: 20px;
-    }
-
-    .history-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-
-    .history-stats {
-      display: flex;
-      gap: 16px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .hstat {
-      font-size: 12px;
-      padding: 4px 10px;
-      background: var(--bg-primary);
-      border-radius: 20px;
-    }
-
-    .btn-clear {
-      background: var(--bg-primary);
-      border: 1px solid var(--border);
-      color: var(--accent-red);
-      padding: 6px 14px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 12px;
-      transition: all 0.2s;
-    }
-
-    .btn-clear:hover {
-      background: rgba(248,113,113,0.1);
-    }
-
-    .history-table-wrap {
-      overflow-x: auto;
-    }
-
-    .history-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-
-    .history-table th,
-    .history-table td {
-      padding: 12px;
-      text-align: left;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .history-table th {
-      color: var(--text-secondary);
-      font-weight: 500;
-    }
-
-    .act-badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 600;
-    }
-
+    /* History */
+    .history-section { margin-top: 24px; }
+    .history-card { padding: 20px; }
+    .history-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px; }
+    .history-stats { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+    .hstat { font-size: 12px; padding: 4px 10px; background: var(--bg-primary); border-radius: 20px; }
+    .btn-clear { background: var(--bg-primary); border: 1px solid var(--border); color: var(--accent-red); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 12px; }
+    .history-table-wrap { overflow-x: auto; }
+    .history-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .history-table th, .history-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
+    .history-table th { color: var(--text-secondary); font-weight: 500; }
+    
+    .act-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
     .act-badge.DUDUK { background: rgba(96,165,250,0.2); color: var(--accent-blue); }
     .act-badge.BERJALAN { background: rgba(52,211,153,0.2); color: var(--accent-green); }
     .act-badge.BERLARI { background: rgba(248,113,113,0.2); color: var(--accent-red); }
-
-    .new-row {
-      animation: highlight 1s ease-out;
-    }
-
-    @keyframes highlight {
-      0% { background: rgba(96,165,250,0.3); }
-      100% { background: transparent; }
-    }
-
-    .history-empty td {
-      text-align: center;
-      padding: 40px;
-      color: var(--text-secondary);
-    }
+    
+    .new-row { animation: highlight 1s ease-out; }
+    @keyframes highlight { 0% { background: rgba(96,165,250,0.3); } 100% { background: transparent; } }
+    .history-empty td { text-align: center; padding: 40px; color: var(--text-secondary); }
 
     @media (max-width: 1024px) {
       .main-grid { grid-template-columns: 1fr; }
@@ -494,7 +229,6 @@
 </head>
 <body>
 
-  <!-- ══ HEADER ══════════════════════════════════════════════ -->
   <header class="header">
     <div class="header-inner">
       <div class="header-logo">
@@ -506,13 +240,11 @@
       </div>
       <div class="header-right">
         <div class="clock" id="clock">--:--:--</div>
-        
         <div class="theme-toggle" id="themeToggle">
           <span class="theme-icon" id="themeIcon">🌞</span>
           <span class="theme-text" id="themeText">Light</span>
         </div>
-        
-        <div class="mqtt-badge" id="mqttBadge">
+        <div class="mqtt-badge">
           <span class="badge-dot" id="badgeDot"></span>
           <span id="badgeLabel">Connecting…</span>
         </div>
@@ -520,7 +252,6 @@
     </div>
   </header>
 
-  <!-- ══ MAIN CONTENT ════════════════════════════════════════ -->
   <div class="main-content">
 
     <!-- STAT CARDS -->
@@ -536,9 +267,7 @@
         <div class="stat-label">DETAK JANTUNG (BPM)</div>
         <div class="stat-value bpm-value" id="bpmValue">--</div>
         <div class="bpm-status" id="bpmStatus">Menunggu data...</div>
-        <div class="bpm-bar-wrap">
-          <div class="bpm-bar" id="bpmBar"></div>
-        </div>
+        <div class="bpm-bar-wrap"><div class="bpm-bar" id="bpmBar"></div></div>
       </div>
 
       <div class="card stat-card">
@@ -557,7 +286,7 @@
     <!-- MAIN GRID -->
     <main class="main-grid">
 
-      <!-- LEFT — Real-time sensor chart (DIPERBAIKI) -->
+      <!-- LEFT - Real-time sensor chart -->
       <section class="card chart-card">
         <div class="card-header">
           <span class="card-title">📈 REAL-TIME SENSOR DATA MPU6050</span>
@@ -575,7 +304,7 @@
       <!-- RIGHT column -->
       <div class="right-col">
 
-        <!-- Activity bar chart (DIPERBAIKI) -->
+        <!-- Activity bar chart -->
         <section class="card">
           <div class="card-header">
             <span class="card-title">📊 ACTIVITY RESULT <span class="hour-tag">(Last Hour)</span></span>
@@ -587,9 +316,7 @@
 
         <!-- System info -->
         <section class="card">
-          <div class="card-header">
-            <span class="card-title">ℹ️ INFO SISTEM IOT</span>
-          </div>
+          <div class="card-header"><span class="card-title">ℹ️ INFO SISTEM IOT</span></div>
           <ul class="info-list">
             <li class="info-row"><span class="info-key">Processor</span><span class="info-val">ESP32</span></li>
             <li class="info-row"><span class="info-key">Protocol</span><span class="info-val">MQTT / WebSocket</span></li>
@@ -605,7 +332,7 @@
       </div>
     </main>
 
-    <!-- HISTORY PESERTA -->
+    <!-- HISTORY -->
     <section class="history-section">
       <div class="card history-card">
         <div class="history-header">
@@ -620,12 +347,8 @@
         </div>
         <div class="history-table-wrap">
           <table class="history-table">
-            <thead>
-              <tr><th>No</th><th>ID Peserta</th><th>Aktivitas Final</th><th>BPM</th><th>Duduk</th><th>Jalan</th><th>Lari</th><th>Sampel</th><th>Waktu Selesai</th></tr>
-            </thead>
-            <tbody id="historyBody">
-              <tr class="history-empty"><td colspan="9">Menunggu hasil sesi peserta pertama...</td></tr>
-            </tbody>
+            <thead><tr><th>No</th><th>ID Peserta</th><th>Aktivitas Final</th><th>BPM</th><th>Duduk</th><th>Jalan</th><th>Lari</th><th>Sampel</th><th>Waktu Selesai</th></tr></thead>
+            <tbody id="historyBody"><tr class="history-empty"><td colspan="9">Menunggu hasil sesi peserta pertama...</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -667,12 +390,7 @@
         });
       }
     }
-    
-    function updateClock() {
-      const now = new Date();
-      document.getElementById('clock').textContent = now.toLocaleTimeString('id-ID', { hour12: false });
-    }
-    
+    function updateClock() { document.getElementById('clock').textContent = new Date().toLocaleTimeString('id-ID', { hour12: false }); }
     initDarkMode();
     updateClock();
     setInterval(updateClock, 1000);
