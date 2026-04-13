@@ -13066,3 +13066,56 @@ Jalankan notebook 02_training_model.ipynb terlebih dahulu.
   DUDUK     :   148 (33.1%)
   BERJALAN  :   159 (35.6%)
   BERLARI   :   140 (31.3%)
+2026-04-13 12:41:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 20.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
+2026-04-13 12:42:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 21.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
+2026-04-13 12:43:02 | WARNING  | server_knn | Terputus (rc=7), reconnecting...
+2026-04-13 12:43:03 | INFO     | collect_participants | MQTT terhubung ke cloud broker broker.emqx.io:1883
+2026-04-13 12:43:03 | INFO     | server_knn | Terhubung ke broker broker.emqx.io:1883
+2026-04-13 12:43:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 22.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
+2026-04-13 12:44:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 23.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
+2026-04-13 12:45:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 24.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
+2026-04-13 12:46:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 25.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
+2026-04-13 12:47:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 26.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
+2026-04-13 12:48:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 27.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
+2026-04-13 12:49:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 28.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
+2026-04-13 12:50:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 29.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
