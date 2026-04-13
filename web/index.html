@@ -2,12 +2,12 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>AIoT Dashboard</title>
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 
   <!-- Chart.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -27,12 +27,13 @@
       --bg-secondary: #0F1535;
       --card-bg: #0F1535;
       --text-primary: #E5E7EB;
-      --text-secondary: #6B7280;
+      --text-secondary: #9CA3AF;
       --border: #1E2546;
       --accent-blue: #60A5FA;
       --accent-green: #34D399;
       --accent-red: #F87171;
       --accent-purple: #A78BFA;
+      --accent-yellow: #FBBF24;
     }
 
     [data-theme="light"] {
@@ -46,10 +47,11 @@
       --accent-green: #10B981;
       --accent-red: #EF4444;
       --accent-purple: #8B5CF6;
+      --accent-yellow: #F59E0B;
     }
 
     body {
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'Inter', sans-serif;
       background: var(--bg-primary);
       color: var(--text-primary);
       transition: background 0.3s ease, color 0.3s ease;
@@ -71,6 +73,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
     }
 
     .header-logo {
@@ -85,10 +89,10 @@
     }
 
     .header-title {
-      font-family: 'Rajdhani', monospace;
+      font-family: 'Inter', sans-serif;
       font-size: 20px;
       font-weight: 700;
-      letter-spacing: 2px;
+      letter-spacing: 1px;
       background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
       -webkit-background-clip: text;
       background-clip: text;
@@ -98,7 +102,7 @@
     .header-sub {
       font-size: 11px;
       color: var(--text-secondary);
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
     }
 
     .header-right {
@@ -108,7 +112,7 @@
     }
 
     .clock {
-      font-family: 'Rajdhani', monospace;
+      font-family: 'JetBrains Mono', monospace;
       font-size: 18px;
       font-weight: 600;
       color: var(--accent-blue);
@@ -208,7 +212,7 @@
     }
 
     .bpm-value {
-      font-family: 'Rajdhani', monospace;
+      font-family: 'JetBrains Mono', monospace;
       font-size: 48px;
       font-weight: 700;
       color: var(--accent-red);
@@ -234,17 +238,6 @@
       background: linear-gradient(90deg, var(--accent-green), var(--accent-red));
       border-radius: 10px;
       transition: width 0.3s;
-    }
-
-    .bpm-glow {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      border-radius: 20px;
-      pointer-events: none;
-      transition: box-shadow 0.3s;
     }
 
     /* Accuracy Ring */
@@ -331,8 +324,16 @@
     }
 
     .chart-wrap {
-      height: 280px;
+      height: 300px;
       position: relative;
+      width: 100%;
+    }
+
+    canvas {
+      width: 100% !important;
+      height: 100% !important;
+      image-rendering: crisp-edges;
+      image-rendering: pixelated;
     }
 
     .right-col {
@@ -342,8 +343,9 @@
     }
 
     .bar-chart-wrap {
-      height: 200px;
+      height: 220px;
       position: relative;
+      width: 100%;
     }
 
     .hour-tag {
@@ -485,7 +487,7 @@
     @media (max-width: 1024px) {
       .main-grid { grid-template-columns: 1fr; }
       .stat-row { grid-template-columns: 1fr; }
-      .header-inner { flex-direction: column; gap: 12px; }
+      .header-inner { flex-direction: column; }
       .header-right { width: 100%; justify-content: space-between; }
     }
   </style>
@@ -505,7 +507,6 @@
       <div class="header-right">
         <div class="clock" id="clock">--:--:--</div>
         
-        <!-- Dark Mode Toggle Button -->
         <div class="theme-toggle" id="themeToggle">
           <span class="theme-icon" id="themeIcon">🌞</span>
           <span class="theme-text" id="themeText">Light</span>
@@ -519,20 +520,19 @@
     </div>
   </header>
 
-  <!-- ══ MAIN CONTENT WRAPPER (CENTERED) ════════════════════ -->
+  <!-- ══ MAIN CONTENT ════════════════════════════════════════ -->
   <div class="main-content">
 
-    <!-- ══ STAT CARDS ══════════════════════════════════════════ -->
+    <!-- STAT CARDS -->
     <section class="stat-row">
-      <div class="card stat-card" id="cardActivity">
+      <div class="card stat-card">
         <div class="stat-label">Current Activity</div>
         <div class="stat-icon" id="actIcon">🚶</div>
         <div class="stat-value activity-value" id="activityValue">--</div>
         <div class="stat-sub" id="actSub">Menunggu data...</div>
       </div>
 
-      <div class="card stat-card card-bpm">
-        <div class="bpm-glow" id="bpmGlow"></div>
+      <div class="card stat-card">
         <div class="stat-label">DETAK JANTUNG (BPM)</div>
         <div class="stat-value bpm-value" id="bpmValue">--</div>
         <div class="bpm-status" id="bpmStatus">Menunggu data...</div>
@@ -550,21 +550,21 @@
           </svg>
           <div class="ring-text" id="accuracyValue">--%</div>
         </div>
-        <div class="stat-sub" id="confSub">Confidence KNN</div>
+        <div class="stat-sub">Confidence KNN</div>
       </div>
     </section>
 
-    <!-- ══ MAIN CONTENT ════════════════════════════════════════ -->
+    <!-- MAIN GRID -->
     <main class="main-grid">
 
-      <!-- LEFT — Real-time sensor chart -->
+      <!-- LEFT — Real-time sensor chart (DIPERBAIKI) -->
       <section class="card chart-card">
         <div class="card-header">
-          <span class="card-title">Real-Time Sensor Data MPU6050</span>
+          <span class="card-title">📈 REAL-TIME SENSOR DATA MPU6050</span>
           <div class="chart-legend">
-            <span class="leg-dot" style="background:#60A5FA"></span> Accel StdDev (g)
-            <span class="leg-dot" style="background:#34D399"></span> Gyro StdDev (°/s ÷10)
-            <span class="leg-dot" style="background:#F87171"></span> BPM ÷100
+            <span><span class="leg-dot" style="background:#60A5FA"></span> Accel (g)</span>
+            <span><span class="leg-dot" style="background:#34D399"></span> Gyro (°/s ÷10)</span>
+            <span><span class="leg-dot" style="background:#F87171"></span> BPM ÷100</span>
           </div>
         </div>
         <div class="chart-wrap">
@@ -575,10 +575,10 @@
       <!-- RIGHT column -->
       <div class="right-col">
 
-        <!-- Activity bar chart -->
-        <section class="card activity-card">
+        <!-- Activity bar chart (DIPERBAIKI) -->
+        <section class="card">
           <div class="card-header">
-            <span class="card-title activity-title">ACTIVITY RESULT <span class="hour-tag">(Last Hour)</span></span>
+            <span class="card-title">📊 ACTIVITY RESULT <span class="hour-tag">(Last Hour)</span></span>
           </div>
           <div class="bar-chart-wrap">
             <canvas id="activityChart"></canvas>
@@ -586,102 +586,60 @@
         </section>
 
         <!-- System info -->
-        <section class="card info-card">
+        <section class="card">
           <div class="card-header">
-            <span class="card-title info-title">INFO SISTEM IOT</span>
+            <span class="card-title">ℹ️ INFO SISTEM IOT</span>
           </div>
           <ul class="info-list">
-            <li class="info-row">
-              <span class="info-key">Processor</span>
-              <span class="info-val">ESP32</span>
-            </li>
-            <li class="info-row">
-              <span class="info-key">Protocol</span>
-              <span class="info-val">MQTT / WebSocket</span>
-            </li>
-            <li class="info-row">
-              <span class="info-key">Broker</span>
-              <span class="info-val" id="infobroker">broker.emqx.io:8083</span>
-            </li>
-            <li class="info-row">
-              <span class="info-key">Status</span>
-              <span class="info-val">
-                <span class="status-dot" id="statusDot"></span>
-                <span id="statusText">Connecting</span>
-              </span>
-            </li>
-            <li class="info-row">
-              <span class="info-key">Device ID</span>
-              <span class="info-val" id="infoDevice">--</span>
-            </li>
-            <li class="info-row">
-              <span class="info-key">User</span>
-              <span class="info-val" id="infoUser">--</span>
-            </li>
-            <li class="info-row">
-              <span class="info-key">Last Msg</span>
-              <span class="info-val" id="infoLastMsg">--</span>
-            </li>
-            <li class="info-row">
-              <span class="info-key">Total Msg</span>
-              <span class="info-val" id="infoTotal">0</span>
-            </li>
+            <li class="info-row"><span class="info-key">Processor</span><span class="info-val">ESP32</span></li>
+            <li class="info-row"><span class="info-key">Protocol</span><span class="info-val">MQTT / WebSocket</span></li>
+            <li class="info-row"><span class="info-key">Broker</span><span class="info-val" id="infobroker">broker.emqx.io:8083</span></li>
+            <li class="info-row"><span class="info-key">Status</span><span class="info-val"><span class="status-dot" id="statusDot"></span><span id="statusText">Connecting</span></span></li>
+            <li class="info-row"><span class="info-key">Device ID</span><span class="info-val" id="infoDevice">--</span></li>
+            <li class="info-row"><span class="info-key">User</span><span class="info-val" id="infoUser">--</span></li>
+            <li class="info-row"><span class="info-key">Last Msg</span><span class="info-val" id="infoLastMsg">--</span></li>
+            <li class="info-row"><span class="info-key">Total Msg</span><span class="info-val" id="infoTotal">0</span></li>
           </ul>
         </section>
 
-      </div><!-- /right-col -->
+      </div>
     </main>
 
-    <!-- ══ HISTORY PESERTA ════════════════════════════════ -->
+    <!-- HISTORY PESERTA -->
     <section class="history-section">
       <div class="card history-card">
-        <div class="card-header history-header">
-          <span class="card-title history-title">RIWAYAT HASIL PENGAMBILAN DATA PESERTA</span>
+        <div class="history-header">
+          <span class="card-title">📋 RIWAYAT HASIL PENGAMBILAN DATA PESERTA</span>
           <div class="history-stats">
             <span class="hstat" id="hstatTotal">0 Peserta</span>
-            <span class="hstat hstat-duduk" id="hstatDuduk">Duduk: 0</span>
-            <span class="hstat hstat-jalan" id="hstatJalan">Jalan: 0</span>
-            <span class="hstat hstat-lari" id="hstatLari">Lari: 0</span>
+            <span class="hstat" id="hstatDuduk">Duduk: 0</span>
+            <span class="hstat" id="hstatJalan">Jalan: 0</span>
+            <span class="hstat" id="hstatLari">Lari: 0</span>
             <button class="btn-clear" onclick="clearHistory()">Hapus Riwayat</button>
           </div>
         </div>
         <div class="history-table-wrap">
           <table class="history-table">
             <thead>
-              <tr>
-                <th>No</th>
-                <th>ID Peserta</th>
-                <th>Aktivitas Final</th>
-                <th>BPM</th>
-                <th>Duduk</th>
-                <th>Jalan</th>
-                <th>Lari</th>
-                <th>Sampel</th>
-                <th>Waktu Selesai</th>
-              </tr>
+              <tr><th>No</th><th>ID Peserta</th><th>Aktivitas Final</th><th>BPM</th><th>Duduk</th><th>Jalan</th><th>Lari</th><th>Sampel</th><th>Waktu Selesai</th></tr>
             </thead>
             <tbody id="historyBody">
-              <tr class="history-empty">
-                <td colspan="9">Menunggu hasil sesi peserta pertama...</td>
-               </tr>
+              <tr class="history-empty"><td colspan="9">Menunggu hasil sesi peserta pertama...</td></tr>
             </tbody>
-           </table>
+          </table>
         </div>
       </div>
     </section>
 
-  </div><!-- /main-content -->
+  </div>
 
   <script src="script.js"></script>
   
-  <!-- Dark Mode Script -->
   <script>
-    // Dark Mode Toggle Function
     function initDarkMode() {
       const toggle = document.getElementById('themeToggle');
       const themeIcon = document.getElementById('themeIcon');
       const themeText = document.getElementById('themeText');
-      
       const savedTheme = localStorage.getItem('theme');
       if (savedTheme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -692,7 +650,6 @@
         themeIcon.textContent = '🌞';
         themeText.textContent = 'Light';
       }
-      
       if (toggle) {
         toggle.addEventListener('click', () => {
           const currentTheme = document.documentElement.getAttribute('data-theme');
@@ -713,9 +670,7 @@
     
     function updateClock() {
       const now = new Date();
-      const timeString = now.toLocaleTimeString('id-ID', { hour12: false });
-      const clock = document.getElementById('clock');
-      if (clock) clock.textContent = timeString;
+      document.getElementById('clock').textContent = now.toLocaleTimeString('id-ID', { hour12: false });
     }
     
     initDarkMode();

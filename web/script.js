@@ -1,102 +1,69 @@
 /**
  * script.js — AIoT Watch Dashboard
- *
- * MQTT WebSocket: broker.emqx.io:8083/mqtt (Cloud Broker)
- * Bisa diakses dari mana saja tanpa perlu Mosquitto lokal
+ * MQTT WebSocket: broker.emqx.io:8083/mqtt
  */
 
 'use strict';
 
-// ═══════════════════════════════════════════════════════════
-//  CONFIG — CLOUD BROKER EMQX
-// ═══════════════════════════════════════════════════════════
 const CONFIG = {
-  broker:   'broker.emqx.io',      // Cloud broker EMQX (gratis)
-  port:     8083,                   // WebSocket port untuk EMQX
-  path:     '/mqtt',                // WebSocket path
+  broker: 'broker.emqx.io',
+  port: 8083,
+  path: '/mqtt',
   clientId: 'dashboard_' + Math.random().toString(16).slice(2, 10),
   topics: {
-    sensorData:     'sensor/esp32/data',
+    sensorData: 'sensor/esp32/data',
     classification: 'classification/result',
-    status:         'status/esp32',
+    status: 'status/esp32',
   },
 };
 
-const STORAGE_KEY = 'aiot_history_cloud_v2';   // localStorage key untuk history
+const STORAGE_KEY = 'aiot_history_cloud_v2';
+const MAX_POINTS = 300;
 
-// ═══════════════════════════════════════════════════════════
-//  SENSOR CHART
-// ═══════════════════════════════════════════════════════════
-const MAX_POINTS = 400;
 const sensorBuffer = { labels: [], accel: [], gyro: [], bpm: [] };
-let sensorChart   = null;
+let sensorChart = null;
 let activityChart = null;
-let msgCount      = 0;
+let msgCount = 0;
+const activityHistory = [];
+let historyRecords = [];
 
-const activityHistory = [];   // distribusi aktivitas 1 jam terakhir
-
-// ═══════════════════════════════════════════════════════════
-//  HISTORY — PERSISTEN VIA localStorage
-// ═══════════════════════════════════════════════════════════
-
-/** Muat riwayat dari localStorage saat halaman dibuka */
+// ============================================================
+// HISTORY MANAGEMENT
+// ============================================================
 function loadHistoryFromStorage() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    return raw ? JSON.parse(raw) : [];
   } catch (e) {
-    console.warn('[History] Gagal muat dari localStorage:', e);
     return [];
   }
 }
 
-/** Simpan seluruh array history ke localStorage */
 function saveHistoryToStorage(records) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-  } catch (e) {
-    console.warn('[History] Gagal simpan ke localStorage:', e);
-  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
 }
 
-// Array di-memory (diisi dari localStorage saat boot)
-let historyRecords = loadHistoryFromStorage();
+historyRecords = loadHistoryFromStorage();
 
-/** Tambah satu record baru ke history, simpan ke storage, render ulang */
 function addHistoryRecord(data) {
-  const no        = parseInt(data.participant_no)  || (historyRecords.length + 1);
-  const pid       = data.participant_id || data.user || '—';
-  const activity  = (data.final_activity || '').toUpperCase();
-  const bpm       = parseInt(data.final_bpm)       || 0;
-  const cDuduk    = parseInt(data.count_duduk)      || 0;
-  const cBerjalan = parseInt(data.count_berjalan)   || 0;
-  const cBerlari  = parseInt(data.count_berlari)    || 0;
-  const totalSamp = parseInt(data.total_samples)    || (cDuduk + cBerjalan + cBerlari);
-  const waktu     = new Date().toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  const no = parseInt(data.participant_no) || (historyRecords.length + 1);
+  const pid = data.participant_id || data.user || '—';
+  const activity = (data.final_activity || '').toUpperCase();
+  const bpm = parseInt(data.final_bpm) || 0;
+  const cDuduk = parseInt(data.count_duduk) || 0;
+  const cBerjalan = parseInt(data.count_berjalan) || 0;
+  const cBerlari = parseInt(data.count_berlari) || 0;
+  const totalSamp = parseInt(data.total_samples) || (cDuduk + cBerjalan + cBerlari);
+  const waktu = new Date().toLocaleTimeString('id-ID');
 
-  // Cek duplikat berdasarkan participant_no + participant_id
-  const isDuplicate = historyRecords.some(
-    r => r.no === no && r.pid === pid
-  );
-  if (isDuplicate) {
-    console.log(`[History] P${no} ${pid} sudah ada, skip.`);
-    return;
-  }
+  if (historyRecords.some(r => r.no === no && r.pid === pid)) return;
 
-  const record = { no, pid, activity, bpm, cDuduk, cBerjalan, cBerlari, totalSamp, waktu };
-  // Tambahkan di awal array (terbaru di atas)
-  historyRecords.unshift(record);
-
-  // Simpan ke localStorage
+  historyRecords.unshift({ no, pid, activity, bpm, cDuduk, cBerjalan, cBerlari, totalSamp, waktu });
   saveHistoryToStorage(historyRecords);
-
-  renderHistory(true);       // true = animasi baris baru
+  renderHistory(true);
   updateHistoryStats();
 }
 
-/** Render tabel dari historyRecords (terbaru di atas) */
 function renderHistory(animateNew = false) {
   const tbody = document.getElementById('historyBody');
   if (!tbody) return;
@@ -106,127 +73,164 @@ function renderHistory(animateNew = false) {
     return;
   }
 
-  // Tidak perlu sorting lagi karena sudah unshift
   tbody.innerHTML = historyRecords.map((r, i) => `
     <tr class="${animateNew && i === 0 ? 'new-row' : ''}">
       <td>${r.no}</td>
       <td><strong>${r.pid}</strong></td>
       <td><span class="act-badge ${r.activity}">${r.activity || '—'}</span></td>
       <td>${r.bpm > 0 ? r.bpm + ' bpm' : '—'}</td>
-      <td>${r.cDuduk}</td>
-      <td>${r.cBerjalan}</td>
-      <td>${r.cBerlari}</td>
-      <td>${r.totalSamp}</td>
-      <td>${r.waktu}</td>
+      <td>${r.cDuduk}</td><td>${r.cBerjalan}</td><td>${r.cBerlari}</td>
+      <td>${r.totalSamp}</td><td>${r.waktu}</td>
     </tr>
   `).join('');
 }
 
-/** Update counter badge di atas tabel */
 function updateHistoryStats() {
-  const total   = historyRecords.length;
-  const nDuduk  = historyRecords.filter(r => r.activity === 'DUDUK').length;
-  const nJalan  = historyRecords.filter(r => r.activity === 'BERJALAN').length;
-  const nLari   = historyRecords.filter(r => r.activity === 'BERLARI').length;
+  const total = historyRecords.length;
+  const nDuduk = historyRecords.filter(r => r.activity === 'DUDUK').length;
+  const nJalan = historyRecords.filter(r => r.activity === 'BERJALAN').length;
+  const nLari = historyRecords.filter(r => r.activity === 'BERLARI').length;
 
-  const set = (id, txt) => { const e = document.getElementById(id); if (e) e.textContent = txt; };
-  set('hstatTotal', `${total} Peserta`);
-  set('hstatDuduk', `Duduk: ${nDuduk}`);
-  set('hstatJalan', `Jalan: ${nJalan}`);
-  set('hstatLari',  `Lari: ${nLari}`);
+  document.getElementById('hstatTotal').textContent = `${total} Peserta`;
+  document.getElementById('hstatDuduk').textContent = `Duduk: ${nDuduk}`;
+  document.getElementById('hstatJalan').textContent = `Jalan: ${nJalan}`;
+  document.getElementById('hstatLari').textContent = `Lari: ${nLari}`;
 }
 
-/** Hapus semua history (confirm dulu) — dipanggil dari tombol HTML */
-function clearHistory() {
-  if (!confirm('Hapus semua riwayat peserta dari tampilan dan penyimpanan lokal?')) return;
-  historyRecords = [];
-  saveHistoryToStorage(historyRecords);
-  renderHistory();
-  updateHistoryStats();
-}
+window.clearHistory = function() {
+  if (confirm('Hapus semua riwayat peserta?')) {
+    historyRecords = [];
+    saveHistoryToStorage(historyRecords);
+    renderHistory();
+    updateHistoryStats();
+  }
+};
 
-// Expose ke global agar onclick di HTML bisa akses
-window.clearHistory = clearHistory;
-
-// ═══════════════════════════════════════════════════════════
-//  CHART — Sensor line chart
-// ═══════════════════════════════════════════════════════════
+// ============================================================
+// CHARTS - DIPERBAIKI AGAR LEBIH TAJAM
+// ============================================================
 function initSensorChart() {
   const ctx = document.getElementById('sensorChart').getContext('2d');
+  
+  // Set canvas resolution lebih tinggi
+  const canvas = document.getElementById('sensorChart');
+  const container = canvas.parentElement;
+  const width = container.clientWidth;
+  const height = 300;
+  
+  canvas.width = width * 2;
+  canvas.height = height * 2;
+  canvas.style.width = width + 'px';
+  canvas.style.height = height + 'px';
+  
   sensorChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels:   sensorBuffer.labels,
+      labels: sensorBuffer.labels,
       datasets: [
         {
-          label: 'Accel', data: sensorBuffer.accel,
-          borderColor: '#60A5FA', backgroundColor: 'rgba(96,165,250,0.07)',
-          borderWidth: 1.8, pointRadius: 0, tension: 0.4, fill: true,
+          label: 'Accel (g)',
+          data: sensorBuffer.accel,
+          borderColor: '#60A5FA',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          tension: 0.2,
+          fill: false,
         },
         {
-          label: 'Gyro÷10', data: sensorBuffer.gyro,
-          borderColor: '#34D399', backgroundColor: 'rgba(52,211,153,0.05)',
-          borderWidth: 1.8, pointRadius: 0, tension: 0.4, fill: true,
+          label: 'Gyro (°/s ÷10)',
+          data: sensorBuffer.gyro,
+          borderColor: '#34D399',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          tension: 0.2,
+          fill: false,
         },
         {
-          label: 'BPM÷100', data: sensorBuffer.bpm,
-          borderColor: '#F87171', backgroundColor: 'rgba(248,113,113,0.05)',
-          borderWidth: 1.8, pointRadius: 0, tension: 0.4, fill: true,
+          label: 'BPM ÷100',
+          data: sensorBuffer.bpm,
+          borderColor: '#F87171',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          tension: 0.2,
+          fill: false,
         },
       ],
     },
     options: {
-      responsive: true, maintainAspectRatio: false, animation: { duration: 0 },
+      responsive: true,
+      maintainAspectRatio: true,
+      animation: false,
       interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: 'rgba(10,15,46,0.88)',
-          titleColor: '#A5B4FC', bodyColor: '#E5E7EB',
-          padding: 10, cornerRadius: 8,
-          callbacks: {
-            title: (i) => `Sample #${i[0].label}`,
-            label: (i) => {
-              if (i.datasetIndex === 0) return `  Accel: ${(i.raw).toFixed(4)} g`;
-              if (i.datasetIndex === 1) return `  Gyro : ${(i.raw * 10).toFixed(2)} °/s`;
-              return `  BPM  : ${Math.round(i.raw * 100)}`;
-            },
-          },
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          titleColor: '#fff',
+          bodyColor: '#ccc',
+          padding: 8,
+          cornerRadius: 6,
         },
       },
       scales: {
-        x: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#9CA3AF', font: { size: 10 }, maxTicksLimit: 10 } },
-        y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#9CA3AF', font: { size: 10 }, callback: v => v.toFixed(2) }, suggestedMin: 0, suggestedMax: 1.5 },
+        x: {
+          grid: { color: 'rgba(128,128,128,0.1)', drawBorder: true },
+          ticks: { color: '#9CA3AF', font: { size: 10, family: 'JetBrains Mono' }, maxTicksLimit: 8 },
+        },
+        y: {
+          grid: { color: 'rgba(128,128,128,0.1)' },
+          ticks: { color: '#9CA3AF', font: { size: 10, family: 'JetBrains Mono' }, callback: v => v.toFixed(2) },
+          suggestedMin: 0,
+          suggestedMax: 1.5,
+        },
       },
     },
   });
 }
 
-// ═══════════════════════════════════════════════════════════
-//  CHART — Activity bar chart
-// ═══════════════════════════════════════════════════════════
 function initActivityChart() {
   const ctx = document.getElementById('activityChart').getContext('2d');
+  
+  const canvas = document.getElementById('activityChart');
+  const container = canvas.parentElement;
+  const width = container.clientWidth;
+  const height = 220;
+  
+  canvas.width = width * 2;
+  canvas.height = height * 2;
+  canvas.style.width = width + 'px';
+  canvas.style.height = height + 'px';
+  
   activityChart = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels:   ['Duduk', 'Berjalan', 'Berlari'],
+      labels: ['Duduk', 'Berjalan', 'Berlari'],
       datasets: [{
         data: [0, 0, 0],
-        backgroundColor: ['rgba(96,165,250,0.75)', 'rgba(52,211,153,0.75)', 'rgba(248,113,113,0.75)'],
-        borderColor:     ['#60A5FA', '#34D399', '#F87171'],
-        borderWidth: 1.5, borderRadius: 6,
+        backgroundColor: ['rgba(96,165,250,0.8)', 'rgba(52,211,153,0.8)', 'rgba(248,113,113,0.8)'],
+        borderColor: ['#60A5FA', '#34D399', '#F87171'],
+        borderWidth: 1,
+        borderRadius: 8,
+        barPercentage: 0.6,
       }],
     },
     options: {
-      responsive: true, maintainAspectRatio: false, animation: { duration: 400 },
+      responsive: true,
+      maintainAspectRatio: true,
+      animation: { duration: 300 },
       plugins: {
         legend: { display: false },
-        tooltip: { backgroundColor: 'rgba(10,15,46,0.88)', titleColor: '#A5B4FC', bodyColor: '#E5E7EB', padding: 10, cornerRadius: 8 },
+        tooltip: { backgroundColor: 'rgba(0,0,0,0.8)', titleColor: '#fff', bodyColor: '#ccc', padding: 8, cornerRadius: 6 },
       },
       scales: {
-        x: { grid: { display: false }, ticks: { color: '#6B7280', font: { size: 11, weight: '600' } } },
-        y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#9CA3AF', font: { size: 10 }, stepSize: 1, precision: 0 }, beginAtZero: true },
+        x: { grid: { display: false }, ticks: { color: '#9CA3AF', font: { size: 11, weight: '500' } } },
+        y: { grid: { color: 'rgba(128,128,128,0.1)' }, ticks: { color: '#9CA3AF', font: { size: 10 }, stepSize: 1, precision: 0 }, beginAtZero: true },
       },
     },
   });
@@ -238,33 +242,41 @@ function pushSensorData(accel, gyro, bpm) {
   sensorBuffer.accel.push(accel);
   sensorBuffer.gyro.push(gyro / 10);
   sensorBuffer.bpm.push(bpm > 0 ? bpm / 100 : null);
+  
   if (sensorBuffer.labels.length > MAX_POINTS) {
-    sensorBuffer.labels.shift(); sensorBuffer.accel.shift();
-    sensorBuffer.gyro.shift();   sensorBuffer.bpm.shift();
+    sensorBuffer.labels.shift();
+    sensorBuffer.accel.shift();
+    sensorBuffer.gyro.shift();
+    sensorBuffer.bpm.shift();
   }
-  if (sensorChart) sensorChart.update('none');
+  
+  if (sensorChart) {
+    sensorChart.update('none');
+  }
 }
 
 function pushActivityResult(activity) {
-  const now    = Date.now();
+  const now = Date.now();
   const cutoff = now - 60 * 60 * 1000;
   activityHistory.push({ time: now, activity });
   while (activityHistory.length > 0 && activityHistory[0].time < cutoff) activityHistory.shift();
+  
   const c = { DUDUK: 0, BERJALAN: 0, BERLARI: 0 };
   activityHistory.forEach(r => { if (c[r.activity] !== undefined) c[r.activity]++; });
+  
   if (activityChart) {
     activityChart.data.datasets[0].data = [c.DUDUK, c.BERJALAN, c.BERLARI];
     activityChart.update();
   }
 }
 
-// ═══════════════════════════════════════════════════════════
-//  UI — Activity, BPM, Accuracy, Info
-// ═══════════════════════════════════════════════════════════
+// ============================================================
+// UI UPDATES
+// ============================================================
 const ACTIVITY_META = {
-  DUDUK:    { label: 'DUDUK',    icon: '🪑', sub: 'Sedang duduk / diam',  color: '#60A5FA' },
+  DUDUK: { label: 'DUDUK', icon: '🪑', sub: 'Sedang duduk / diam', color: '#60A5FA' },
   BERJALAN: { label: 'BERJALAN', icon: '🚶', sub: 'Sedang berjalan kaki', color: '#34D399' },
-  BERLARI:  { label: 'BERLARI',  icon: '🏃', sub: 'Sedang berlari',       color: '#F87171' },
+  BERLARI: { label: 'BERLARI', icon: '🏃', sub: 'Sedang berlari', color: '#F87171' },
 };
 
 let lastActivity = '';
@@ -273,201 +285,125 @@ function updateActivity(activity) {
   if (activity === lastActivity) return;
   lastActivity = activity;
   const meta = ACTIVITY_META[activity] || { label: activity, icon: '❓', sub: '', color: '#9CA3AF' };
-  const el  = document.getElementById('activityValue');
-  const ic  = document.getElementById('actIcon');
-  const sub = document.getElementById('actSub');
-  if (el) { el.textContent = meta.label; el.style.color = meta.color; }
-  if (ic) { ic.textContent = meta.icon; ic.style.transform = 'scale(1.4)'; setTimeout(() => ic.style.transform = 'scale(1)', 200); }
-  if (sub) sub.textContent = meta.sub;
+  document.getElementById('activityValue').textContent = meta.label;
+  document.getElementById('actIcon').textContent = meta.icon;
+  document.getElementById('actSub').textContent = meta.sub;
 }
 
 function updateBPM(bpm) {
-  const el  = document.getElementById('bpmValue');
-  const st  = document.getElementById('bpmStatus');
+  const el = document.getElementById('bpmValue');
+  const st = document.getElementById('bpmStatus');
   const bar = document.getElementById('bpmBar');
-  const glow= document.getElementById('bpmGlow');
-  if (!el) return;
+  
   if (bpm <= 0) {
-    el.textContent = '--'; if (st) { st.textContent = 'Tidak terbaca'; st.className = 'bpm-status'; }
-    if (bar) bar.style.width = '0%'; return;
+    el.textContent = '--';
+    st.textContent = 'Tidak terbaca';
+    bar.style.width = '0%';
+    return;
   }
+  
   el.textContent = bpm;
-  let label = 'Normal', cls = 'bpm-status';
-  if      (bpm < 60)  { label = 'Terlalu Lambat'; cls = 'bpm-status warn'; }
-  else if (bpm >= 140) { label = 'Sangat Tinggi'; cls = 'bpm-status danger'; }
-  else if (bpm >= 100) { label = 'Tinggi';        cls = 'bpm-status warn'; }
-  if (st) { st.textContent = label; st.className = cls; }
-  if (bar) bar.style.width = Math.min(100, (bpm / 200) * 100) + '%';
-  if (glow) glow.style.background = `rgba(255,107,107,${0.15 + (bpm/200)*0.35})`;
+  let label = 'Normal';
+  if (bpm < 60) label = 'Terlalu Lambat';
+  else if (bpm >= 140) label = 'Sangat Tinggi';
+  else if (bpm >= 100) label = 'Tinggi';
+  st.textContent = label;
+  bar.style.width = Math.min(100, (bpm / 200) * 100) + '%';
 }
 
 function updateAccuracy(confidence) {
-  const pct  = Math.round(confidence * 100);
+  const pct = Math.round(confidence * 100);
   const ring = document.getElementById('ringFill');
-  const text = document.getElementById('accuracyValue');
   const circumference = 2 * Math.PI * 32;
-  if (ring) {
-    ring.style.strokeDasharray = circumference;
-    ring.style.strokeDashoffset = circumference - (pct / 100) * circumference;
-    ring.style.stroke = pct >= 85 ? '#34D399' : pct >= 65 ? '#F5A623' : '#F87171';
-  }
-  if (text) text.textContent = pct + '%';
+  ring.style.strokeDasharray = circumference;
+  ring.style.strokeDashoffset = circumference - (pct / 100) * circumference;
+  ring.style.stroke = pct >= 85 ? '#34D399' : pct >= 65 ? '#FBBF24' : '#F87171';
+  document.getElementById('accuracyValue').textContent = pct + '%';
 }
 
 function updateInfo(data) {
-  const set = (id, v) => { const e = document.getElementById(id); if (e && v) e.textContent = v; };
-  set('infoDevice',  data.device_id);
-  set('infoUser',    data.participant_id || data.user);
-  set('infoLastMsg', new Date().toLocaleTimeString('id-ID'));
-  const tot = document.getElementById('infoTotal');
-  if (tot) tot.textContent = msgCount;
+  if (data.device_id) document.getElementById('infoDevice').textContent = data.device_id;
+  if (data.participant_id || data.user) document.getElementById('infoUser').textContent = data.participant_id || data.user;
+  document.getElementById('infoLastMsg').textContent = new Date().toLocaleTimeString('id-ID');
+  document.getElementById('infoTotal').textContent = msgCount;
 }
 
-function setConnectionStatus(online, label = '') {
-  const dot   = document.getElementById('badgeDot');
+function setConnectionStatus(online) {
+  const dot = document.getElementById('badgeDot');
   const badge = document.getElementById('badgeLabel');
-  const sd    = document.getElementById('statusDot');
-  const st    = document.getElementById('statusText');
-  if (online) {
-    if (dot)   dot.className   = 'badge-dot online';
-    if (badge) badge.textContent = 'Connected';
-    if (sd)    sd.className    = 'status-dot online';
-    if (st)  { st.textContent  = 'Connected'; st.style.color = '#22C55E'; }
-  } else {
-    if (dot)   dot.className   = 'badge-dot offline';
-    if (badge) badge.textContent = label || 'Disconnected';
-    if (sd)    sd.className    = 'status-dot offline';
-    if (st)  { st.textContent  = label || 'Disconnected'; st.style.color = '#EF4444'; }
-  }
-}
-
-// ═══════════════════════════════════════════════════════════
-//  DEMO MODE (fallback jika MQTT gagal)
-// ═══════════════════════════════════════════════════════════
-let demoInterval = null;
-
-function startDemoMode() {
-  console.warn('[DEMO] MQTT tidak terhubung — data simulasi.');
-  setConnectionStatus(false, 'Demo Mode');
-  const acts = ['DUDUK', 'BERJALAN', 'BERLARI'];
-  let t = 0;
-  demoInterval = setInterval(() => {
-    t += 0.1;
-    const act = acts[Math.floor(t / 20) % 3];
-    let accel, gyro, bpm;
-    if      (act === 'DUDUK')    { accel = 0.01 + Math.random()*0.02; gyro = 3  + Math.random()*8;   bpm = 68  + Math.random()*8; }
-    else if (act === 'BERJALAN') { accel = 0.07 + Math.random()*0.08; gyro = 20 + Math.random()*30;  bpm = 88  + Math.random()*12; }
-    else                         { accel = 0.25 + Math.random()*0.15; gyro = 75 + Math.random()*50;  bpm = 130 + Math.random()*20; }
-    pushSensorData(accel, gyro, Math.round(bpm));
-    pushActivityResult(act);
-    updateActivity(act);
-    updateBPM(Math.round(bpm));
-    updateAccuracy(0.88 + Math.random()*0.10);
-    updateInfo({ device_id: 'ESP32_001', participant_id: 'Demo' });
-  }, 200);
-}
-
-function stopDemoMode() { if (demoInterval) { clearInterval(demoInterval); demoInterval = null; } }
-
-// ═══════════════════════════════════════════════════════════
-//  MQTT — CLOUD BROKER EMQX
-// ═══════════════════════════════════════════════════════════
-function connectMQTT() {
-  let client;
-  const wsUrl = `ws://${CONFIG.broker}:${CONFIG.port}${CONFIG.path}`;
-  console.log(`[MQTT] Menghubungkan ke cloud broker: ${wsUrl}`);
+  const sd = document.getElementById('statusDot');
+  const st = document.getElementById('statusText');
   
-  try {
-    client = mqtt.connect(wsUrl, {
-      clientId: CONFIG.clientId,
-      connectTimeout: 10000,
-      reconnectPeriod: 5000,
-    });
-  } catch (e) { 
-    console.error('[MQTT] Error koneksi:', e);
-    startDemoMode(); 
-    return; 
+  if (online) {
+    dot.className = 'badge-dot online';
+    badge.textContent = 'Connected';
+    sd.className = 'status-dot online';
+    st.textContent = 'Connected';
+  } else {
+    dot.className = 'badge-dot';
+    badge.textContent = 'Disconnected';
+    sd.className = 'status-dot';
+    st.textContent = 'Disconnected';
   }
+}
 
-  const timeout = setTimeout(() => {
-    if (!client.connected) { 
-      console.warn('[MQTT] Timeout koneksi');
-      client.end(true); 
-      startDemoMode(); 
-    }
-  }, 10000);
+// ============================================================
+// MQTT CONNECTION
+// ============================================================
+function connectMQTT() {
+  const wsUrl = `ws://${CONFIG.broker}:${CONFIG.port}${CONFIG.path}`;
+  console.log('[MQTT] Connecting to:', wsUrl);
+  
+  const client = mqtt.connect(wsUrl, {
+    clientId: CONFIG.clientId,
+    connectTimeout: 10000,
+    reconnectPeriod: 5000,
+  });
 
   client.on('connect', () => {
-    clearTimeout(timeout);
-    stopDemoMode();
+    console.log('[MQTT] Connected to EMQX Cloud!');
     setConnectionStatus(true);
-    console.log('[MQTT] Terhubung ke EMQX Cloud!');
-    Object.values(CONFIG.topics).forEach(t => {
-      client.subscribe(t, { qos: 0 });
-      console.log(`[MQTT] Subscribe ke: ${t}`);
-    });
+    Object.values(CONFIG.topics).forEach(t => client.subscribe(t));
   });
 
-  client.on('close', () => {
-    console.log('[MQTT] Koneksi ditutup');
-    setConnectionStatus(false, 'Reconnecting…');
-  });
-  
-  client.on('error', (err) => {
-    console.error('[MQTT] Error:', err.message);
-    setConnectionStatus(false, 'Error');
-  });
+  client.on('close', () => setConnectionStatus(false));
+  client.on('error', (err) => console.error('[MQTT] Error:', err.message));
 
   client.on('message', (topic, payload) => {
     let data;
     try { data = JSON.parse(payload.toString()); } catch(e) { return; }
 
     if (topic === CONFIG.topics.sensorData) {
-      const accel = parseFloat(data.accel_stddev) || 0;
-      const gyro  = parseFloat(data.gyro_stddev)  || 0;
-      const bpm   = parseInt(data.bpm, 10)         || 0;
-      pushSensorData(accel, gyro, bpm);
-      updateBPM(bpm);
+      pushSensorData(data.accel_stddev || 0, data.gyro_stddev || 0, data.bpm || 0);
+      updateBPM(data.bpm || 0);
       updateInfo(data);
       if (data.local_act) updateActivity(data.local_act.toUpperCase());
     }
-
     else if (topic === CONFIG.topics.classification) {
-      const act  = (data.activity || '').toUpperCase();
-      const conf = parseFloat(data.confidence) || 0;
-      const bpm  = parseInt(data.bpm, 10) || 0;
+      const act = (data.activity || '').toUpperCase();
       updateActivity(act);
       pushActivityResult(act);
-      updateAccuracy(conf);
-      if (bpm > 0) updateBPM(bpm);
+      updateAccuracy(data.confidence || 0);
+      if (data.bpm > 0) updateBPM(data.bpm);
     }
-
     else if (topic === CONFIG.topics.status) {
-      console.log('[STATUS AKHIR]', data);
-      if (data.final_activity) {
-        updateActivity(data.final_activity.toUpperCase());
-      }
+      if (data.final_activity) updateActivity(data.final_activity.toUpperCase());
       addHistoryRecord(data);
     }
   });
 }
 
-// ═══════════════════════════════════════════════════════════
-//  BOOT
-// ═══════════════════════════════════════════════════════════
+// ============================================================
+// INITIALIZATION
+// ============================================================
 document.addEventListener('DOMContentLoaded', () => {
-  // Inisialisasi chart
   initSensorChart();
   initActivityChart();
-
-  // Broker info
-  const bi = document.getElementById('infobroker');
-  if (bi) bi.textContent = `${CONFIG.broker}:${CONFIG.port}`;
-
-  // Render history dari localStorage (agar tidak hilang setelah refresh)
+  
+  document.getElementById('infobroker').textContent = `${CONFIG.broker}:${CONFIG.port}`;
+  
   renderHistory();
   updateHistoryStats();
-
-  // Connect MQTT ke cloud broker
+  
   connectMQTT();
 });
