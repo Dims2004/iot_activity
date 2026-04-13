@@ -12507,3 +12507,25 @@ Jalankan notebook 02_training_model.ipynb terlebih dahulu.
 2026-04-13 12:17:43 | INFO     | collect_participants | MQTT terhubung ke cloud broker broker.emqx.io:1883
 2026-04-13 12:18:00 | INFO     | collect_participants | MQTT terhubung ke cloud broker broker.emqx.io:1883
 2026-04-13 12:18:14 | INFO     | collect_participants | START → P1 [PSR_01] via control/session
+2026-04-13 12:21:40 | INFO     | server_knn | =======================================================
+2026-04-13 12:21:40 | INFO     | server_knn |   AIoT Watch — KNN Inference Server (3 Fitur)
+2026-04-13 12:21:40 | INFO     | server_knn |   Fitur: ['accel_stddev', 'gyro_stddev', 'bpm_filled']
+2026-04-13 12:21:40 | INFO     | server_knn |   Broker: broker.emqx.io:1883
+2026-04-13 12:21:40 | INFO     | server_knn | =======================================================
+2026-04-13 12:21:42 | INFO     | server_knn | Model  : C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\models\knn_model.pkl
+2026-04-13 12:21:42 | INFO     | server_knn | Scaler : C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\models\scaler.pkl
+2026-04-13 12:21:42 | INFO     | server_knn | BPM median: {'DUDUK': 70, 'BERJALAN': 117, 'BERLARI': 151, '_global': 75}
+2026-04-13 12:21:42 | INFO     | server_knn | Fitur  : ['accel_stddev', 'gyro_stddev', 'bpm_filled']
+2026-04-13 12:21:42 | INFO     | server_knn | Server aktif. Tekan Ctrl+C untuk berhenti.
+2026-04-13 12:21:43 | INFO     | server_knn | Terhubung ke broker broker.emqx.io:1883
+2026-04-13 12:22:33 | INFO     | collect_participants | MQTT terhubung ke cloud broker broker.emqx.io:1883
+2026-04-13 12:22:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 0 | Uptime: 1.0 menit
+  DUDUK     :     0 (0.0%)
+  BERJALAN  :     0 (0.0%)
+  BERLARI   :     0 (0.0%)
+2026-04-13 12:22:50 | INFO     | collect_participants | START → P1 [PSR_01] via control/session
+2026-04-13 12:22:52 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0059 gStd=1.86 BPM=0(raw) 75(filled)
+2026-04-13 12:22:54 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=0.73) | aStd=0.0108 gStd=11.64 BPM=0(raw) 75(filled)
+2026-04-13 12:22:56 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0059 gStd=10.21 BPM=0(raw) 75(filled)
+2026-04-13 12:22:58 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0054 gStd=2.29 BPM=0(raw) 75(filled)
