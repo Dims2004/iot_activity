@@ -12420,3 +12420,7 @@ Jalankan notebook 02_training_model.ipynb terlebih dahulu.
 2026-04-12 19:53:00 | INFO     | data_collection | Perintah STOP terkirim
 2026-04-12 19:53:01 | INFO     | data_collection | Raw disimpan → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\data\raw\raw_DUDUK_20260412_195301.csv (886 baris)
 2026-04-12 19:53:01 | INFO     | data_collection | Dataset +886 baris → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\dataset\dataset.csv
+2026-04-13 10:16:53 | INFO     | data_collection | Terhubung ke cloud broker broker.emqx.io:1883
+2026-04-13 10:16:54 | INFO     | data_collection | START terkirim ke control/session untuk label: BERJALAN
+2026-04-13 10:17:14 | INFO     | data_collection | [BERJALAN] n=10 | aStd=0.0390 | gStd=14.31 | BPM=134
+2026-04-13 10:17:34 | INFO     | data_collection | [BERJALAN] n=20 | aStd=0.0328 | gStd=10.64 | BPM=106
