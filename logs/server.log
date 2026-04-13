@@ -13999,3 +13999,8 @@ Jalankan notebook 02_training_model.ipynb terlebih dahulu.
   DUDUK     :   148 (33.1%)
   BERJALAN  :   159 (35.6%)
   BERLARI   :   140 (31.3%)
+2026-04-13 15:47:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 206.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
