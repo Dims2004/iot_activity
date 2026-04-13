@@ -18,7 +18,7 @@ const CONFIG = {
 };
 
 const STORAGE_KEY = 'aiot_history_cloud_v2';
-const MAX_POINTS = 300;
+const MAX_POINTS = 200; // Dikurangi untuk performa lebih baik
 
 const sensorBuffer = { labels: [], accel: [], gyro: [], bpm: [] };
 let sensorChart = null;
@@ -69,19 +69,22 @@ function renderHistory(animateNew = false) {
   if (!tbody) return;
 
   if (historyRecords.length === 0) {
-    tbody.innerHTML = '<tr class="history-empty"><td colspan="9">Menunggu hasil sesi peserta pertama...</td></tr>';
+    tbody.innerHTML = '<tr class="history-empty"><td colspan="9">Menunggu hasil sesi peserta pertama...<\/td><\/tr>';
     return;
   }
 
   tbody.innerHTML = historyRecords.map((r, i) => `
     <tr class="${animateNew && i === 0 ? 'new-row' : ''}">
-      <td>${r.no}</td>
-      <td><strong>${r.pid}</strong></td>
-      <td><span class="act-badge ${r.activity}">${r.activity || '—'}</span></td>
-      <td>${r.bpm > 0 ? r.bpm + ' bpm' : '—'}</td>
-      <td>${r.cDuduk}</td><td>${r.cBerjalan}</td><td>${r.cBerlari}</td>
-      <td>${r.totalSamp}</td><td>${r.waktu}</td>
-    </tr>
+      <td>${r.no}<\/td>
+      <td><strong>${r.pid}<\/strong><\/td>
+      <td><span class="act-badge ${r.activity}">${r.activity || '—'}<\/span><\/td>
+      <td>${r.bpm > 0 ? r.bpm + ' bpm' : '—'}<\/td>
+      <td>${r.cDuduk}<\/td>
+      <td>${r.cBerjalan}<\/td>
+      <td>${r.cBerlari}<\/td>
+      <td>${r.totalSamp}<\/td>
+      <td>${r.waktu}<\/td>
+    <\/tr>
   `).join('');
 }
 
@@ -107,21 +110,22 @@ window.clearHistory = function() {
 };
 
 // ============================================================
-// CHARTS - DIPERBAIKI AGAR LEBIH TAJAM
+// CHARTS - HIGH RESOLUTION (FIX BLUR)
 // ============================================================
 function initSensorChart() {
-  const ctx = document.getElementById('sensorChart').getContext('2d');
-  
-  // Set canvas resolution lebih tinggi
   const canvas = document.getElementById('sensorChart');
   const container = canvas.parentElement;
   const width = container.clientWidth;
-  const height = 300;
+  const height = 320;
   
+  // CRITICAL: Set canvas resolution ke 2x untuk menghilangkan blur
   canvas.width = width * 2;
   canvas.height = height * 2;
   canvas.style.width = width + 'px';
   canvas.style.height = height + 'px';
+  
+  const ctx = canvas.getContext('2d');
+  ctx.scale(2, 2);
   
   sensorChart = new Chart(ctx, {
     type: 'line',
@@ -133,10 +137,10 @@ function initSensorChart() {
           data: sensorBuffer.accel,
           borderColor: '#60A5FA',
           backgroundColor: 'transparent',
-          borderWidth: 2,
+          borderWidth: 2.5,
           pointRadius: 0,
-          pointHoverRadius: 4,
-          tension: 0.2,
+          pointHoverRadius: 5,
+          tension: 0.1,
           fill: false,
         },
         {
@@ -144,10 +148,10 @@ function initSensorChart() {
           data: sensorBuffer.gyro,
           borderColor: '#34D399',
           backgroundColor: 'transparent',
-          borderWidth: 2,
+          borderWidth: 2.5,
           pointRadius: 0,
-          pointHoverRadius: 4,
-          tension: 0.2,
+          pointHoverRadius: 5,
+          tension: 0.1,
           fill: false,
         },
         {
@@ -155,37 +159,39 @@ function initSensorChart() {
           data: sensorBuffer.bpm,
           borderColor: '#F87171',
           backgroundColor: 'transparent',
-          borderWidth: 2,
+          borderWidth: 2.5,
           pointRadius: 0,
-          pointHoverRadius: 4,
-          tension: 0.2,
+          pointHoverRadius: 5,
+          tension: 0.1,
           fill: false,
         },
       ],
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: true,
+      responsive: false,
+      maintainAspectRatio: false,
       animation: false,
       interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: 'rgba(0,0,0,0.8)',
+          backgroundColor: 'rgba(0,0,0,0.85)',
           titleColor: '#fff',
-          bodyColor: '#ccc',
-          padding: 8,
-          cornerRadius: 6,
+          bodyColor: '#ddd',
+          padding: 10,
+          cornerRadius: 8,
+          titleFont: { size: 12, weight: 'bold' },
+          bodyFont: { size: 11 },
         },
       },
       scales: {
         x: {
-          grid: { color: 'rgba(128,128,128,0.1)', drawBorder: true },
-          ticks: { color: '#9CA3AF', font: { size: 10, family: 'JetBrains Mono' }, maxTicksLimit: 8 },
+          grid: { color: 'rgba(128,128,128,0.08)', drawBorder: true, lineWidth: 0.5 },
+          ticks: { color: '#9CA3AF', font: { size: 10, family: 'JetBrains Mono', weight: '500' }, maxTicksLimit: 8 },
         },
         y: {
-          grid: { color: 'rgba(128,128,128,0.1)' },
-          ticks: { color: '#9CA3AF', font: { size: 10, family: 'JetBrains Mono' }, callback: v => v.toFixed(2) },
+          grid: { color: 'rgba(128,128,128,0.08)', lineWidth: 0.5 },
+          ticks: { color: '#9CA3AF', font: { size: 10, family: 'JetBrains Mono', weight: '500' }, callback: v => v.toFixed(2) },
           suggestedMin: 0,
           suggestedMax: 1.5,
         },
@@ -195,17 +201,18 @@ function initSensorChart() {
 }
 
 function initActivityChart() {
-  const ctx = document.getElementById('activityChart').getContext('2d');
-  
   const canvas = document.getElementById('activityChart');
   const container = canvas.parentElement;
   const width = container.clientWidth;
-  const height = 220;
+  const height = 240;
   
   canvas.width = width * 2;
   canvas.height = height * 2;
   canvas.style.width = width + 'px';
   canvas.style.height = height + 'px';
+  
+  const ctx = canvas.getContext('2d');
+  ctx.scale(2, 2);
   
   activityChart = new Chart(ctx, {
     type: 'bar',
@@ -213,24 +220,41 @@ function initActivityChart() {
       labels: ['Duduk', 'Berjalan', 'Berlari'],
       datasets: [{
         data: [0, 0, 0],
-        backgroundColor: ['rgba(96,165,250,0.8)', 'rgba(52,211,153,0.8)', 'rgba(248,113,113,0.8)'],
+        backgroundColor: ['rgba(96,165,250,0.85)', 'rgba(52,211,153,0.85)', 'rgba(248,113,113,0.85)'],
         borderColor: ['#60A5FA', '#34D399', '#F87171'],
-        borderWidth: 1,
+        borderWidth: 1.5,
         borderRadius: 8,
-        barPercentage: 0.6,
+        barPercentage: 0.65,
+        categoryPercentage: 0.8,
       }],
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      animation: { duration: 300 },
+      responsive: false,
+      maintainAspectRatio: false,
+      animation: { duration: 300, easing: 'easeOutQuad' },
       plugins: {
         legend: { display: false },
-        tooltip: { backgroundColor: 'rgba(0,0,0,0.8)', titleColor: '#fff', bodyColor: '#ccc', padding: 8, cornerRadius: 6 },
+        tooltip: {
+          backgroundColor: 'rgba(0,0,0,0.85)',
+          titleColor: '#fff',
+          bodyColor: '#ddd',
+          padding: 8,
+          cornerRadius: 8,
+          callbacks: {
+            label: (context) => `${context.raw} kali terdeteksi`,
+          },
+        },
       },
       scales: {
-        x: { grid: { display: false }, ticks: { color: '#9CA3AF', font: { size: 11, weight: '500' } } },
-        y: { grid: { color: 'rgba(128,128,128,0.1)' }, ticks: { color: '#9CA3AF', font: { size: 10 }, stepSize: 1, precision: 0 }, beginAtZero: true },
+        x: {
+          grid: { display: false },
+          ticks: { color: '#9CA3AF', font: { size: 12, weight: '600', family: 'Inter' } },
+        },
+        y: {
+          grid: { color: 'rgba(128,128,128,0.08)', lineWidth: 0.5 },
+          ticks: { color: '#9CA3AF', font: { size: 10, family: 'JetBrains Mono' }, stepSize: 1, precision: 0 },
+          beginAtZero: true,
+        },
       },
     },
   });
@@ -393,6 +417,22 @@ function connectMQTT() {
   });
 }
 
+// Handle window resize untuk menjaga chart tetap tajam
+let resizeTimeout;
+function handleResize() {
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(() => {
+    if (sensorChart) {
+      sensorChart.destroy();
+      initSensorChart();
+    }
+    if (activityChart) {
+      activityChart.destroy();
+      initActivityChart();
+    }
+  }, 250);
+}
+
 // ============================================================
 // INITIALIZATION
 // ============================================================
@@ -406,4 +446,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateHistoryStats();
   
   connectMQTT();
+  
+  // Tambahkan event listener untuk resize
+  window.addEventListener('resize', handleResize);
 });
