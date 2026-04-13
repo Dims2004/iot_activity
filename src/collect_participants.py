@@ -1,5 +1,6 @@
 """
 collect_participants.py — Pengambilan data partisipan via cloud broker
+Sekarang TIDAK perlu memilih label aktivitas — aktivitas dideteksi otomatis oleh ESP32 & KNN
 """
 import json, os, sys, csv, signal, time, threading, shutil
 from collections import Counter
@@ -22,7 +23,7 @@ SUMMARY_PATH = os.path.join(DATASET_DIR, "sessions_summary.csv")
 BACKUP_DIR = os.path.join(DATASET_DIR, "backup")
 
 SUMMARY_FIELDS = [
-    "participant_no","participant_id","activity_label","timestamp",
+    "participant_no","participant_id","timestamp",
     "final_activity","final_bpm","avg_bpm",
     "count_duduk","count_berjalan","count_berlari",
     "total_samples","bpm_valid_pct","durasi_detik","sumber_hasil"
@@ -41,7 +42,6 @@ class State:
     def __init__(self):
         self.current_no = 0
         self.current_id = ""
-        self.activity_label = ""
         self.session_active = False
         self.session_done = threading.Event()
         self.session_result = {}
@@ -52,6 +52,7 @@ class State:
 state = State()
 
 def compute_result_from_raw(raw_rows):
+    """Hitung hasil akhir dari raw data (fallback jika ESP32 tidak mengirim status)"""
     if not raw_rows:
         return {"final_activity":"","final_bpm":0,"avg_bpm":0,
                 "count_duduk":0,"count_berjalan":0,"count_berlari":0,"total_samples":0}
@@ -63,7 +64,7 @@ def compute_result_from_raw(raw_rows):
         bpm = int(row.get("bpm",0) or 0)
         if 40 < bpm < 220: bpm_vals.append(bpm)
 
-    final_activity = act_counts.most_common(1)[0][0] if act_counts else state.activity_label
+    final_activity = act_counts.most_common(1)[0][0] if act_counts else "DUDUK"
     final_bpm = int(sum(bpm_vals)/len(bpm_vals)) if bpm_vals else 0
     return {
         "final_activity": final_activity,
@@ -142,7 +143,8 @@ def save_raw_session(participant_id, participant_no):
         w.writerows(state.raw_rows)
     logger.info(f"Raw → {path} ({len(state.raw_rows)} baris)")
 
-def append_to_dataset(activity_label: str):
+def append_to_dataset():
+    """Simpan data ke dataset.csv dengan activity dari hasil klasifikasi (local_act)"""
     if not state.raw_rows: return
     file_exists = os.path.isfile(DATASET_PATH)
     added = 0
@@ -157,14 +159,14 @@ def append_to_dataset(activity_label: str):
                 "accel_stddev": row.get("accel_stddev",""),
                 "gyro_stddev": row.get("gyro_stddev",""),
                 "bpm": row.get("bpm",0),
-                "activity": activity_label,
+                "activity": row.get("local_act",""),  # Gunakan local_act dari ESP32/KNN
                 "local_act": row.get("local_act",""),
                 "timestamp": row.get("timestamp",""),
             })
             added += 1
-    logger.info(f"Dataset +{added} baris label={activity_label} → {DATASET_PATH}")
+    logger.info(f"Dataset +{added} baris → {DATASET_PATH}")
 
-def save_summary(participant_no, participant_id, activity_label, result, duration_sec, sumber):
+def save_summary(participant_no, participant_id, result, duration_sec, sumber):
     file_exists = os.path.isfile(SUMMARY_PATH)
     bpm_vals = [int(r.get("bpm",0)) for r in state.raw_rows if int(r.get("bpm",0))>0]
     bpm_valid_pct = round(len(bpm_vals)/len(state.raw_rows)*100, 1) if state.raw_rows else 0
@@ -175,7 +177,6 @@ def save_summary(participant_no, participant_id, activity_label, result, duratio
         w.writerow({
             "participant_no": participant_no,
             "participant_id": participant_id,
-            "activity_label": activity_label,
             "timestamp": datetime.now().isoformat(),
             "final_activity": result.get("final_activity",""),
             "final_bpm": result.get("final_bpm",0),
@@ -225,72 +226,76 @@ def do_restart():
     return True
 
 def input_participant(no, completed_ids):
+    """Input hanya ID peserta, TIDAK perlu memilih label aktivitas"""
     print(f"\n{'─'*57}")
-    print(f"  Peserta ke-{no}")
+    print(f"  👤 PESERTA KE-{no}")
     print(f"  Sebelumnya: {', '.join(completed_ids[-5:]) if completed_ids else '-'}")
     print(f"{'─'*57}")
-    print(f"  Perintah: [r]estart | [s]kip | [q]uit")
+    print(f"  ℹ️  Aktivitas akan DIDETEKSI OTOMATIS oleh ESP32 & KNN")
+    print(f"  Perintah: [r]estart | [s]kip | [q]uit\n")
 
     while True:
         try:
-            raw = input(f"  ID Peserta {no}: ").strip()
+            raw = input(f"  Masukkan ID Peserta {no}: ").strip()
         except (EOFError, KeyboardInterrupt):
             state.aborted = True
-            return None, None
+            return None
 
         lower = raw.lower()
         if lower in ("q","quit","exit"):
             state.aborted = True
-            return None, None
+            return None
         if lower in ("s","skip"):
             print(f"  ⏭ Peserta ke-{no} dilewati.\n")
-            return "__SKIP__", None
+            return "__SKIP__"
         if lower in ("r","restart"):
             if do_restart():
                 state.restart_flag = True
-                return None, None
+                return None
             continue
         if not raw:
-            print("  ⚠ ID kosong.")
+            print("  ⚠ ID tidak boleh kosong.")
             continue
-        if len(raw) > 20:
-            print("  ⚠ Terlalu panjang.")
+        if len(raw) > 30:
+            print("  ⚠ ID terlalu panjang (maks 30 karakter).")
             continue
+        
+        # Bersihkan ID
         safe = raw.replace(" ","_").replace(",","").replace('"',"").replace("'","")
         if safe != raw:
-            print(f"  ℹ ID diubah: '{safe}'")
+            print(f"  ℹ ID diubah menjadi: '{safe}'")
+        
+        print(f"\n  ✅ Peserta '{safe}' terdaftar")
+        print(f"  📌 Instruksi: Lakukan aktivitas NORMAL (duduk/jalan/lari) selama 15 menit")
+        print(f"  🤖 ESP32 akan mendeteksi aktivitas secara otomatis!\n")
+        return safe
 
-        print(f"\n  Label aktivitas untuk {safe}:")
-        for i, cls in enumerate(CLASSES, 1):
-            print(f"    {i}. {cls}")
-        while True:
-            try:
-                pilih = input("  Pilih (1/2/3): ").strip().upper()
-            except (EOFError, KeyboardInterrupt):
-                state.aborted = True
-                return None, None
-            if pilih in ("1","DUDUK"): return safe, "DUDUK"
-            if pilih in ("2","BERJALAN"): return safe, "BERJALAN"
-            if pilih in ("3","BERLARI"): return safe, "BERLARI"
-            print("  ⚠ Masukkan 1, 2, atau 3.")
-
-def show_session_timer(participant_no, participant_id, activity_label):
+def show_session_timer(participant_no, participant_id):
     start = time.time()
+    last_activity = ""
     while state.session_active:
         elapsed = time.time() - start
         remaining = max(0, SESSION_DURATION - elapsed)
         m, s = int(remaining//60), int(remaining%60)
         bpm_ok = sum(1 for r in state.raw_rows if int(r.get("bpm",0)) > 0)
-        print(f"\r  ⏱ P{participant_no} [{participant_id}|{activity_label}] "
-              f"Sisa: {m:02d}:{s:02d} | Sampel: {len(state.raw_rows):4d} "
-              f"| BPM valid: {bpm_ok:3d}   ", end="", flush=True)
+        
+        # Tampilkan aktivitas terakhir dari ESP32
+        current_activity = "?"
+        if state.raw_rows:
+            last_row = state.raw_rows[-1]
+            current_activity = last_row.get("local_act", "?")
+        
+        print(f"\r  ⏱  P{participant_no} [{participant_id}] | "
+              f"Deteksi: {current_activity:<8} | "
+              f"Sisa: {m:02d}:{s:02d} | "
+              f"Sampel: {len(state.raw_rows):4d} | "
+              f"BPM: {bpm_ok:3d}   ", end="", flush=True)
         time.sleep(0.5)
     print()
 
-def run_session(client, participant_no, participant_id, activity_label):
+def run_session(client, participant_no, participant_id):
     state.current_no = participant_no
     state.current_id = participant_id
-    state.activity_label = activity_label
     state.session_active = True
     state.session_done.clear()
     state.session_result = {}
@@ -298,10 +303,12 @@ def run_session(client, participant_no, participant_id, activity_label):
     session_start = time.time()
 
     send_start(client, participant_id, participant_no)
-    print(f"\n  🟢 P{participant_no} [{participant_id}] — {activity_label} | 15 menit\n")
+    print(f"\n  🟢 Sesi P{participant_no} [{participant_id}] dimulai!")
+    print(f"     Durasi: {SESSION_DURATION//60} menit")
+    print(f"     Aktivitas akan dideteksi otomatis oleh ESP32\n")
 
     threading.Thread(target=show_session_timer,
-                     args=(participant_no, participant_id, activity_label),
+                     args=(participant_no, participant_id),
                      daemon=True).start()
     threading.Thread(target=session_timer_watchdog, daemon=True).start()
 
@@ -310,6 +317,7 @@ def run_session(client, participant_no, participant_id, activity_label):
     duration = time.time() - session_start
     time.sleep(0.6)
 
+    # Tentukan hasil
     if state.session_result and state.session_result.get("final_activity"):
         result = state.session_result
         sumber = "esp32"
@@ -318,20 +326,22 @@ def run_session(client, participant_no, participant_id, activity_label):
         sumber = "python"
 
     if not state.raw_rows:
-        print(f"\n  ❌ Tidak ada data P{participant_no}. Cek ESP32.\n")
+        print(f"\n  ❌ Tidak ada data dari P{participant_no}. Cek ESP32.\n")
         return False
 
     save_raw_session(participant_id, participant_no)
-    append_to_dataset(activity_label)
-    save_summary(participant_no, participant_id, activity_label, result, duration, sumber)
+    append_to_dataset()
+    save_summary(participant_no, participant_id, result, duration, sumber)
 
     bpm_vals = [int(r.get("bpm",0)) for r in state.raw_rows if int(r.get("bpm",0))>0]
     bpm_pct = round(len(bpm_vals)/len(state.raw_rows)*100, 1) if state.raw_rows else 0
     src = "📡 ESP32" if sumber=="esp32" else "🐍 Python"
-    print(f"\n  ✅ P{participant_no} [{participant_id}|{activity_label}] selesai! [{src}]")
-    print(f"     Aktivitas : {result.get('final_activity','N/A')}")
-    print(f"     BPM avg   : {result.get('avg_bpm',0)} bpm | valid: {bpm_pct}%")
-    print(f"     D:{result.get('count_duduk',0)}  J:{result.get('count_berjalan',0)}  L:{result.get('count_berlari',0)}  | {result.get('total_samples',0)} sampel")
+    
+    print(f"\n  ✅ P{participant_no} [{participant_id}] SELESAI! [{src}]")
+    print(f"     Aktivitas Dominan : {result.get('final_activity','N/A')}")
+    print(f"     Rata-rata BPM     : {result.get('avg_bpm',0)} bpm | valid: {bpm_pct}%")
+    print(f"     Count D:{result.get('count_duduk',0)}  J:{result.get('count_berjalan',0)}  L:{result.get('count_berlari',0)}")
+    print(f"     Total sampel      : {result.get('total_samples',0)}\n")
     return True
 
 def print_final_summary(completed_count):
@@ -340,6 +350,19 @@ def print_final_summary(completed_count):
     print(f"{'═'*62}")
     print(f"  Dataset   : {DATASET_PATH}")
     print(f"  Ringkasan : {SUMMARY_PATH}")
+    
+    if os.path.isfile(SUMMARY_PATH):
+        try:
+            with open(SUMMARY_PATH,"r",encoding="utf-8") as f:
+                rows = list(csv.DictReader(f))
+            if rows:
+                print(f"\n  {'No':<5} {'ID':<15} {'Aktivitas Dominan':<18} {'Rata BPM':>8} {'Valid%':>8}")
+                print(f"  {'─'*60}")
+                for r in rows[-10:]:  # tampilkan 10 terakhir
+                    print(f"  {r['participant_no']:<5} {r['participant_id']:<15} "
+                          f"{r['final_activity']:<18} {r['avg_bpm']:>8} bpm {r.get('bpm_valid_pct','?')}%")
+        except Exception as e:
+            print(f"  (gagal baca ringkasan: {e})")
 
 def handle_sigint(sig, frame):
     print("\n\n  Ctrl+C diterima — menghentikan sesi...")
@@ -347,13 +370,16 @@ def handle_sigint(sig, frame):
     state.session_done.set()
 
 def run_collection_loop(client):
+    # Hitung peserta yang sudah ada
     start_from = 1
+    completed_ids = []
     if os.path.isfile(SUMMARY_PATH):
         try:
             with open(SUMMARY_PATH,"r",encoding="utf-8") as f:
                 rows = list(csv.DictReader(f))
             if rows:
                 start_from = max(int(r["participant_no"]) for r in rows) + 1
+                completed_ids = [r["participant_id"] for r in rows]
                 print(f"\n  ℹ Melanjutkan dari sesi ke-{start_from} ({len(rows)} sudah terekam)")
         except Exception:
             pass
@@ -362,6 +388,7 @@ def run_collection_loop(client):
     print(f"  ℹ Topic Command: {TOPIC_COMMAND}")
     print(f"  ℹ Durasi per sesi: {SESSION_DURATION//60} menit")
     print(f"  ℹ Jumlah peserta: TIDAK TERBATAS")
+    print(f"  ℹ Aktivitas DIDETEKSI OTOMATIS oleh ESP32 & KNN")
     print(f"\n  Perintah: [r]estart | [s]kip | [q]uit\n")
 
     input("  Tekan ENTER untuk mulai... ")
@@ -372,7 +399,7 @@ def run_collection_loop(client):
     while True:
         if state.aborted: break
 
-        pid, label = input_participant(no, [])
+        pid = input_participant(no, completed_ids)
 
         if pid is None:
             if state.restart_flag:
@@ -383,7 +410,7 @@ def run_collection_loop(client):
             no += 1
             continue
 
-        success = run_session(client, no, pid, label)
+        success = run_session(client, no, pid)
         if state.aborted: break
         if state.restart_flag:
             state.restart_flag = False
@@ -391,11 +418,12 @@ def run_collection_loop(client):
 
         if success:
             completed_count += 1
+            completed_ids.append(pid)
 
         print(f"\n  📊 Total sesi terekam: {completed_count}")
 
         if not state.aborted:
-            print(f"\n  ⏳ Jeda 10 detik...")
+            print(f"\n  ⏳ Jeda 10 detik sebelum peserta berikutnya...")
             for i in range(10, 0, -1):
                 if state.aborted: break
                 print(f"\r  Lanjut dalam {i}s...", end="", flush=True)
@@ -414,7 +442,8 @@ def main():
     signal.signal(signal.SIGINT, handle_sigint)
 
     print("╔═══════════════════════════════════════════════════════╗")
-    print("║    AIoT Watch — Pengambilan Data (Cloud Broker)       ║")
+    print("║    AIoT Watch — Pengambilan Data Partisipan           ║")
+    print("║    ✨ Aktivitas DIDETEKSI OTOMATIS oleh ESP32 & KNN   ║")
     print(f"║    Setiap sesi: {SESSION_DURATION//60} menit                     ║")
     print("╚═══════════════════════════════════════════════════════╝")
 

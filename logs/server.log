@@ -12498,3 +12498,8 @@ Jalankan notebook 02_training_model.ipynb terlebih dahulu.
 2026-04-13 10:45:30 | ERROR    | data_collection | Gagal kirim STOP: Message publish failed: The client is not currently connected.
 2026-04-13 10:45:32 | INFO     | data_collection | Raw disimpan → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\data\raw\raw_BERLARI_20260413_104532.csv (232 baris)
 2026-04-13 10:45:32 | INFO     | data_collection | Dataset +232 baris → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\dataset\dataset.csv
+2026-04-13 11:28:28 | INFO     | collect_participants | MQTT terhubung ke cloud broker broker.emqx.io:1883
+2026-04-13 11:29:23 | INFO     | collect_participants | START → P1 [PSR_01] via control/session
+2026-04-13 11:44:33 | WARNING  | collect_participants | [WATCHDOG] P1 timeout — fallback Python.
+2026-04-13 11:44:34 | INFO     | collect_participants | Raw → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\data\raw\P001_PSR_01_20260413_114434.csv (5 baris)
+2026-04-13 11:44:34 | INFO     | collect_participants | Dataset +5 baris label=DUDUK → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\dataset\dataset.csv
