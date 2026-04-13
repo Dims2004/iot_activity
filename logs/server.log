@@ -12505,3 +12505,5 @@ Jalankan notebook 02_training_model.ipynb terlebih dahulu.
 2026-04-13 11:44:34 | INFO     | collect_participants | Dataset +5 baris label=DUDUK → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\dataset\dataset.csv
 2026-04-13 12:14:40 | INFO     | collect_participants | MQTT terhubung ke cloud broker broker.emqx.io:1883
 2026-04-13 12:17:43 | INFO     | collect_participants | MQTT terhubung ke cloud broker broker.emqx.io:1883
+2026-04-13 12:18:00 | INFO     | collect_participants | MQTT terhubung ke cloud broker broker.emqx.io:1883
+2026-04-13 12:18:14 | INFO     | collect_participants | START → P1 [PSR_01] via control/session
