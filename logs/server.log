@@ -13169,3 +13169,53 @@ Jalankan notebook 02_training_model.ipynb terlebih dahulu.
   DUDUK     :   148 (33.1%)
   BERJALAN  :   159 (35.6%)
   BERLARI   :   140 (31.3%)
+2026-04-13 13:01:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 40.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
+2026-04-13 13:02:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 41.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
+2026-04-13 13:03:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 42.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
+2026-04-13 13:04:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 43.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
+2026-04-13 13:05:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 44.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
+2026-04-13 13:06:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 45.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
+2026-04-13 13:07:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 46.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
+2026-04-13 13:08:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 47.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
+2026-04-13 13:09:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 48.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
+2026-04-13 13:10:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 49.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
