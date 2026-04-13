@@ -1,2 +1,0 @@
-participant_no,participant_id,activity_label,timestamp,final_activity,final_bpm,avg_bpm,count_duduk,count_berjalan,count_berlari,total_samples,bpm_valid_pct,durasi_detik,sumber_hasil
-1,PSR_01,DUDUK,2026-04-13T11:44:34.514102,DUDUK,0,0,5,0,0,5,0.0,910.2,python

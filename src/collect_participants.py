@@ -1,6 +1,7 @@
 """
 collect_participants.py — Pengambilan data partisipan via cloud broker
 Sekarang TIDAK perlu memilih label aktivitas — aktivitas dideteksi otomatis oleh ESP32 & KNN
+Tambahan: Perintah STOP untuk menghentikan sesi lebih awal
 """
 import json, os, sys, csv, signal, time, threading, shutil
 from collections import Counter
@@ -48,6 +49,7 @@ class State:
         self.raw_rows = []
         self.aborted = False
         self.restart_flag = False
+        self.stop_requested = False  # Tambahan untuk perintah STOP
 
 state = State()
 
@@ -117,6 +119,7 @@ def on_message(client, userdata, msg):
             state.session_done.set()
 
 def session_timer_watchdog():
+    """Watchdog untuk memastikan sesi tidak berjalan lebih dari durasi"""
     time.sleep(SESSION_DURATION + 10)
     if state.session_active:
         logger.warning(f"[WATCHDOG] P{state.current_no} timeout — fallback Python.")
@@ -124,6 +127,7 @@ def session_timer_watchdog():
         state.session_done.set()
 
 def send_start(client, participant_id, participant_no):
+    """Kirim perintah START ke ESP32"""
     payload = json.dumps({
         "cmd": "START",
         "participant_id": participant_id,
@@ -133,6 +137,21 @@ def send_start(client, participant_id, participant_no):
     r = client.publish(TOPIC_COMMAND, payload, qos=1)
     r.wait_for_publish(timeout=3)
     logger.info(f"START → P{participant_no} [{participant_id}] via {TOPIC_COMMAND}")
+
+def send_stop(client, participant_no):
+    """Kirim perintah STOP ke ESP32 untuk menghentikan sesi lebih awal"""
+    payload = json.dumps({
+        "cmd": "STOP",
+        "participant_no": participant_no
+    })
+    try:
+        r = client.publish(TOPIC_COMMAND, payload, qos=1)
+        r.wait_for_publish(timeout=3)
+        logger.info(f"STOP → P{participant_no} via {TOPIC_COMMAND}")
+        return True
+    except Exception as e:
+        logger.error(f"Gagal kirim STOP: {e}")
+        return False
 
 def save_raw_session(participant_id, participant_no):
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -232,7 +251,7 @@ def input_participant(no, completed_ids):
     print(f"  Sebelumnya: {', '.join(completed_ids[-5:]) if completed_ids else '-'}")
     print(f"{'─'*57}")
     print(f"  ℹ️  Aktivitas akan DIDETEKSI OTOMATIS oleh ESP32 & KNN")
-    print(f"  Perintah: [r]estart | [s]kip | [q]uit\n")
+    print(f"  Perintah: [r]estart | [s]kip | [q]uit | [t]stop (hentikan sesi berjalan)\n")
 
     while True:
         try:
@@ -253,6 +272,16 @@ def input_participant(no, completed_ids):
                 state.restart_flag = True
                 return None
             continue
+        if lower in ("t","stop"):
+            if state.session_active:
+                print(f"\n  🛑 Menghentikan sesi berjalan...")
+                state.stop_requested = True
+                state.session_active = False
+                state.session_done.set()
+                return None
+            else:
+                print(f"  ⚠ Tidak ada sesi aktif yang sedang berjalan.")
+                continue
         if not raw:
             print("  ⚠ ID tidak boleh kosong.")
             continue
@@ -267,13 +296,40 @@ def input_participant(no, completed_ids):
         
         print(f"\n  ✅ Peserta '{safe}' terdaftar")
         print(f"  📌 Instruksi: Lakukan aktivitas NORMAL (duduk/jalan/lari) selama 15 menit")
-        print(f"  🤖 ESP32 akan mendeteksi aktivitas secara otomatis!\n")
+        print(f"  🤖 ESP32 akan mendeteksi aktivitas secara otomatis!")
+        print(f"  💡 Ketik 'stop' atau 't' kapan saja untuk menghentikan sesi lebih awal\n")
         return safe
 
-def show_session_timer(participant_no, participant_id):
+def show_session_timer(participant_no, participant_id, client):
+    """Tampilkan timer dan monitor input STOP dari user"""
+    import sys
     start = time.time()
+    
+    # Thread untuk mendeteksi input STOP
+    def check_stop_input():
+        while state.session_active:
+            try:
+                if sys.stdin.isatty():
+                    # Non-blocking input check
+                    import select
+                    if select.select([sys.stdin], [], [], 0.1)[0]:
+                        cmd = sys.stdin.read(1).strip().lower()
+                        if cmd == 't' or cmd == 's':
+                            if cmd == 't':
+                                print(f"\n  🛑 Perintah STOP diterima!")
+                                state.stop_requested = True
+                                state.session_active = False
+                                state.session_done.set()
+            except:
+                pass
+            time.sleep(0.5)
+    
+    # Jalankan thread monitor input
+    stop_thread = threading.Thread(target=check_stop_input, daemon=True)
+    stop_thread.start()
+    
     last_activity = ""
-    while state.session_active:
+    while state.session_active and not state.stop_requested:
         elapsed = time.time() - start
         remaining = max(0, SESSION_DURATION - elapsed)
         m, s = int(remaining//60), int(remaining%60)
@@ -289,7 +345,7 @@ def show_session_timer(participant_no, participant_id):
               f"Deteksi: {current_activity:<8} | "
               f"Sisa: {m:02d}:{s:02d} | "
               f"Sampel: {len(state.raw_rows):4d} | "
-              f"BPM: {bpm_ok:3d}   ", end="", flush=True)
+              f"BPM: {bpm_ok:3d}   | (ketik 't' untuk stop)", end="", flush=True)
         time.sleep(0.5)
     print()
 
@@ -297,6 +353,7 @@ def run_session(client, participant_no, participant_id):
     state.current_no = participant_no
     state.current_id = participant_id
     state.session_active = True
+    state.stop_requested = False
     state.session_done.clear()
     state.session_result = {}
     state.raw_rows = []
@@ -305,15 +362,23 @@ def run_session(client, participant_no, participant_id):
     send_start(client, participant_id, participant_no)
     print(f"\n  🟢 Sesi P{participant_no} [{participant_id}] dimulai!")
     print(f"     Durasi: {SESSION_DURATION//60} menit")
-    print(f"     Aktivitas akan dideteksi otomatis oleh ESP32\n")
+    print(f"     Aktivitas akan dideteksi otomatis oleh ESP32")
+    print(f"     💡 Ketik 'stop' atau 't' untuk menghentikan sesi lebih awal\n")
 
     threading.Thread(target=show_session_timer,
-                     args=(participant_no, participant_id),
+                     args=(participant_no, participant_id, client),
                      daemon=True).start()
     threading.Thread(target=session_timer_watchdog, daemon=True).start()
 
     state.session_done.wait()
     state.session_active = False
+    
+    # Kirim STOP ke ESP32 jika dihentikan lebih awal
+    if state.stop_requested:
+        print(f"\n  🛑 Mengirim perintah STOP ke ESP32...")
+        send_stop(client, participant_no)
+        time.sleep(1)
+    
     duration = time.time() - session_start
     time.sleep(0.6)
 
@@ -337,11 +402,13 @@ def run_session(client, participant_no, participant_id):
     bpm_pct = round(len(bpm_vals)/len(state.raw_rows)*100, 1) if state.raw_rows else 0
     src = "📡 ESP32" if sumber=="esp32" else "🐍 Python"
     
-    print(f"\n  ✅ P{participant_no} [{participant_id}] SELESAI! [{src}]")
+    status = "DIHENTIKAN AWAL" if state.stop_requested else "SELESAI"
+    print(f"\n  ✅ P{participant_no} [{participant_id}] {status}! [{src}]")
     print(f"     Aktivitas Dominan : {result.get('final_activity','N/A')}")
     print(f"     Rata-rata BPM     : {result.get('avg_bpm',0)} bpm | valid: {bpm_pct}%")
     print(f"     Count D:{result.get('count_duduk',0)}  J:{result.get('count_berjalan',0)}  L:{result.get('count_berlari',0)}")
-    print(f"     Total sampel      : {result.get('total_samples',0)}\n")
+    print(f"     Total sampel      : {result.get('total_samples',0)}")
+    print(f"     Durasi sesi       : {duration:.1f} detik ({duration/60:.1f} menit)\n")
     return True
 
 def print_final_summary(completed_count):
@@ -356,11 +423,14 @@ def print_final_summary(completed_count):
             with open(SUMMARY_PATH,"r",encoding="utf-8") as f:
                 rows = list(csv.DictReader(f))
             if rows:
-                print(f"\n  {'No':<5} {'ID':<15} {'Aktivitas Dominan':<18} {'Rata BPM':>8} {'Valid%':>8}")
-                print(f"  {'─'*60}")
+                print(f"\n  {'No':<5} {'ID':<15} {'Aktivitas Dominan':<18} {'Rata BPM':>8} {'Valid%':>8} {'Durasi':>10}")
+                print(f"  {'─'*70}")
                 for r in rows[-10:]:  # tampilkan 10 terakhir
+                    durasi = float(r.get('durasi_detik', 0))
+                    durasi_str = f"{durasi/60:.1f}m" if durasi > 0 else "-"
                     print(f"  {r['participant_no']:<5} {r['participant_id']:<15} "
-                          f"{r['final_activity']:<18} {r['avg_bpm']:>8} bpm {r.get('bpm_valid_pct','?')}%")
+                          f"{r['final_activity']:<18} {r['avg_bpm']:>8} bpm "
+                          f"{r.get('bpm_valid_pct','?'):>6}% {durasi_str:>10}")
         except Exception as e:
             print(f"  (gagal baca ringkasan: {e})")
 
@@ -389,7 +459,7 @@ def run_collection_loop(client):
     print(f"  ℹ Durasi per sesi: {SESSION_DURATION//60} menit")
     print(f"  ℹ Jumlah peserta: TIDAK TERBATAS")
     print(f"  ℹ Aktivitas DIDETEKSI OTOMATIS oleh ESP32 & KNN")
-    print(f"\n  Perintah: [r]estart | [s]kip | [q]uit\n")
+    print(f"\n  Perintah: [r]estart | [s]kip | [q]uit | [t]stop (hentikan sesi berjalan)\n")
 
     input("  Tekan ENTER untuk mulai... ")
 
@@ -422,13 +492,15 @@ def run_collection_loop(client):
 
         print(f"\n  📊 Total sesi terekam: {completed_count}")
 
-        if not state.aborted:
+        if not state.aborted and not state.stop_requested:
             print(f"\n  ⏳ Jeda 10 detik sebelum peserta berikutnya...")
             for i in range(10, 0, -1):
                 if state.aborted: break
                 print(f"\r  Lanjut dalam {i}s...", end="", flush=True)
                 time.sleep(1)
             print()
+        else:
+            state.stop_requested = False
 
         no += 1
 
@@ -445,6 +517,7 @@ def main():
     print("║    AIoT Watch — Pengambilan Data Partisipan           ║")
     print("║    ✨ Aktivitas DIDETEKSI OTOMATIS oleh ESP32 & KNN   ║")
     print(f"║    Setiap sesi: {SESSION_DURATION//60} menit                     ║")
+    print("║    💡 Ketik 'stop' atau 't' untuk hentikan sesi      ║")
     print("╚═══════════════════════════════════════════════════════╝")
 
     client = mqtt.Client(callback_api_version=mqtt.CallbackAPIVersion.VERSION2)
@@ -461,7 +534,7 @@ def main():
     time.sleep(1)
 
     while True:
-        state.aborted = state.restart_flag = False
+        state.aborted = state.restart_flag = state.stop_requested = False
         should_restart = run_collection_loop(client)
         if not should_restart: break
         print("\n" + "═"*60)
