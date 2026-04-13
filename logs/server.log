@@ -13719,3 +13719,53 @@ Jalankan notebook 02_training_model.ipynb terlebih dahulu.
   DUDUK     :   148 (33.1%)
   BERJALAN  :   159 (35.6%)
   BERLARI   :   140 (31.3%)
+2026-04-13 14:51:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 150.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
+2026-04-13 14:52:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 151.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
+2026-04-13 14:53:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 152.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
+2026-04-13 14:54:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 153.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
+2026-04-13 14:55:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 154.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
+2026-04-13 14:56:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 155.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
+2026-04-13 14:57:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 156.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
+2026-04-13 14:58:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 157.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
+2026-04-13 14:59:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 158.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
+2026-04-13 15:00:42 | INFO     | server_knn | === STATS ===
+  Total prediksi: 447 | Uptime: 159.0 menit
+  DUDUK     :   148 (33.1%)
+  BERJALAN  :   159 (35.6%)
+  BERLARI   :   140 (31.3%)
