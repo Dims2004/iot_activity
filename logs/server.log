@@ -14379,3 +14379,50 @@ Jalankan notebook 02_training_model.ipynb terlebih dahulu.
 2026-04-15 16:51:29 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0083 gStd=0.29 BPM=77(raw) 77(filled)
 2026-04-15 16:51:31 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0063 gStd=3.91 BPM=69(raw) 69(filled)
 2026-04-15 16:51:33 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0090 gStd=5.89 BPM=69(raw) 69(filled)
+2026-04-16 12:50:01 | INFO     | server_knn | =======================================================
+2026-04-16 12:50:01 | INFO     | server_knn |   AIoT Watch — KNN Inference Server (3 Fitur)
+2026-04-16 12:50:01 | INFO     | server_knn |   Fitur: ['accel_stddev', 'gyro_stddev', 'bpm_filled']
+2026-04-16 12:50:01 | INFO     | server_knn |   Broker: broker.emqx.io:1883
+2026-04-16 12:50:01 | INFO     | server_knn | =======================================================
+2026-04-16 12:50:03 | INFO     | server_knn | Model  : C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\models\knn_model.pkl
+2026-04-16 12:50:03 | INFO     | server_knn | Scaler : C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\models\scaler.pkl
+2026-04-16 12:50:03 | INFO     | server_knn | BPM median: {'DUDUK': 70, 'BERJALAN': 117, 'BERLARI': 151, '_global': 75}
+2026-04-16 12:50:03 | INFO     | server_knn | Fitur  : ['accel_stddev', 'gyro_stddev', 'bpm_filled']
+2026-04-16 12:50:03 | INFO     | server_knn | Server aktif. Tekan Ctrl+C untuk berhenti.
+2026-04-16 12:50:04 | INFO     | server_knn | Terhubung ke broker broker.emqx.io:1883
+2026-04-16 12:50:31 | INFO     | collect_participants | MQTT terhubung ke cloud broker broker.emqx.io:1883
+2026-04-16 12:50:52 | INFO     | collect_participants | START → P2 [PSR_02] via control/session
+2026-04-16 12:50:55 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0050 gStd=0.20 BPM=0(raw) 75(filled)
+2026-04-16 12:50:57 | INFO     | server_knn | [KNN] unknown → BERJALAN (conf=0.52) | aStd=0.0090 gStd=24.88 BPM=0(raw) 75(filled)
+2026-04-16 12:50:59 | INFO     | server_knn | [KNN] unknown → BERJALAN (conf=0.68) | aStd=0.0198 gStd=23.83 BPM=0(raw) 75(filled)
+2026-04-16 12:51:01 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0068 gStd=3.98 BPM=0(raw) 75(filled)
+2026-04-16 12:51:03 | INFO     | server_knn | === STATS ===
+  Total prediksi: 4 | Uptime: 1.0 menit
+  DUDUK     :     2 (50.0%)
+  BERJALAN  :     2 (50.0%)
+  BERLARI   :     0 (0.0%)
+2026-04-16 12:51:04 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0070 gStd=5.08 BPM=69(raw) 69(filled)
+2026-04-16 12:51:05 | INFO     | server_knn | [KNN] unknown → BERJALAN (conf=0.51) | aStd=0.1069 gStd=50.61 BPM=65(raw) 65(filled)
+2026-04-16 12:51:07 | INFO     | server_knn | [KNN] unknown → BERJALAN (conf=0.59) | aStd=0.0289 gStd=11.32 BPM=65(raw) 65(filled)
+2026-04-16 12:51:10 | INFO     | server_knn | [KNN] unknown → BERLARI (conf=1.00) | aStd=0.5000 gStd=102.55 BPM=0(raw) 75(filled)
+2026-04-16 12:51:12 | INFO     | server_knn | [KNN] unknown → BERLARI (conf=1.00) | aStd=0.2936 gStd=77.64 BPM=0(raw) 75(filled)
+2026-04-16 12:51:15 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0079 gStd=10.76 BPM=0(raw) 75(filled)
+2026-04-16 12:51:17 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0098 gStd=9.66 BPM=0(raw) 75(filled)
+2026-04-16 12:51:19 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=0.53) | aStd=0.0383 gStd=30.91 BPM=0(raw) 75(filled)
+2026-04-16 12:51:21 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=0.72) | aStd=0.0061 gStd=12.17 BPM=0(raw) 75(filled)
+2026-04-16 12:51:25 | WARNING  | server_knn | Payload tidak valid: {'device_id': 'ESP32_001', 'timestamp': 206515, 'accel_stddev': 0.012802, 'gyro_stddev': 11.29364, 'bpm': 19, 'participant_id': 'PSR_02', 'participant_no': 2, 'local_act': 'DUDUK'}
+2026-04-16 12:51:27 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0054 gStd=2.16 BPM=30(raw) 30(filled)
+2026-04-16 12:51:30 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0074 gStd=0.47 BPM=38(raw) 38(filled)
+2026-04-16 12:51:31 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0045 gStd=0.59 BPM=48(raw) 48(filled)
+2026-04-16 12:51:36 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0064 gStd=2.43 BPM=100(raw) 100(filled)
+2026-04-16 12:51:38 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0103 gStd=1.77 BPM=108(raw) 108(filled)
+2026-04-16 12:52:03 | INFO     | server_knn | === STATS ===
+  Total prediksi: 18 | Uptime: 2.0 menit
+  DUDUK     :    12 (66.7%)
+  BERJALAN  :     4 (22.2%)
+  BERLARI   :     2 (11.1%)
+2026-04-16 12:53:03 | INFO     | server_knn | === STATS ===
+  Total prediksi: 18 | Uptime: 3.0 menit
+  DUDUK     :    12 (66.7%)
+  BERJALAN  :     4 (22.2%)
+  BERLARI   :     2 (11.1%)
