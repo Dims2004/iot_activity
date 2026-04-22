@@ -14434,3 +14434,20 @@ Jalankan notebook 02_training_model.ipynb terlebih dahulu.
 2026-04-16 13:52:08 | INFO     | collect_participants | MQTT terhubung ke cloud broker broker.emqx.io:1883
 2026-04-16 13:52:15 | INFO     | collect_participants | START → P2 [PSR_02] via control/session
 2026-04-16 13:59:33 | INFO     | collect_participants | MQTT terhubung ke cloud broker broker.emqx.io:1883
+2026-04-22 17:51:08 | INFO     | server_knn | =======================================================
+2026-04-22 17:51:08 | INFO     | server_knn |   AIoT Watch — KNN Inference Server (3 Fitur)
+2026-04-22 17:51:08 | INFO     | server_knn |   Fitur: ['accel_stddev', 'gyro_stddev', 'bpm_filled']
+2026-04-22 17:51:08 | INFO     | server_knn |   Broker: broker.emqx.io:1883
+2026-04-22 17:51:08 | INFO     | server_knn | =======================================================
+2026-04-22 17:51:10 | INFO     | server_knn | Model  : C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\models\knn_model.pkl
+2026-04-22 17:51:10 | INFO     | server_knn | Scaler : C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\models\scaler.pkl
+2026-04-22 17:51:10 | INFO     | server_knn | BPM median: {'DUDUK': 70, 'BERJALAN': 117, 'BERLARI': 151, '_global': 75}
+2026-04-22 17:51:10 | INFO     | server_knn | Fitur  : ['accel_stddev', 'gyro_stddev', 'bpm_filled']
+2026-04-22 17:51:10 | INFO     | server_knn | Server aktif. Tekan Ctrl+C untuk berhenti.
+2026-04-22 17:51:10 | INFO     | server_knn | Terhubung ke broker broker.emqx.io:1883
+2026-04-22 17:52:10 | INFO     | server_knn | === STATS ===
+  Total prediksi: 0 | Uptime: 1.0 menit
+  DUDUK     :     0 (0.0%)
+  BERJALAN  :     0 (0.0%)
+  BERLARI   :     0 (0.0%)
+2026-04-22 17:52:15 | INFO     | collect_participants | MQTT terhubung ke cloud broker broker.emqx.io:1883
