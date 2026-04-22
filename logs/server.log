@@ -14451,3 +14451,23 @@ Jalankan notebook 02_training_model.ipynb terlebih dahulu.
   BERJALAN  :     0 (0.0%)
   BERLARI   :     0 (0.0%)
 2026-04-22 17:52:15 | INFO     | collect_participants | MQTT terhubung ke cloud broker broker.emqx.io:1883
+2026-04-22 17:53:10 | INFO     | server_knn | === STATS ===
+  Total prediksi: 0 | Uptime: 2.0 menit
+  DUDUK     :     0 (0.0%)
+  BERJALAN  :     0 (0.0%)
+  BERLARI   :     0 (0.0%)
+2026-04-22 17:54:10 | INFO     | server_knn | === STATS ===
+  Total prediksi: 0 | Uptime: 3.0 menit
+  DUDUK     :     0 (0.0%)
+  BERJALAN  :     0 (0.0%)
+  BERLARI   :     0 (0.0%)
+2026-04-22 17:55:10 | INFO     | server_knn | === STATS ===
+  Total prediksi: 0 | Uptime: 4.0 menit
+  DUDUK     :     0 (0.0%)
+  BERJALAN  :     0 (0.0%)
+  BERLARI   :     0 (0.0%)
+2026-04-22 17:56:10 | INFO     | server_knn | === STATS ===
+  Total prediksi: 0 | Uptime: 5.0 menit
+  DUDUK     :     0 (0.0%)
+  BERJALAN  :     0 (0.0%)
+  BERLARI   :     0 (0.0%)
