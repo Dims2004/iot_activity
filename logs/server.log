@@ -14851,3 +14851,31 @@ Jalankan notebook 02_training_model.ipynb terlebih dahulu.
   DUDUK     :    86 (50.0%)
   BERJALAN  :    81 (47.1%)
   BERLARI   :     5 (2.9%)
+2026-04-22 18:34:34 | INFO     | server_knn | =======================================================
+2026-04-22 18:34:34 | INFO     | server_knn |   AIoT Watch — KNN Inference Server (3 Fitur)
+2026-04-22 18:34:34 | INFO     | server_knn |   Fitur: ['accel_stddev', 'gyro_stddev', 'bpm_filled']
+2026-04-22 18:34:34 | INFO     | server_knn |   Broker: broker.emqx.io:1883
+2026-04-22 18:34:34 | INFO     | server_knn | =======================================================
+2026-04-22 18:34:35 | INFO     | server_knn | Model  : C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\models\knn_model.pkl
+2026-04-22 18:34:35 | INFO     | server_knn | Scaler : C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\models\scaler.pkl
+2026-04-22 18:34:35 | INFO     | server_knn | BPM median: {'DUDUK': 70, 'BERJALAN': 117, 'BERLARI': 151, '_global': 75}
+2026-04-22 18:34:35 | INFO     | server_knn | Fitur  : ['accel_stddev', 'gyro_stddev', 'bpm_filled']
+2026-04-22 18:34:35 | INFO     | server_knn | Server aktif. Tekan Ctrl+C untuk berhenti.
+2026-04-22 18:34:35 | INFO     | server_knn | Terhubung ke broker broker.emqx.io:1883
+2026-04-22 18:34:44 | INFO     | collect_participants | MQTT terhubung ke cloud broker broker.emqx.io:1883
+2026-04-22 18:35:17 | INFO     | collect_participants | START → P2 [PSR_02] via control/session
+2026-04-22 18:35:19 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0090 gStd=3.23 BPM=0(raw) 75(filled)
+2026-04-22 18:35:21 | INFO     | server_knn | [KNN] unknown → BERJALAN (conf=0.76) | aStd=0.0630 gStd=27.23 BPM=0(raw) 75(filled)
+2026-04-22 18:35:23 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0227 gStd=9.71 BPM=0(raw) 75(filled)
+2026-04-22 18:35:25 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0051 gStd=10.53 BPM=75(raw) 75(filled)
+2026-04-22 18:35:27 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0084 gStd=7.75 BPM=75(raw) 75(filled)
+2026-04-22 18:35:29 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0080 gStd=1.29 BPM=0(raw) 75(filled)
+2026-04-22 18:35:31 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0062 gStd=0.45 BPM=0(raw) 75(filled)
+2026-04-22 18:35:33 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0224 gStd=8.17 BPM=0(raw) 75(filled)
+2026-04-22 18:35:35 | INFO     | server_knn | === STATS ===
+  Total prediksi: 8 | Uptime: 1.0 menit
+  DUDUK     :     7 (87.5%)
+  BERJALAN  :     1 (12.5%)
+  BERLARI   :     0 (0.0%)
+2026-04-22 18:35:35 | INFO     | server_knn | [KNN] unknown → BERJALAN (conf=1.00) | aStd=0.1282 gStd=22.43 BPM=0(raw) 75(filled)
+2026-04-22 18:35:37 | INFO     | server_knn | [KNN] unknown → BERJALAN (conf=0.55) | aStd=0.0327 gStd=9.53 BPM=70(raw) 70(filled)
