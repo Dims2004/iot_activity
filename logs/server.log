@@ -14431,3 +14431,6 @@ Jalankan notebook 02_training_model.ipynb terlebih dahulu.
 2026-04-16 13:48:23 | INFO     | collect_participants | MQTT terhubung ke cloud broker broker.emqx.io:1883
 2026-04-16 13:48:36 | INFO     | collect_participants | START → P2 [PSR_02] via control/session
 2026-04-16 13:49:47 | INFO     | collect_participants | MQTT terhubung ke cloud broker broker.emqx.io:1883
+2026-04-16 13:52:08 | INFO     | collect_participants | MQTT terhubung ke cloud broker broker.emqx.io:1883
+2026-04-16 13:52:15 | INFO     | collect_participants | START → P2 [PSR_02] via control/session
+2026-04-16 13:59:33 | INFO     | collect_participants | MQTT terhubung ke cloud broker broker.emqx.io:1883
