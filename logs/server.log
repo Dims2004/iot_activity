@@ -19038,3 +19038,13 @@ Jalankan notebook 02_training_model.ipynb terlebih dahulu.
 2026-04-23 13:55:12 | INFO     | server_knn | [STATUS] user=PSR_06 akt=DUDUK bpm=91
 2026-04-23 13:55:12 | INFO     | collect_participants | Raw → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\data\raw\P006_PSR_06_20260423_135512.csv (426 baris)
 2026-04-23 13:55:12 | INFO     | collect_participants | Dataset +426 baris → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\dataset\dataset.csv
+2026-04-23 13:56:04 | INFO     | server_knn | === STATS ===
+  Total prediksi: 1281 | Uptime: 77.0 menit
+  DUDUK     :   799 (62.4%)
+  BERJALAN  :   162 (12.6%)
+  BERLARI   :   320 (25.0%)
+2026-04-23 13:57:04 | INFO     | server_knn | === STATS ===
+  Total prediksi: 1281 | Uptime: 78.0 menit
+  DUDUK     :   799 (62.4%)
+  BERJALAN  :   162 (12.6%)
+  BERLARI   :   320 (25.0%)
