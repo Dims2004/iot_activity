@@ -18489,3 +18489,28 @@ Jalankan notebook 02_training_model.ipynb terlebih dahulu.
   BERJALAN  :    94 (11.2%)
   BERLARI   :   307 (36.5%)
 2026-04-23 13:36:31 | INFO     | collect_participants | START → P6 [PSR_06] via control/session
+2026-04-23 13:37:04 | INFO     | server_knn | === STATS ===
+  Total prediksi: 842 | Uptime: 58.0 menit
+  DUDUK     :   441 (52.4%)
+  BERJALAN  :    94 (11.2%)
+  BERLARI   :   307 (36.5%)
+2026-04-23 13:37:13 | INFO     | collect_participants | MQTT terhubung ke cloud broker broker.emqx.io:1883
+2026-04-23 13:38:02 | INFO     | collect_participants | START → P6 [PSR_06] via control/session
+2026-04-23 13:38:03 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0121 gStd=1.20 BPM=0(raw) 75(filled)
+2026-04-23 13:38:04 | INFO     | server_knn | === STATS ===
+  Total prediksi: 843 | Uptime: 59.0 menit
+  DUDUK     :   442 (52.4%)
+  BERJALAN  :    94 (11.2%)
+  BERLARI   :   307 (36.4%)
+2026-04-23 13:38:05 | INFO     | server_knn | [KNN] unknown → BERLARI (conf=0.75) | aStd=0.0592 gStd=92.61 BPM=0(raw) 75(filled)
+2026-04-23 13:38:08 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=0.48) | aStd=0.0339 gStd=37.18 BPM=0(raw) 75(filled)
+2026-04-23 13:38:10 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0179 gStd=5.32 BPM=0(raw) 75(filled)
+2026-04-23 13:38:12 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=0.79) | aStd=0.0121 gStd=10.92 BPM=0(raw) 75(filled)
+2026-04-23 13:38:14 | INFO     | server_knn | [KNN] unknown → BERJALAN (conf=0.50) | aStd=0.0134 gStd=20.12 BPM=0(raw) 75(filled)
+2026-04-23 13:38:16 | INFO     | server_knn | [KNN] unknown → BERJALAN (conf=0.52) | aStd=0.0157 gStd=18.55 BPM=0(raw) 75(filled)
+2026-04-23 13:38:18 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0106 gStd=8.99 BPM=0(raw) 75(filled)
+2026-04-23 13:38:20 | INFO     | server_knn | [KNN] unknown → BERJALAN (conf=0.59) | aStd=0.0125 gStd=21.79 BPM=0(raw) 75(filled)
+2026-04-23 13:38:22 | INFO     | server_knn | [KNN] unknown → BERJALAN (conf=0.70) | aStd=0.0221 gStd=12.49 BPM=0(raw) 75(filled)
+2026-04-23 13:38:25 | INFO     | server_knn | [KNN] unknown → BERJALAN (conf=0.60) | aStd=0.0191 gStd=22.21 BPM=0(raw) 75(filled)
+2026-04-23 13:38:27 | INFO     | server_knn | [KNN] unknown → BERJALAN (conf=0.79) | aStd=0.0259 gStd=15.84 BPM=0(raw) 75(filled)
+2026-04-23 13:38:29 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0080 gStd=0.50 BPM=0(raw) 75(filled)
