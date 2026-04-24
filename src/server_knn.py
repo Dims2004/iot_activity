@@ -2,6 +2,7 @@
 server_knn.py — Server KNN: terima sensor → klasifikasi → publish hasil
 
 Fitur: accel_stddev, gyro_stddev, bpm_filled (3 fitur dengan BPM)
+FIXED: Added better logging and error handling
 """
 import json, os, sys, signal, time
 from datetime import datetime
@@ -20,9 +21,7 @@ from utils import get_logger, parse_sensor_payload, impute_bpm_single, load_bpm_
 
 logger = get_logger("server_knn")
 
-# ═══════════════════════════════════════════════════════════
-#  LOAD MODEL, SCALER, BPM MEDIANS
-# ═══════════════════════════════════════════════════════════
+# Load model
 def load_model():
     for path, name in [(MODEL_PATH, "Model"), (SCALER_PATH, "Scaler")]:
         if not os.path.exists(path):
@@ -38,40 +37,27 @@ def load_model():
     logger.info(f"Fitur  : {FEATURES}")
     return model, scaler, bpm_medians
 
-# ═══════════════════════════════════════════════════════════
-#  KLASIFIKASI — 3 FITUR: accel, gyro, bpm
-# ═══════════════════════════════════════════════════════════
 def classify(model, scaler, bpm_medians,
              accel_std: float, gyro_std: float, bpm: int
              ) -> tuple[str, float]:
-    """
-    Jalankan inferensi KNN dengan 3 fitur.
-    BPM=0 diimputasi dengan median dari training data.
-    """
-    # Imputasi BPM=0 (sensor tidak terbaca) dengan median global
+    """Jalankan inferensi KNN dengan 3 fitur."""
     bpm_filled = impute_bpm_single(bpm, bpm_medians=bpm_medians)
-
     X = np.array([[accel_std, gyro_std, bpm_filled]])
     X_scaled = scaler.transform(X)
-
     activity = model.predict(X_scaled)[0]
-
     try:
         proba      = model.predict_proba(X_scaled)[0]
         confidence = float(np.max(proba))
     except AttributeError:
         confidence = 1.0
-
     return str(activity), confidence, float(bpm_filled)
 
-# ═══════════════════════════════════════════════════════════
-#  STATS RUNTIME
-# ═══════════════════════════════════════════════════════════
 class Stats:
     def __init__(self):
         self.total     = 0
         self.per_class = {"DUDUK": 0, "BERJALAN": 0, "BERLARI": 0}
         self.start     = time.time()
+        self.last_log  = time.time()
 
     def update(self, activity: str):
         self.total += 1
@@ -85,15 +71,12 @@ class Stats:
             lines.append(f"  {cls:<10}: {cnt:5d} ({pct:.1f}%)")
         return "\n".join(lines)
 
-# ═══════════════════════════════════════════════════════════
-#  MQTT
-# ═══════════════════════════════════════════════════════════
 _model  = None
 _scaler = None
 _bpm_medians = None
 _stats  = Stats()
 
-def on_connect(client, userdata, flags, rc):
+def on_connect(client, userdata, flags, rc, properties=None):
     if rc == 0:
         logger.info(f"Terhubung ke broker {MQTT_BROKER}:{MQTT_PORT}")
         client.subscribe(TOPIC_SENSOR_DATA)
@@ -111,7 +94,8 @@ def on_message(client, userdata, msg):
     topic = msg.topic
     try:
         payload = json.loads(msg.payload.decode("utf-8"))
-    except Exception:
+    except Exception as e:
+        logger.error(f"JSON decode error: {e}")
         return
 
     if topic == TOPIC_SENSOR_DATA:
@@ -124,6 +108,7 @@ def on_message(client, userdata, msg):
         gyro_std   = row["gyro_stddev"]
         bpm        = row["bpm"]
         user       = row.get("participant_id") or row.get("user", "unknown")
+        local_act  = row.get("local_act", "")
 
         activity, confidence, bpm_used = classify(
             _model, _scaler, _bpm_medians,
@@ -135,9 +120,10 @@ def on_message(client, userdata, msg):
             "activity":    activity,
             "confidence":  round(confidence, 3),
             "bpm":         bpm if bpm > 0 else int(bpm_used),
-            "bpm_filled":  int(bpm_used),      # nilai setelah imputasi
-            "bpm_raw":     bpm,                 # nilai asli dari sensor
+            "bpm_filled":  int(bpm_used),
+            "bpm_raw":     bpm,
             "user":        user,
+            "local_act":   local_act,
             "server_ts":   datetime.now().isoformat()
         }
         client.publish(TOPIC_CLASSIFICATION, json.dumps(result))
@@ -145,14 +131,16 @@ def on_message(client, userdata, msg):
         logger.info(
             f"[KNN] {user} → {activity} (conf={confidence:.2f}) | "
             f"aStd={accel_std:.4f} gStd={gyro_std:.2f} "
-            f"BPM={bpm}(raw) {int(bpm_used)}(filled)"
+            f"BPM={bpm}(raw) {int(bpm_used)}(filled) | ESP32={local_act}"
         )
 
     elif topic == TOPIC_STATUS:
         logger.info(
             f"[STATUS] user={payload.get('participant_id')} "
-            f"akt={payload.get('final_activity')} "
-            f"bpm={payload.get('final_bpm')}"
+            f"P#{payload.get('participant_no')} "
+            f"final_act={payload.get('final_activity')} "
+            f"bpm={payload.get('final_bpm')} "
+            f"D={payload.get('count_duduk')} J={payload.get('count_berjalan')} L={payload.get('count_berlari')}"
         )
 
 def main():
@@ -167,7 +155,8 @@ def main():
     _model, _scaler, _bpm_medians = load_model()
     _stats = Stats()
 
-    client = mqtt.Client(client_id=f"{MQTT_CLIENT_ID}_knn")
+    client = mqtt.Client(client_id=f"{MQTT_CLIENT_ID}_knn", 
+                          callback_api_version=mqtt.CallbackAPIVersion.VERSION2)
     client.on_connect    = on_connect
     client.on_disconnect = on_disconnect
     client.on_message    = on_message
@@ -175,7 +164,9 @@ def main():
 
     def _shutdown(sig, frame):
         logger.info("\n[STOP] Server berhenti.\n" + _stats.summary())
-        client.loop_stop(); client.disconnect(); sys.exit(0)
+        client.loop_stop()
+        client.disconnect()
+        sys.exit(0)
 
     signal.signal(signal.SIGINT,  _shutdown)
     signal.signal(signal.SIGTERM, _shutdown)
@@ -183,7 +174,8 @@ def main():
     try:
         client.connect(MQTT_BROKER, MQTT_PORT, keepalive=60)
     except Exception as e:
-        logger.error(f"Tidak bisa konek: {e}"); sys.exit(1)
+        logger.error(f"Tidak bisa konek: {e}")
+        sys.exit(1)
 
     logger.info("Server aktif. Tekan Ctrl+C untuk berhenti.")
     client.loop_start()
