@@ -20294,3 +20294,41 @@ Jalankan notebook 02_training_model.ipynb terlebih dahulu.
   DUDUK     :   799 (62.4%)
   BERJALAN  :   162 (12.6%)
   BERLARI   :   320 (25.0%)
+2026-04-24 12:10:09 | INFO     | server_knn | =======================================================
+2026-04-24 12:10:09 | INFO     | server_knn |   AIoT Watch — KNN Inference Server (3 Fitur)
+2026-04-24 12:10:09 | INFO     | server_knn |   Fitur: ['accel_stddev', 'gyro_stddev', 'bpm_filled']
+2026-04-24 12:10:09 | INFO     | server_knn |   Broker: broker.emqx.io:1883
+2026-04-24 12:10:09 | INFO     | server_knn | =======================================================
+2026-04-24 12:10:11 | INFO     | server_knn | Model  : C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\models\knn_model.pkl
+2026-04-24 12:10:11 | INFO     | server_knn | Scaler : C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\models\scaler.pkl
+2026-04-24 12:10:11 | INFO     | server_knn | BPM median: {'DUDUK': 70, 'BERJALAN': 117, 'BERLARI': 151, '_global': 75}
+2026-04-24 12:10:11 | INFO     | server_knn | Fitur  : ['accel_stddev', 'gyro_stddev', 'bpm_filled']
+2026-04-24 12:10:11 | INFO     | server_knn | Server aktif. Tekan Ctrl+C untuk berhenti.
+2026-04-24 12:10:12 | INFO     | server_knn | Terhubung ke broker broker.emqx.io:1883
+2026-04-24 12:10:23 | INFO     | collect_participants | MQTT terhubung ke cloud broker broker.emqx.io:1883
+2026-04-24 12:11:11 | INFO     | server_knn | === STATS ===
+  Total prediksi: 0 | Uptime: 1.0 menit
+  DUDUK     :     0 (0.0%)
+  BERJALAN  :     0 (0.0%)
+  BERLARI   :     0 (0.0%)
+2026-04-24 12:12:11 | INFO     | server_knn | === STATS ===
+  Total prediksi: 0 | Uptime: 2.0 menit
+  DUDUK     :     0 (0.0%)
+  BERJALAN  :     0 (0.0%)
+  BERLARI   :     0 (0.0%)
+2026-04-24 12:13:11 | INFO     | server_knn | === STATS ===
+  Total prediksi: 0 | Uptime: 3.0 menit
+  DUDUK     :     0 (0.0%)
+  BERJALAN  :     0 (0.0%)
+  BERLARI   :     0 (0.0%)
+2026-04-24 12:14:11 | INFO     | server_knn | === STATS ===
+  Total prediksi: 0 | Uptime: 4.0 menit
+  DUDUK     :     0 (0.0%)
+  BERJALAN  :     0 (0.0%)
+  BERLARI   :     0 (0.0%)
+2026-04-24 12:15:11 | INFO     | server_knn | === STATS ===
+  Total prediksi: 0 | Uptime: 5.0 menit
+  DUDUK     :     0 (0.0%)
+  BERJALAN  :     0 (0.0%)
+  BERLARI   :     0 (0.0%)
+2026-04-24 12:15:41 | INFO     | collect_participants | START → P7 [PSR_07] via control/session
