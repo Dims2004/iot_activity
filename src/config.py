@@ -17,41 +17,45 @@ for _d in [DATA_RAW_DIR, DATA_PROC_DIR, DATASET_DIR, MODEL_DIR, LOG_DIR]:
     os.makedirs(_d, exist_ok=True)
 
 # ─────────────────────────────────────────────
-#  MQTT - CLOUD BROKER (EMQX Public)
+#  MQTT
 # ─────────────────────────────────────────────
-MQTT_BROKER    = "broker.emqx.io"
+MQTT_BROKER    = "192.168.18.7"
 MQTT_PORT      = 1883
-MQTT_CLIENT_ID = "python_server_001"
-
-# WebSocket port untuk dashboard
-MQTT_WS_PORT   = 8083
-MQTT_WS_PATH   = "/mqtt"
+# PENTING: Client ID harus unik di public broker (broker.emqx.io)
+# Jangan pakai nama generic seperti "esp32" atau "python_client"
+import random as _random
+MQTT_CLIENT_ID = f"aiot_knn_{_random.randint(10000,99999)}"
 
 TOPIC_SENSOR_DATA    = "sensor/esp32/data"
-TOPIC_COMMAND        = "control/session"           # ← Topic untuk perintah
 TOPIC_CLASSIFICATION = "classification/result"
 TOPIC_STATUS         = "status/esp32"
 
 # ─────────────────────────────────────────────
 #  PENGAMBILAN DATA
 # ─────────────────────────────────────────────
+# Durasi sesi labeling & participant (15 menit)
 SESSION_DURATION_SEC = 15 * 60   # 900 detik
 
 # ─────────────────────────────────────────────
-#  DATASET & FITUR
+#  DATASET & FITUR  ← BPM ditambahkan sebagai fitur ke-3
 # ─────────────────────────────────────────────
+# accel_stddev : std-dev percepatan (g)
+# gyro_stddev  : std-dev kecepatan sudut (°/s)
+# bpm_filled   : detak jantung (BPM), nilai 0 diimputasi dengan median per kelas
 FEATURES = ["accel_stddev", "gyro_stddev", "bpm_filled"]
 TARGET   = "activity"
 
 CLASSES   = ["DUDUK", "BERJALAN", "BERLARI"]
 CLASS_MAP = {label: idx for idx, label in enumerate(CLASSES)}
 
+# BPM median default per kelas (dipakai saat inference jika BPM=0)
+# Akan di-override oleh nilai dari dataset setelah training
 BPM_MEDIAN_DEFAULT = {
     "DUDUK":    72,
     "BERJALAN": 95,
     "BERLARI":  145,
 }
-BPM_GLOBAL_MEDIAN = 90
+BPM_GLOBAL_MEDIAN = 90   # fallback jika kelas tidak diketahui
 
 # ─────────────────────────────────────────────
 #  MODEL KNN
@@ -62,7 +66,7 @@ KNN_WEIGHTS = "distance"
 
 MODEL_PATH    = os.path.join(MODEL_DIR, "knn_model.pkl")
 SCALER_PATH   = os.path.join(MODEL_DIR, "scaler.pkl")
-BPM_MED_PATH  = os.path.join(MODEL_DIR, "bpm_medians.pkl")
+BPM_MED_PATH  = os.path.join(MODEL_DIR, "bpm_medians.pkl")   # simpan median BPM dari training
 DATASET_PATH  = os.path.join(DATASET_DIR, "dataset.csv")
 
 # ─────────────────────────────────────────────

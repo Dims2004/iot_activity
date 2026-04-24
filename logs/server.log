@@ -20332,3 +20332,70 @@ Jalankan notebook 02_training_model.ipynb terlebih dahulu.
   BERJALAN  :     0 (0.0%)
   BERLARI   :     0 (0.0%)
 2026-04-24 12:15:41 | INFO     | collect_participants | START → P7 [PSR_07] via control/session
+2026-04-24 12:16:07 | INFO     | collect_participants | MQTT terhubung ke cloud broker broker.emqx.io:1883
+2026-04-24 12:16:11 | INFO     | server_knn | === STATS ===
+  Total prediksi: 0 | Uptime: 6.0 menit
+  DUDUK     :     0 (0.0%)
+  BERJALAN  :     0 (0.0%)
+  BERLARI   :     0 (0.0%)
+2026-04-24 12:17:11 | INFO     | server_knn | === STATS ===
+  Total prediksi: 0 | Uptime: 7.0 menit
+  DUDUK     :     0 (0.0%)
+  BERJALAN  :     0 (0.0%)
+  BERLARI   :     0 (0.0%)
+2026-04-24 12:18:11 | INFO     | server_knn | === STATS ===
+  Total prediksi: 0 | Uptime: 8.0 menit
+  DUDUK     :     0 (0.0%)
+  BERJALAN  :     0 (0.0%)
+  BERLARI   :     0 (0.0%)
+2026-04-24 12:19:11 | INFO     | server_knn | === STATS ===
+  Total prediksi: 0 | Uptime: 9.0 menit
+  DUDUK     :     0 (0.0%)
+  BERJALAN  :     0 (0.0%)
+  BERLARI   :     0 (0.0%)
+2026-04-24 12:20:11 | INFO     | server_knn | === STATS ===
+  Total prediksi: 0 | Uptime: 10.0 menit
+  DUDUK     :     0 (0.0%)
+  BERJALAN  :     0 (0.0%)
+  BERLARI   :     0 (0.0%)
+2026-04-24 12:21:11 | INFO     | server_knn | === STATS ===
+  Total prediksi: 0 | Uptime: 11.0 menit
+  DUDUK     :     0 (0.0%)
+  BERJALAN  :     0 (0.0%)
+  BERLARI   :     0 (0.0%)
+2026-04-24 12:22:11 | INFO     | server_knn | === STATS ===
+  Total prediksi: 0 | Uptime: 12.0 menit
+  DUDUK     :     0 (0.0%)
+  BERJALAN  :     0 (0.0%)
+  BERLARI   :     0 (0.0%)
+2026-04-24 12:23:11 | INFO     | server_knn | === STATS ===
+  Total prediksi: 0 | Uptime: 13.0 menit
+  DUDUK     :     0 (0.0%)
+  BERJALAN  :     0 (0.0%)
+  BERLARI   :     0 (0.0%)
+2026-04-24 12:24:11 | INFO     | server_knn | === STATS ===
+  Total prediksi: 0 | Uptime: 14.0 menit
+  DUDUK     :     0 (0.0%)
+  BERJALAN  :     0 (0.0%)
+  BERLARI   :     0 (0.0%)
+2026-04-24 12:25:11 | INFO     | server_knn | === STATS ===
+  Total prediksi: 0 | Uptime: 15.0 menit
+  DUDUK     :     0 (0.0%)
+  BERJALAN  :     0 (0.0%)
+  BERLARI   :     0 (0.0%)
+2026-04-24 12:26:11 | INFO     | server_knn | === STATS ===
+  Total prediksi: 0 | Uptime: 16.0 menit
+  DUDUK     :     0 (0.0%)
+  BERJALAN  :     0 (0.0%)
+  BERLARI   :     0 (0.0%)
+2026-04-24 12:27:11 | INFO     | server_knn | === STATS ===
+  Total prediksi: 0 | Uptime: 17.0 menit
+  DUDUK     :     0 (0.0%)
+  BERJALAN  :     0 (0.0%)
+  BERLARI   :     0 (0.0%)
+2026-04-24 12:28:04 | INFO     | server_knn | 
+[STOP] Server berhenti.
+  Total prediksi: 0 | Uptime: 17.9 menit
+  DUDUK     :     0 (0.0%)
+  BERJALAN  :     0 (0.0%)
+  BERLARI   :     0 (0.0%)
