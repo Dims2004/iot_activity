@@ -22,20 +22,21 @@ for _d in [DATA_RAW_DIR, DATA_PROC_DIR, DATASET_DIR, MODEL_DIR, LOG_DIR]:
 MQTT_BROKER    = "broker.emqx.io"
 MQTT_PORT      = 1883
 MQTT_CLIENT_ID = "python_server_001"
+MQTT_KEEPALIVE = 60  # Ditambahkan
 
 # WebSocket port untuk dashboard
 MQTT_WS_PORT   = 8083
 MQTT_WS_PATH   = "/mqtt"
 
 TOPIC_SENSOR_DATA    = "sensor/esp32/data"
-TOPIC_COMMAND        = "control/session"           # ← Topic untuk perintah
+TOPIC_COMMAND        = "control/session"
 TOPIC_CLASSIFICATION = "classification/result"
 TOPIC_STATUS         = "status/esp32"
 
 # ─────────────────────────────────────────────
 #  PENGAMBILAN DATA
 # ─────────────────────────────────────────────
-SESSION_DURATION_SEC = 15 * 60   # 900 detik
+SESSION_DURATION_SEC = 15 * 60
 
 # ─────────────────────────────────────────────
 #  DATASET & FITUR
