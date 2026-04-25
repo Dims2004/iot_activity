@@ -24589,3 +24589,87 @@ ne bpm=None D=None J=None L=None
 2026-04-25 12:05:07 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0057 gStd=0.43 BPM=101(raw) 101(filled) | ESP32=DUDUK
 2026-04-25 12:05:09 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0098 gStd=0.40 BPM=96(raw) 96(filled) | ESP32=DUDUK
 2026-04-25 12:05:11 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0091 gStd=0.71 BPM=93(raw) 93(filled) | ESP32=DUDUK
+2026-04-25 12:05:13 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0081 gStd=0.92 BPM=88(raw) 88(filled) | ESP32=DUDUK
+2026-04-25 12:05:15 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0105 gStd=0.92 BPM=85(raw) 85(filled) | ESP32=DUDUK
+2026-04-25 12:05:17 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0070 gStd=0.39 BPM=83(raw) 83(filled) | ESP32=DUDUK
+2026-04-25 12:05:19 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0085 gStd=0.25 BPM=84(raw) 84(filled) | ESP32=DUDUK
+2026-04-25 12:05:21 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0102 gStd=0.38 BPM=86(raw) 86(filled) | ESP32=DUDUK
+2026-04-25 12:05:23 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0080 gStd=0.26 BPM=86(raw) 86(filled) | ESP32=DUDUK
+2026-04-25 12:05:25 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0094 gStd=0.39 BPM=86(raw) 86(filled) | ESP32=DUDUK
+2026-04-25 12:05:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 440 | Uptime: 15.0 menit
+  DUDUK     :   427 (97.0%)
+  BERJALAN  :    13 (3.0%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 12:05:27 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0075 gStd=0.55 BPM=82(raw) 82(filled) | ESP32=DUDUK
+2026-04-25 12:05:29 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0067 gStd=0.64 BPM=80(raw) 80(filled) | ESP32=DUDUK
+2026-04-25 12:05:31 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0097 gStd=0.47 BPM=79(raw) 79(filled) | ESP32=DUDUK
+2026-04-25 12:05:33 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0106 gStd=2.61 BPM=79(raw) 79(filled) | ESP32=DUDUK
+2026-04-25 12:05:35 | INFO     | server_knn | [KNN] unknown → BERJALAN (conf=0.83) | aStd=0.0267 gStd=11.46 BPM=76(raw) 76(filled) | ESP32=DUDUK
+2026-04-25 12:05:37 | INFO     | server_knn | [KNN] unknown → BERJALAN (conf=0.77) | aStd=0.0150 gStd=16.02 BPM=80(raw) 80(filled) | ESP32=BERJALAN
+2026-04-25 12:05:39 | INFO     | server_knn | [STATUS] user=None P#None final_act=None bpm=None D=None J=None L=None
+2026-04-25 12:05:39 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0080 gStd=2.49 BPM=89(raw) 89(filled) | ESP32=DUDUK
+2026-04-25 12:05:41 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0075 gStd=0.44 BPM=96(raw) 96(filled) | ESP32=DUDUK
+2026-04-25 12:05:41 | INFO     | server_knn | [STATUS] user=PSR_011 P#11 final_act=DUDUK bpm=96 D=1748 J=41 L=0
+2026-04-25 12:05:41 | INFO     | collect_participants | [STATUS VALID] P11 selesai: akt=DUDUK elapsed=900.7s
+2026-04-25 12:05:42 | INFO     | collect_participants | Raw → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\data\raw\P011_PSR_011_20260425_120542.csv (448 baris)
+2026-04-25 12:05:42 | INFO     | collect_participants | Dataset +448 baris → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\dataset\dataset.csv
+2026-04-25 12:06:19 | INFO     | server_knn | [STATUS] user=None P#None final_act=None bpm=None D=None J=None L=None
+2026-04-25 12:06:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 448 | Uptime: 16.0 menit
+  DUDUK     :   433 (96.7%)
+  BERJALAN  :    15 (3.3%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 12:06:59 | INFO     | server_knn | [STATUS] user=None P#None final_act=None bpm=None D=None J=None L=None
+2026-04-25 12:07:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 448 | Uptime: 17.0 menit
+  DUDUK     :   433 (96.7%)
+  BERJALAN  :    15 (3.3%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 12:07:39 | INFO     | server_knn | [STATUS] user=None P#None final_act=None bpm=None D=None J=None L=None
+2026-04-25 12:08:19 | INFO     | server_knn | [STATUS] user=None P#None final_act=None bpm=None D=None J=None L=None
+2026-04-25 12:08:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 448 | Uptime: 18.0 menit
+  DUDUK     :   433 (96.7%)
+  BERJALAN  :    15 (3.3%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 12:08:59 | INFO     | server_knn | [STATUS] user=None P#None final_act=None bpm=None D=None J=None L=None
+2026-04-25 12:09:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 448 | Uptime: 19.0 menit
+  DUDUK     :   433 (96.7%)
+  BERJALAN  :    15 (3.3%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 12:09:39 | INFO     | server_knn | [STATUS] user=None P#None final_act=None bpm=None D=None J=None L=None
+2026-04-25 12:10:19 | INFO     | server_knn | [STATUS] user=None P#None final_act=None bpm=None D=None J=None L=None
+2026-04-25 12:10:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 448 | Uptime: 20.0 menit
+  DUDUK     :   433 (96.7%)
+  BERJALAN  :    15 (3.3%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 12:10:59 | INFO     | server_knn | [STATUS] user=None P#None final_act=None bpm=None D=None J=None L=None
+2026-04-25 12:11:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 448 | Uptime: 21.0 menit
+  DUDUK     :   433 (96.7%)
+  BERJALAN  :    15 (3.3%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 12:11:39 | INFO     | server_knn | [STATUS] user=None P#None final_act=None bpm=None D=None J=None L=None
+2026-04-25 12:12:19 | INFO     | server_knn | [STATUS] user=None P#None final_act=None bpm=None D=None J=None L=None
+2026-04-25 12:12:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 448 | Uptime: 22.0 menit
+  DUDUK     :   433 (96.7%)
+  BERJALAN  :    15 (3.3%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 12:12:59 | INFO     | server_knn | [STATUS] user=None P#None final_act=None bpm=None D=None J=None L=None
+2026-04-25 12:13:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 448 | Uptime: 23.0 menit
+  DUDUK     :   433 (96.7%)
+  BERJALAN  :    15 (3.3%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 12:13:39 | INFO     | server_knn | [STATUS] user=None P#None final_act=None bpm=None D=None J=None L=None
+2026-04-25 12:14:19 | INFO     | server_knn | [STATUS] user=None P#None final_act=None bpm=None D=None J=None L=None
+2026-04-25 12:14:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 448 | Uptime: 24.0 menit
+  DUDUK     :   433 (96.7%)
+  BERJALAN  :    15 (3.3%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 12:14:59 | INFO     | server_knn | [STATUS] user=None P#None final_act=None bpm=None D=None J=None L=None
