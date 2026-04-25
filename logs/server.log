@@ -24315,3 +24315,277 @@ ne bpm=None D=None J=None L=None
 2026-04-25 11:57:30 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0085 gStd=0.30 BPM=79(raw) 79(filled) | ESP32=DUDUK
 2026-04-25 11:57:32 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0119 gStd=0.43 BPM=77(raw) 77(filled) | ESP32=DUDUK
 2026-04-25 11:57:34 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0068 gStd=0.28 BPM=75(raw) 75(filled) | ESP32=DUDUK
+2026-04-25 11:57:36 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0059 gStd=0.27 BPM=74(raw) 74(filled) | ESP32=DUDUK
+2026-04-25 11:57:38 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0086 gStd=0.29 BPM=74(raw) 74(filled) | ESP32=DUDUK
+2026-04-25 11:57:39 | INFO     | server_knn | [STATUS] user=None P#None final_act=None bpm=None D=None J=None L=None
+2026-04-25 11:57:40 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0087 gStd=0.21 BPM=74(raw) 74(filled) | ESP32=DUDUK
+2026-04-25 11:57:42 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0093 gStd=0.29 BPM=74(raw) 74(filled) | ESP32=DUDUK
+2026-04-25 11:57:44 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0082 gStd=0.26 BPM=75(raw) 75(filled) | ESP32=DUDUK
+2026-04-25 11:57:46 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0080 gStd=0.24 BPM=76(raw) 76(filled) | ESP32=DUDUK
+2026-04-25 11:57:48 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0078 gStd=2.35 BPM=77(raw) 77(filled) | ESP32=DUDUK
+2026-04-25 11:57:50 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0098 gStd=1.08 BPM=79(raw) 79(filled) | ESP32=DUDUK
+2026-04-25 11:57:52 | INFO     | server_knn | [KNN] unknown → BERJALAN (conf=1.00) | aStd=0.0221 gStd=8.38 BPM=81(raw) 81(filled) | ESP32=DUDUK
+2026-04-25 11:57:54 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0074 gStd=4.11 BPM=87(raw) 87(filled) | ESP32=DUDUK
+2026-04-25 11:57:56 | INFO     | server_knn | [KNN] unknown → BERJALAN (conf=1.00) | aStd=0.0179 gStd=19.20 BPM=94(raw) 94(filled) | ESP32=DUDUK
+2026-04-25 11:57:59 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0124 gStd=3.24 BPM=107(raw) 107(filled) | ESP32=BERJALAN
+2026-04-25 11:58:01 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=0.78) | aStd=0.0085 gStd=0.93 BPM=110(raw) 110(filled) | ESP32=DUDUK
+2026-04-25 11:58:03 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0077 gStd=0.32 BPM=106(raw) 106(filled) | ESP32=DUDUK
+2026-04-25 11:58:05 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0080 gStd=0.35 BPM=99(raw) 99(filled) | ESP32=DUDUK
+2026-04-25 11:58:07 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0107 gStd=0.37 BPM=92(raw) 92(filled) | ESP32=DUDUK
+2026-04-25 11:58:09 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0083 gStd=0.34 BPM=87(raw) 87(filled) | ESP32=DUDUK
+2026-04-25 11:58:11 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0082 gStd=0.39 BPM=84(raw) 84(filled) | ESP32=DUDUK
+2026-04-25 11:58:13 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0073 gStd=0.41 BPM=83(raw) 83(filled) | ESP32=DUDUK
+2026-04-25 11:58:15 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0078 gStd=0.56 BPM=83(raw) 83(filled) | ESP32=DUDUK
+2026-04-25 11:58:17 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0106 gStd=0.67 BPM=90(raw) 90(filled) | ESP32=DUDUK
+2026-04-25 11:58:19 | INFO     | server_knn | [STATUS] user=None P#None final_act=None bpm=None D=None J=None L=None
+2026-04-25 11:58:19 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0070 gStd=0.26 BPM=94(raw) 94(filled) | ESP32=DUDUK
+2026-04-25 11:58:21 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0094 gStd=0.24 BPM=96(raw) 96(filled) | ESP32=DUDUK
+2026-04-25 11:58:23 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0096 gStd=0.26 BPM=97(raw) 97(filled) | ESP32=DUDUK
+2026-04-25 11:58:25 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0071 gStd=0.27 BPM=94(raw) 94(filled) | ESP32=DUDUK
+2026-04-25 11:58:27 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0111 gStd=0.35 BPM=92(raw) 92(filled) | ESP32=DUDUK
+2026-04-25 11:58:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 232 | Uptime: 8.0 menit
+  DUDUK     :   221 (95.3%)
+  BERJALAN  :    11 (4.7%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 11:58:29 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0122 gStd=0.33 BPM=89(raw) 89(filled) | ESP32=DUDUK
+2026-04-25 11:58:31 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0091 gStd=0.23 BPM=85(raw) 85(filled) | ESP32=DUDUK
+2026-04-25 11:58:33 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0090 gStd=0.25 BPM=85(raw) 85(filled) | ESP32=DUDUK
+2026-04-25 11:58:35 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0094 gStd=0.28 BPM=89(raw) 89(filled) | ESP32=DUDUK
+2026-04-25 11:58:37 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0114 gStd=0.25 BPM=90(raw) 90(filled) | ESP32=DUDUK
+2026-04-25 11:58:39 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0091 gStd=0.19 BPM=87(raw) 87(filled) | ESP32=DUDUK
+2026-04-25 11:58:41 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0095 gStd=0.31 BPM=84(raw) 84(filled) | ESP32=DUDUK
+2026-04-25 11:58:43 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0074 gStd=0.22 BPM=79(raw) 79(filled) | ESP32=DUDUK
+2026-04-25 11:58:45 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0096 gStd=0.23 BPM=78(raw) 78(filled) | ESP32=DUDUK
+2026-04-25 11:58:47 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0079 gStd=0.28 BPM=78(raw) 78(filled) | ESP32=DUDUK
+2026-04-25 11:58:49 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0094 gStd=0.37 BPM=80(raw) 80(filled) | ESP32=DUDUK
+2026-04-25 11:58:51 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0118 gStd=0.24 BPM=82(raw) 82(filled) | ESP32=DUDUK
+2026-04-25 11:58:53 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0094 gStd=0.26 BPM=80(raw) 80(filled) | ESP32=DUDUK
+2026-04-25 11:58:55 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0086 gStd=0.21 BPM=79(raw) 79(filled) | ESP32=DUDUK
+2026-04-25 11:58:57 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0085 gStd=0.27 BPM=77(raw) 77(filled) | ESP32=DUDUK
+2026-04-25 11:58:59 | INFO     | server_knn | [STATUS] user=None P#None final_act=None bpm=None D=None J=None L=None
+2026-04-25 11:58:59 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0074 gStd=0.27 BPM=76(raw) 76(filled) | ESP32=DUDUK
+2026-04-25 11:59:01 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0086 gStd=0.34 BPM=74(raw) 74(filled) | ESP32=DUDUK
+2026-04-25 11:59:03 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0080 gStd=0.51 BPM=74(raw) 74(filled) | ESP32=DUDUK
+2026-04-25 11:59:05 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0116 gStd=0.41 BPM=75(raw) 75(filled) | ESP32=DUDUK
+2026-04-25 11:59:07 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0106 gStd=0.27 BPM=81(raw) 81(filled) | ESP32=DUDUK
+2026-04-25 11:59:09 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0101 gStd=0.26 BPM=93(raw) 93(filled) | ESP32=DUDUK
+2026-04-25 11:59:11 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0107 gStd=0.23 BPM=96(raw) 96(filled) | ESP32=DUDUK
+2026-04-25 11:59:13 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0091 gStd=0.22 BPM=92(raw) 92(filled) | ESP32=DUDUK
+2026-04-25 11:59:15 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0081 gStd=0.33 BPM=88(raw) 88(filled) | ESP32=DUDUK
+2026-04-25 11:59:17 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0103 gStd=0.22 BPM=85(raw) 85(filled) | ESP32=DUDUK
+2026-04-25 11:59:19 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0099 gStd=0.19 BPM=81(raw) 81(filled) | ESP32=DUDUK
+2026-04-25 11:59:21 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0075 gStd=0.19 BPM=81(raw) 81(filled) | ESP32=DUDUK
+2026-04-25 11:59:23 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0099 gStd=0.27 BPM=87(raw) 87(filled) | ESP32=DUDUK
+2026-04-25 11:59:25 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0077 gStd=0.18 BPM=91(raw) 91(filled) | ESP32=DUDUK
+2026-04-25 11:59:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 261 | Uptime: 9.0 menit
+  DUDUK     :   250 (95.8%)
+  BERJALAN  :    11 (4.2%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 11:59:27 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0093 gStd=0.30 BPM=92(raw) 92(filled) | ESP32=DUDUK
+2026-04-25 11:59:29 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0087 gStd=0.30 BPM=87(raw) 87(filled) | ESP32=DUDUK
+2026-04-25 11:59:31 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0086 gStd=0.27 BPM=83(raw) 83(filled) | ESP32=DUDUK
+2026-04-25 11:59:33 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0098 gStd=0.24 BPM=82(raw) 82(filled) | ESP32=DUDUK
+2026-04-25 11:59:35 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0101 gStd=0.22 BPM=80(raw) 80(filled) | ESP32=DUDUK
+2026-04-25 11:59:37 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0078 gStd=0.18 BPM=79(raw) 79(filled) | ESP32=DUDUK
+2026-04-25 11:59:39 | INFO     | server_knn | [STATUS] user=None P#None final_act=None bpm=None D=None J=None L=None
+2026-04-25 11:59:39 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0057 gStd=0.31 BPM=79(raw) 79(filled) | ESP32=DUDUK
+2026-04-25 11:59:41 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0076 gStd=0.38 BPM=82(raw) 82(filled) | ESP32=DUDUK
+2026-04-25 11:59:43 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0071 gStd=0.55 BPM=84(raw) 84(filled) | ESP32=DUDUK
+2026-04-25 11:59:45 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0091 gStd=0.26 BPM=86(raw) 86(filled) | ESP32=DUDUK
+2026-04-25 11:59:47 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0057 gStd=0.22 BPM=87(raw) 87(filled) | ESP32=DUDUK
+2026-04-25 11:59:49 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0072 gStd=0.30 BPM=86(raw) 86(filled) | ESP32=DUDUK
+2026-04-25 11:59:51 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0113 gStd=0.23 BPM=84(raw) 84(filled) | ESP32=DUDUK
+2026-04-25 11:59:53 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0086 gStd=0.20 BPM=85(raw) 85(filled) | ESP32=DUDUK
+2026-04-25 11:59:55 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0104 gStd=0.25 BPM=85(raw) 85(filled) | ESP32=DUDUK
+2026-04-25 11:59:57 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0107 gStd=0.27 BPM=85(raw) 85(filled) | ESP32=DUDUK
+2026-04-25 11:59:59 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0064 gStd=0.25 BPM=82(raw) 82(filled) | ESP32=DUDUK
+2026-04-25 12:00:01 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0087 gStd=0.62 BPM=81(raw) 81(filled) | ESP32=DUDUK
+2026-04-25 12:00:03 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0090 gStd=0.44 BPM=80(raw) 80(filled) | ESP32=DUDUK
+2026-04-25 12:00:05 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0100 gStd=0.29 BPM=91(raw) 91(filled) | ESP32=DUDUK
+2026-04-25 12:00:07 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0091 gStd=0.28 BPM=96(raw) 96(filled) | ESP32=DUDUK
+2026-04-25 12:00:09 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0089 gStd=0.20 BPM=99(raw) 99(filled) | ESP32=DUDUK
+2026-04-25 12:00:11 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0096 gStd=0.26 BPM=94(raw) 94(filled) | ESP32=DUDUK
+2026-04-25 12:00:13 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0095 gStd=0.19 BPM=97(raw) 97(filled) | ESP32=DUDUK
+2026-04-25 12:00:15 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0103 gStd=0.27 BPM=104(raw) 104(filled) | ESP32=DUDUK
+2026-04-25 12:00:17 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0119 gStd=0.31 BPM=104(raw) 104(filled) | ESP32=DUDUK
+2026-04-25 12:00:19 | INFO     | server_knn | [STATUS] user=None P#None final_act=None bpm=None D=None J=None L=None
+2026-04-25 12:00:19 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0084 gStd=0.31 BPM=96(raw) 96(filled) | ESP32=DUDUK
+2026-04-25 12:00:21 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0130 gStd=0.61 BPM=96(raw) 96(filled) | ESP32=DUDUK
+2026-04-25 12:00:23 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0070 gStd=2.37 BPM=95(raw) 95(filled) | ESP32=DUDUK
+2026-04-25 12:00:25 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0098 gStd=1.04 BPM=97(raw) 97(filled) | ESP32=DUDUK
+2026-04-25 12:00:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 291 | Uptime: 10.0 menit
+  DUDUK     :   280 (96.2%)
+  BERJALAN  :    11 (3.8%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 12:00:27 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0146 gStd=0.84 BPM=95(raw) 95(filled) | ESP32=DUDUK
+2026-04-25 12:00:29 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0125 gStd=4.61 BPM=100(raw) 100(filled) | ESP32=DUDUK
+2026-04-25 12:00:31 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=0.57) | aStd=0.0093 gStd=0.97 BPM=114(raw) 114(filled) | ESP32=DUDUK
+2026-04-25 12:00:33 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=0.61) | aStd=0.0137 gStd=1.45 BPM=115(raw) 115(filled) | ESP32=DUDUK
+2026-04-25 12:00:35 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=0.87) | aStd=0.0092 gStd=1.26 BPM=108(raw) 108(filled) | ESP32=DUDUK
+2026-04-25 12:00:37 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0139 gStd=0.49 BPM=101(raw) 101(filled) | ESP32=DUDUK
+2026-04-25 12:00:39 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0065 gStd=0.64 BPM=92(raw) 92(filled) | ESP32=DUDUK
+2026-04-25 12:00:41 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0107 gStd=0.43 BPM=85(raw) 85(filled) | ESP32=DUDUK
+2026-04-25 12:00:43 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0104 gStd=0.27 BPM=83(raw) 83(filled) | ESP32=DUDUK
+2026-04-25 12:00:45 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0074 gStd=0.48 BPM=85(raw) 85(filled) | ESP32=DUDUK
+2026-04-25 12:00:47 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0088 gStd=0.35 BPM=85(raw) 85(filled) | ESP32=DUDUK
+2026-04-25 12:00:49 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0107 gStd=0.79 BPM=86(raw) 86(filled) | ESP32=DUDUK
+2026-04-25 12:00:51 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0097 gStd=0.28 BPM=83(raw) 83(filled) | ESP32=DUDUK
+2026-04-25 12:00:53 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0079 gStd=0.51 BPM=82(raw) 82(filled) | ESP32=DUDUK
+2026-04-25 12:00:55 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0088 gStd=0.29 BPM=87(raw) 87(filled) | ESP32=DUDUK
+2026-04-25 12:00:57 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0078 gStd=0.26 BPM=105(raw) 105(filled) | ESP32=DUDUK
+2026-04-25 12:00:59 | INFO     | server_knn | [STATUS] user=None P#None final_act=None bpm=None D=None J=None L=None
+2026-04-25 12:00:59 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=0.78) | aStd=0.0085 gStd=0.24 BPM=109(raw) 109(filled) | ESP32=DUDUK
+2026-04-25 12:01:01 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0090 gStd=0.18 BPM=104(raw) 104(filled) | ESP32=DUDUK
+2026-04-25 12:01:03 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0082 gStd=0.27 BPM=97(raw) 97(filled) | ESP32=DUDUK
+2026-04-25 12:01:05 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0080 gStd=0.34 BPM=87(raw) 87(filled) | ESP32=DUDUK
+2026-04-25 12:01:07 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0077 gStd=0.26 BPM=82(raw) 82(filled) | ESP32=DUDUK
+2026-04-25 12:01:09 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0119 gStd=0.22 BPM=81(raw) 81(filled) | ESP32=DUDUK
+2026-04-25 12:01:11 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0077 gStd=0.23 BPM=81(raw) 81(filled) | ESP32=DUDUK
+2026-04-25 12:01:13 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0086 gStd=0.21 BPM=81(raw) 81(filled) | ESP32=DUDUK
+2026-04-25 12:01:15 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0072 gStd=0.28 BPM=81(raw) 81(filled) | ESP32=DUDUK
+2026-04-25 12:01:17 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0191 gStd=0.36 BPM=78(raw) 78(filled) | ESP32=DUDUK
+2026-04-25 12:01:20 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0098 gStd=0.29 BPM=77(raw) 77(filled) | ESP32=DUDUK
+2026-04-25 12:01:22 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0111 gStd=0.24 BPM=77(raw) 77(filled) | ESP32=DUDUK
+2026-04-25 12:01:24 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0079 gStd=0.24 BPM=77(raw) 77(filled) | ESP32=DUDUK
+2026-04-25 12:01:26 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0110 gStd=0.45 BPM=77(raw) 77(filled) | ESP32=DUDUK
+2026-04-25 12:01:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 321 | Uptime: 11.0 menit
+  DUDUK     :   310 (96.6%)
+  BERJALAN  :    11 (3.4%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 12:01:28 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0098 gStd=0.29 BPM=77(raw) 77(filled) | ESP32=DUDUK
+2026-04-25 12:01:30 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0081 gStd=0.29 BPM=80(raw) 80(filled) | ESP32=DUDUK
+2026-04-25 12:01:32 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0080 gStd=1.92 BPM=81(raw) 81(filled) | ESP32=DUDUK
+2026-04-25 12:01:34 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0107 gStd=4.93 BPM=83(raw) 83(filled) | ESP32=DUDUK
+2026-04-25 12:01:36 | INFO     | server_knn | [KNN] unknown → BERJALAN (conf=1.00) | aStd=0.0167 gStd=6.07 BPM=100(raw) 100(filled) | ESP32=DUDUK
+2026-04-25 12:01:38 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=0.73) | aStd=0.0101 gStd=0.91 BPM=111(raw) 111(filled) | ESP32=DUDUK
+2026-04-25 12:01:39 | INFO     | server_knn | [STATUS] user=None P#None final_act=None bpm=None D=None J=None L=None
+2026-04-25 12:01:40 | INFO     | server_knn | [KNN] unknown → BERJALAN (conf=0.61) | aStd=0.0088 gStd=0.69 BPM=116(raw) 116(filled) | ESP32=DUDUK
+2026-04-25 12:01:42 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=0.83) | aStd=0.0078 gStd=0.41 BPM=108(raw) 108(filled) | ESP32=DUDUK
+2026-04-25 12:01:44 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0084 gStd=0.41 BPM=100(raw) 100(filled) | ESP32=DUDUK
+2026-04-25 12:01:46 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0103 gStd=0.62 BPM=95(raw) 95(filled) | ESP32=DUDUK
+2026-04-25 12:01:48 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0075 gStd=0.42 BPM=97(raw) 97(filled) | ESP32=DUDUK
+2026-04-25 12:01:50 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0083 gStd=0.65 BPM=101(raw) 101(filled) | ESP32=DUDUK
+2026-04-25 12:01:52 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0074 gStd=0.27 BPM=102(raw) 102(filled) | ESP32=DUDUK
+2026-04-25 12:01:54 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0070 gStd=0.49 BPM=98(raw) 98(filled) | ESP32=DUDUK
+2026-04-25 12:01:56 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0062 gStd=0.49 BPM=89(raw) 89(filled) | ESP32=DUDUK
+2026-04-25 12:01:58 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0107 gStd=0.83 BPM=85(raw) 85(filled) | ESP32=DUDUK
+2026-04-25 12:02:00 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0084 gStd=1.19 BPM=99(raw) 99(filled) | ESP32=DUDUK
+2026-04-25 12:02:02 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0083 gStd=0.55 BPM=106(raw) 106(filled) | ESP32=DUDUK
+2026-04-25 12:02:04 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=0.87) | aStd=0.0099 gStd=0.66 BPM=107(raw) 107(filled) | ESP32=DUDUK
+2026-04-25 12:02:06 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0108 gStd=0.35 BPM=100(raw) 100(filled) | ESP32=DUDUK
+2026-04-25 12:02:08 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0108 gStd=0.65 BPM=90(raw) 90(filled) | ESP32=DUDUK
+2026-04-25 12:02:10 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0104 gStd=0.33 BPM=85(raw) 85(filled) | ESP32=DUDUK
+2026-04-25 12:02:12 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0087 gStd=0.58 BPM=78(raw) 78(filled) | ESP32=DUDUK
+2026-04-25 12:02:14 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0079 gStd=0.40 BPM=73(raw) 73(filled) | ESP32=DUDUK
+2026-04-25 12:02:16 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0083 gStd=0.33 BPM=71(raw) 71(filled) | ESP32=DUDUK
+2026-04-25 12:02:18 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0082 gStd=0.34 BPM=71(raw) 71(filled) | ESP32=DUDUK
+2026-04-25 12:02:19 | INFO     | server_knn | [STATUS] user=None P#None final_act=None bpm=None D=None J=None L=None
+2026-04-25 12:02:20 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0078 gStd=0.29 BPM=71(raw) 71(filled) | ESP32=DUDUK
+2026-04-25 12:02:22 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0134 gStd=0.49 BPM=71(raw) 71(filled) | ESP32=DUDUK
+2026-04-25 12:02:24 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0074 gStd=0.47 BPM=71(raw) 71(filled) | ESP32=DUDUK
+2026-04-25 12:02:26 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0063 gStd=0.86 BPM=72(raw) 72(filled) | ESP32=DUDUK
+2026-04-25 12:02:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 351 | Uptime: 12.0 menit
+  DUDUK     :   338 (96.3%)
+  BERJALAN  :    13 (3.7%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 12:02:28 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0136 gStd=0.76 BPM=77(raw) 77(filled) | ESP32=DUDUK
+2026-04-25 12:02:30 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0077 gStd=0.52 BPM=82(raw) 82(filled) | ESP32=DUDUK
+2026-04-25 12:02:32 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0096 gStd=0.36 BPM=86(raw) 86(filled) | ESP32=DUDUK
+2026-04-25 12:02:34 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0067 gStd=0.32 BPM=88(raw) 88(filled) | ESP32=DUDUK
+2026-04-25 12:02:36 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0075 gStd=0.81 BPM=84(raw) 84(filled) | ESP32=DUDUK
+2026-04-25 12:02:38 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0096 gStd=0.82 BPM=82(raw) 82(filled) | ESP32=DUDUK
+2026-04-25 12:02:40 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0085 gStd=1.27 BPM=82(raw) 82(filled) | ESP32=DUDUK
+2026-04-25 12:02:42 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0114 gStd=0.99 BPM=88(raw) 88(filled) | ESP32=DUDUK
+2026-04-25 12:02:44 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0104 gStd=0.60 BPM=93(raw) 93(filled) | ESP32=DUDUK
+2026-04-25 12:02:46 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0071 gStd=0.47 BPM=94(raw) 94(filled) | ESP32=DUDUK
+2026-04-25 12:02:48 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0079 gStd=0.99 BPM=96(raw) 96(filled) | ESP32=DUDUK
+2026-04-25 12:02:50 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0108 gStd=0.45 BPM=93(raw) 93(filled) | ESP32=DUDUK
+2026-04-25 12:02:52 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0093 gStd=0.32 BPM=92(raw) 92(filled) | ESP32=DUDUK
+2026-04-25 12:02:54 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0107 gStd=0.28 BPM=88(raw) 88(filled) | ESP32=DUDUK
+2026-04-25 12:02:56 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0137 gStd=0.33 BPM=83(raw) 83(filled) | ESP32=DUDUK
+2026-04-25 12:02:58 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0081 gStd=0.25 BPM=80(raw) 80(filled) | ESP32=DUDUK
+2026-04-25 12:02:59 | INFO     | server_knn | [STATUS] user=None P#None final_act=None bpm=None D=None J=None L=None
+2026-04-25 12:03:00 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0085 gStd=0.48 BPM=75(raw) 75(filled) | ESP32=DUDUK
+2026-04-25 12:03:02 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0077 gStd=0.48 BPM=72(raw) 72(filled) | ESP32=DUDUK
+2026-04-25 12:03:04 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0093 gStd=0.35 BPM=72(raw) 72(filled) | ESP32=DUDUK
+2026-04-25 12:03:06 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0086 gStd=0.44 BPM=74(raw) 74(filled) | ESP32=DUDUK
+2026-04-25 12:03:08 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0087 gStd=0.50 BPM=75(raw) 75(filled) | ESP32=DUDUK
+2026-04-25 12:03:10 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0090 gStd=0.71 BPM=76(raw) 76(filled) | ESP32=DUDUK
+2026-04-25 12:03:12 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0090 gStd=1.95 BPM=81(raw) 81(filled) | ESP32=DUDUK
+2026-04-25 12:03:14 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0088 gStd=0.74 BPM=83(raw) 83(filled) | ESP32=DUDUK
+2026-04-25 12:03:16 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0076 gStd=0.73 BPM=85(raw) 85(filled) | ESP32=DUDUK
+2026-04-25 12:03:18 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0078 gStd=0.55 BPM=85(raw) 85(filled) | ESP32=DUDUK
+2026-04-25 12:03:20 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0086 gStd=0.48 BPM=83(raw) 83(filled) | ESP32=DUDUK
+2026-04-25 12:03:22 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0110 gStd=0.32 BPM=81(raw) 81(filled) | ESP32=DUDUK
+2026-04-25 12:03:24 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0083 gStd=0.36 BPM=79(raw) 79(filled) | ESP32=DUDUK
+2026-04-25 12:03:26 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0123 gStd=0.36 BPM=79(raw) 79(filled) | ESP32=DUDUK
+2026-04-25 12:03:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 381 | Uptime: 13.0 menit
+  DUDUK     :   368 (96.6%)
+  BERJALAN  :    13 (3.4%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 12:03:28 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0080 gStd=0.45 BPM=79(raw) 79(filled) | ESP32=DUDUK
+2026-04-25 12:03:30 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0091 gStd=0.59 BPM=79(raw) 79(filled) | ESP32=DUDUK
+2026-04-25 12:03:32 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0080 gStd=0.34 BPM=79(raw) 79(filled) | ESP32=DUDUK
+2026-04-25 12:03:34 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0079 gStd=0.38 BPM=79(raw) 79(filled) | ESP32=DUDUK
+2026-04-25 12:03:36 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0094 gStd=0.34 BPM=79(raw) 79(filled) | ESP32=DUDUK
+2026-04-25 12:03:38 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0078 gStd=0.27 BPM=81(raw) 81(filled) | ESP32=DUDUK
+2026-04-25 12:03:39 | INFO     | server_knn | [STATUS] user=None P#None final_act=None bpm=None D=None J=None L=None
+2026-04-25 12:03:40 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0068 gStd=0.41 BPM=83(raw) 83(filled) | ESP32=DUDUK
+2026-04-25 12:03:42 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0086 gStd=0.37 BPM=85(raw) 85(filled) | ESP32=DUDUK
+2026-04-25 12:03:44 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0125 gStd=0.47 BPM=87(raw) 87(filled) | ESP32=DUDUK
+2026-04-25 12:03:46 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0088 gStd=0.46 BPM=85(raw) 85(filled) | ESP32=DUDUK
+2026-04-25 12:03:48 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0067 gStd=0.35 BPM=82(raw) 82(filled) | ESP32=DUDUK
+2026-04-25 12:03:50 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0083 gStd=0.24 BPM=82(raw) 82(filled) | ESP32=DUDUK
+2026-04-25 12:03:52 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0088 gStd=0.33 BPM=84(raw) 84(filled) | ESP32=DUDUK
+2026-04-25 12:03:54 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0080 gStd=0.41 BPM=84(raw) 84(filled) | ESP32=DUDUK
+2026-04-25 12:03:56 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0062 gStd=0.54 BPM=84(raw) 84(filled) | ESP32=DUDUK
+2026-04-25 12:03:58 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0068 gStd=0.59 BPM=82(raw) 82(filled) | ESP32=DUDUK
+2026-04-25 12:04:00 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0092 gStd=0.34 BPM=80(raw) 80(filled) | ESP32=DUDUK
+2026-04-25 12:04:02 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0093 gStd=0.75 BPM=80(raw) 80(filled) | ESP32=DUDUK
+2026-04-25 12:04:04 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0085 gStd=1.30 BPM=82(raw) 82(filled) | ESP32=DUDUK
+2026-04-25 12:04:06 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0119 gStd=1.54 BPM=91(raw) 91(filled) | ESP32=DUDUK
+2026-04-25 12:04:08 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=0.86) | aStd=0.0072 gStd=0.80 BPM=108(raw) 108(filled) | ESP32=DUDUK
+2026-04-25 12:04:10 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=0.68) | aStd=0.0086 gStd=1.36 BPM=113(raw) 113(filled) | ESP32=DUDUK
+2026-04-25 12:04:12 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=0.74) | aStd=0.0055 gStd=0.23 BPM=110(raw) 110(filled) | ESP32=DUDUK
+2026-04-25 12:04:14 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0087 gStd=0.48 BPM=99(raw) 99(filled) | ESP32=DUDUK
+2026-04-25 12:04:16 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0058 gStd=0.37 BPM=94(raw) 94(filled) | ESP32=DUDUK
+2026-04-25 12:04:18 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0102 gStd=0.37 BPM=87(raw) 87(filled) | ESP32=DUDUK
+2026-04-25 12:04:19 | INFO     | server_knn | [STATUS] user=None P#None final_act=None bpm=None D=None J=None L=None
+2026-04-25 12:04:20 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0092 gStd=0.40 BPM=82(raw) 82(filled) | ESP32=DUDUK
+2026-04-25 12:04:22 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0112 gStd=1.64 BPM=79(raw) 79(filled) | ESP32=DUDUK
+2026-04-25 12:04:24 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0061 gStd=0.54 BPM=82(raw) 82(filled) | ESP32=DUDUK
+2026-04-25 12:04:26 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0058 gStd=0.68 BPM=91(raw) 91(filled) | ESP32=DUDUK
+2026-04-25 12:04:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 411 | Uptime: 14.0 menit
+  DUDUK     :   398 (96.8%)
+  BERJALAN  :    13 (3.2%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 12:04:28 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0131 gStd=0.23 BPM=94(raw) 94(filled) | ESP32=DUDUK
+2026-04-25 12:04:31 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0071 gStd=0.53 BPM=92(raw) 92(filled) | ESP32=DUDUK
+2026-04-25 12:04:33 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0101 gStd=0.23 BPM=89(raw) 89(filled) | ESP32=DUDUK
+2026-04-25 12:04:35 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0079 gStd=0.47 BPM=86(raw) 86(filled) | ESP32=DUDUK
+2026-04-25 12:04:37 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0079 gStd=0.35 BPM=82(raw) 82(filled) | ESP32=DUDUK
+2026-04-25 12:04:39 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0074 gStd=0.35 BPM=80(raw) 80(filled) | ESP32=DUDUK
+2026-04-25 12:04:41 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0084 gStd=0.29 BPM=80(raw) 80(filled) | ESP32=DUDUK
+2026-04-25 12:04:43 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0061 gStd=0.24 BPM=80(raw) 80(filled) | ESP32=DUDUK
+2026-04-25 12:04:45 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0083 gStd=0.55 BPM=80(raw) 80(filled) | ESP32=DUDUK
+2026-04-25 12:04:47 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0081 gStd=1.04 BPM=80(raw) 80(filled) | ESP32=DUDUK
+2026-04-25 12:04:49 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0121 gStd=1.21 BPM=80(raw) 80(filled) | ESP32=DUDUK
+2026-04-25 12:04:51 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0074 gStd=0.62 BPM=82(raw) 82(filled) | ESP32=DUDUK
+2026-04-25 12:04:53 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0079 gStd=0.58 BPM=83(raw) 83(filled) | ESP32=DUDUK
+2026-04-25 12:04:55 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0087 gStd=0.36 BPM=82(raw) 82(filled) | ESP32=DUDUK
+2026-04-25 12:04:57 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0089 gStd=2.37 BPM=82(raw) 82(filled) | ESP32=DUDUK
+2026-04-25 12:04:59 | INFO     | server_knn | [STATUS] user=None P#None final_act=None bpm=None D=None J=None L=None
+2026-04-25 12:04:59 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0109 gStd=1.11 BPM=89(raw) 89(filled) | ESP32=DUDUK
+2026-04-25 12:05:01 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=0.87) | aStd=0.0100 gStd=0.71 BPM=107(raw) 107(filled) | ESP32=DUDUK
+2026-04-25 12:05:03 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=0.79) | aStd=0.0096 gStd=0.53 BPM=109(raw) 109(filled) | ESP32=DUDUK
+2026-04-25 12:05:05 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0084 gStd=0.65 BPM=106(raw) 106(filled) | ESP32=DUDUK
+2026-04-25 12:05:07 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0057 gStd=0.43 BPM=101(raw) 101(filled) | ESP32=DUDUK
+2026-04-25 12:05:09 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0098 gStd=0.40 BPM=96(raw) 96(filled) | ESP32=DUDUK
+2026-04-25 12:05:11 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0091 gStd=0.71 BPM=93(raw) 93(filled) | ESP32=DUDUK
