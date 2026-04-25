@@ -25017,3 +25017,107 @@ ne bpm=None D=None J=None L=None
   DUDUK     :   433 (96.7%)
   BERJALAN  :    15 (3.3%)
   BERLARI   :     0 (0.0%)
+2026-04-25 13:15:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 448 | Uptime: 85.0 menit
+  DUDUK     :   433 (96.7%)
+  BERJALAN  :    15 (3.3%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 13:16:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 448 | Uptime: 86.0 menit
+  DUDUK     :   433 (96.7%)
+  BERJALAN  :    15 (3.3%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 13:17:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 448 | Uptime: 87.0 menit
+  DUDUK     :   433 (96.7%)
+  BERJALAN  :    15 (3.3%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 13:18:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 448 | Uptime: 88.0 menit
+  DUDUK     :   433 (96.7%)
+  BERJALAN  :    15 (3.3%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 13:19:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 448 | Uptime: 89.0 menit
+  DUDUK     :   433 (96.7%)
+  BERJALAN  :    15 (3.3%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 13:20:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 448 | Uptime: 90.0 menit
+  DUDUK     :   433 (96.7%)
+  BERJALAN  :    15 (3.3%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 13:20:34 | INFO     | collect_participants | [STATUS VALID] P12 selesai: akt=BERJALAN elapsed=900.6s
+2026-04-25 13:20:35 | INFO     | collect_participants | Raw → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\data\raw\P012_PSR_012_20260425_132035.csv (447 baris)
+2026-04-25 13:20:35 | INFO     | collect_participants | Dataset +447 baris → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\dataset\dataset.csv
+2026-04-25 13:21:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 448 | Uptime: 91.0 menit
+  DUDUK     :   433 (96.7%)
+  BERJALAN  :    15 (3.3%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 13:22:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 448 | Uptime: 92.0 menit
+  DUDUK     :   433 (96.7%)
+  BERJALAN  :    15 (3.3%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 13:23:01 | INFO     | collect_participants | START → P13 [PSR_013]
+2026-04-25 13:23:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 448 | Uptime: 93.0 menit
+  DUDUK     :   433 (96.7%)
+  BERJALAN  :    15 (3.3%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 13:24:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 448 | Uptime: 94.0 menit
+  DUDUK     :   433 (96.7%)
+  BERJALAN  :    15 (3.3%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 13:25:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 448 | Uptime: 95.0 menit
+  DUDUK     :   433 (96.7%)
+  BERJALAN  :    15 (3.3%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 13:26:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 448 | Uptime: 96.0 menit
+  DUDUK     :   433 (96.7%)
+  BERJALAN  :    15 (3.3%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 13:27:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 448 | Uptime: 97.0 menit
+  DUDUK     :   433 (96.7%)
+  BERJALAN  :    15 (3.3%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 13:28:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 448 | Uptime: 98.0 menit
+  DUDUK     :   433 (96.7%)
+  BERJALAN  :    15 (3.3%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 13:29:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 448 | Uptime: 99.0 menit
+  DUDUK     :   433 (96.7%)
+  BERJALAN  :    15 (3.3%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 13:30:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 448 | Uptime: 100.0 menit
+  DUDUK     :   433 (96.7%)
+  BERJALAN  :    15 (3.3%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 13:31:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 448 | Uptime: 101.0 menit
+  DUDUK     :   433 (96.7%)
+  BERJALAN  :    15 (3.3%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 13:32:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 448 | Uptime: 102.0 menit
+  DUDUK     :   433 (96.7%)
+  BERJALAN  :    15 (3.3%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 13:33:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 448 | Uptime: 103.0 menit
+  DUDUK     :   433 (96.7%)
+  BERJALAN  :    15 (3.3%)
+  BERLARI   :     0 (0.0%)
+2026-04-25 13:34:27 | INFO     | server_knn | === STATS ===
+  Total prediksi: 448 | Uptime: 104.0 menit
+  DUDUK     :   433 (96.7%)
+  BERJALAN  :    15 (3.3%)
+  BERLARI   :     0 (0.0%)
