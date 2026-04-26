@@ -26639,3 +26639,38 @@ ne bpm=None D=None J=None L=None
   DUDUK     :   433 (96.7%)
   BERJALAN  :    15 (3.3%)
   BERLARI   :     0 (0.0%)
+2026-04-26 17:14:59 | INFO     | server_knn | =======================================================
+2026-04-26 17:14:59 | INFO     | server_knn |   AIoT Watch — KNN Inference Server (3 Fitur)
+2026-04-26 17:14:59 | INFO     | server_knn |   Fitur: ['accel_stddev', 'gyro_stddev', 'bpm_filled']
+2026-04-26 17:14:59 | INFO     | server_knn |   Broker: broker.emqx.io:1883
+2026-04-26 17:14:59 | INFO     | server_knn | =======================================================
+2026-04-26 17:15:01 | INFO     | server_knn | Model  : C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\models\knn_model.pkl
+2026-04-26 17:15:01 | INFO     | server_knn | Scaler : C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\models\scaler.pkl
+2026-04-26 17:15:01 | INFO     | server_knn | BPM median: {'DUDUK': 70, 'BERJALAN': 117, 'BERLARI': 151, '_global': 75}
+2026-04-26 17:15:01 | INFO     | server_knn | Fitur  : ['accel_stddev', 'gyro_stddev', 'bpm_filled']
+2026-04-26 17:15:11 | ERROR    | server_knn | Tidak bisa konek: [Errno 11002] getaddrinfo failed
+2026-04-26 17:15:26 | INFO     | server_knn | =======================================================
+2026-04-26 17:15:26 | INFO     | server_knn |   AIoT Watch — KNN Inference Server (3 Fitur)
+2026-04-26 17:15:26 | INFO     | server_knn |   Fitur: ['accel_stddev', 'gyro_stddev', 'bpm_filled']
+2026-04-26 17:15:26 | INFO     | server_knn |   Broker: broker.emqx.io:1883
+2026-04-26 17:15:26 | INFO     | server_knn | =======================================================
+2026-04-26 17:15:26 | INFO     | server_knn | Model  : C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\models\knn_model.pkl
+2026-04-26 17:15:26 | INFO     | server_knn | Scaler : C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\models\scaler.pkl
+2026-04-26 17:15:26 | INFO     | server_knn | BPM median: {'DUDUK': 70, 'BERJALAN': 117, 'BERLARI': 151, '_global': 75}
+2026-04-26 17:15:26 | INFO     | server_knn | Fitur  : ['accel_stddev', 'gyro_stddev', 'bpm_filled']
+2026-04-26 17:15:29 | INFO     | server_knn | Server aktif. Tekan Ctrl+C untuk berhenti.
+2026-04-26 17:15:30 | INFO     | server_knn | Terhubung ke broker broker.emqx.io:1883
+2026-04-26 17:15:30 | INFO     | server_knn | [STATUS] user=None P#None final_act=None bpm=None D=None J=None L=None
+2026-04-26 17:15:39 | INFO     | collect_participants | MQTT terhubung ke broker.emqx.io:1883
+2026-04-26 17:15:46 | INFO     | collect_participants | START → P15 [PSR_015]
+2026-04-26 17:15:48 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0294 gStd=5.41 BPM=0(raw) 75(filled) | ESP32=DUDUK
+2026-04-26 17:15:49 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0100 gStd=1.21 BPM=0(raw) 75(filled) | ESP32=BERJALAN
+2026-04-26 17:15:52 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0155 gStd=6.27 BPM=0(raw) 75(filled) | ESP32=BERJALAN
+2026-04-26 17:15:54 | INFO     | server_knn | [KNN] unknown → BERJALAN (conf=0.66) | aStd=0.0496 gStd=21.37 BPM=0(raw) 75(filled) | ESP32=DUDUK
+2026-04-26 17:15:55 | INFO     | server_knn | [KNN] unknown → BERJALAN (conf=1.00) | aStd=0.0485 gStd=13.36 BPM=75(raw) 75(filled) | ESP32=BERJALAN
+2026-04-26 17:16:18 | INFO     | server_knn | 
+[STOP] Server berhenti.
+  Total prediksi: 5 | Uptime: 0.9 menit
+  DUDUK     :     3 (60.0%)
+  BERJALAN  :     2 (40.0%)
+  BERLARI   :     0 (0.0%)
