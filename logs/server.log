@@ -27388,3 +27388,52 @@ ne bpm=None D=None J=None L=None
 2026-04-30 21:08:26 | INFO     | data_collection | Terhubung ke cloud broker broker.emqx.io:1883
 2026-04-30 21:08:31 | ERROR    | data_collection | Gagal kirim START: Message publish failed: The client is not currently connected.
 2026-04-30 21:29:35 | ERROR    | data_collection | Gagal kirim START: Message publish failed: The client is not currently connected.
+2026-04-30 21:30:44 | INFO     | data_collection | Terhubung ke cloud broker broker.emqx.io:1883
+2026-04-30 21:30:50 | INFO     | data_collection | START terkirim ke P1 [PSR_01]
+2026-04-30 21:31:13 | INFO     | data_collection | [DUDUK] P1 n=10 | aStd=0.1117 | gStd=50.42 | BPM=80
+2026-04-30 21:31:33 | INFO     | data_collection | [DUDUK] P1 n=20 | aStd=0.0428 | gStd=47.68 | BPM=67
+2026-04-30 21:31:53 | INFO     | data_collection | [DUDUK] P1 n=30 | aStd=0.0310 | gStd=25.03 | BPM=33
+2026-04-30 21:32:13 | INFO     | data_collection | [DUDUK] P1 n=40 | aStd=0.0101 | gStd=20.53 | BPM=70
+2026-04-30 21:32:34 | INFO     | data_collection | [DUDUK] P1 n=50 | aStd=0.0549 | gStd=21.07 | BPM=80
+2026-04-30 21:32:54 | INFO     | data_collection | [DUDUK] P1 n=60 | aStd=0.0135 | gStd=12.91 | BPM=83
+2026-04-30 21:33:14 | INFO     | data_collection | [DUDUK] P1 n=70 | aStd=0.0264 | gStd=21.55 | BPM=101
+2026-04-30 21:33:34 | INFO     | data_collection | [DUDUK] P1 n=80 | aStd=0.0050 | gStd=1.09 | BPM=74
+2026-04-30 21:33:54 | INFO     | data_collection | [DUDUK] P1 n=90 | aStd=0.0104 | gStd=3.33 | BPM=74
+2026-04-30 21:34:14 | INFO     | data_collection | [DUDUK] P1 n=100 | aStd=0.0107 | gStd=0.22 | BPM=68
+2026-04-30 21:34:34 | INFO     | data_collection | [DUDUK] P1 n=110 | aStd=0.0100 | gStd=0.13 | BPM=68
+2026-04-30 21:34:54 | INFO     | data_collection | [DUDUK] P1 n=120 | aStd=0.0951 | gStd=63.98 | BPM=70
+2026-04-30 21:35:14 | INFO     | data_collection | [DUDUK] P1 n=130 | aStd=0.0073 | gStd=16.93 | BPM=94
+2026-04-30 21:35:34 | INFO     | data_collection | [DUDUK] P1 n=140 | aStd=0.0493 | gStd=54.71 | BPM=78
+2026-04-30 21:35:56 | INFO     | data_collection | [DUDUK] P1 n=150 | aStd=0.0082 | gStd=7.63 | BPM=69
+2026-04-30 21:36:18 | INFO     | data_collection | [DUDUK] P1 n=160 | aStd=0.0133 | gStd=3.81 | BPM=82
+2026-04-30 21:36:38 | INFO     | data_collection | [DUDUK] P1 n=170 | aStd=0.0072 | gStd=0.21 | BPM=69
+2026-04-30 21:36:58 | INFO     | data_collection | [DUDUK] P1 n=180 | aStd=0.0073 | gStd=1.08 | BPM=105
+2026-04-30 21:37:18 | INFO     | data_collection | [DUDUK] P1 n=190 | aStd=0.0098 | gStd=0.30 | BPM=73
+2026-04-30 21:37:38 | INFO     | data_collection | [DUDUK] P1 n=200 | aStd=0.0069 | gStd=1.28 | BPM=71
+2026-04-30 21:37:58 | INFO     | data_collection | [DUDUK] P1 n=210 | aStd=0.0071 | gStd=1.11 | BPM=79
+2026-04-30 21:38:18 | INFO     | data_collection | [DUDUK] P1 n=220 | aStd=0.0363 | gStd=34.12 | BPM=73
+2026-04-30 21:38:38 | INFO     | data_collection | [DUDUK] P1 n=230 | aStd=0.0095 | gStd=1.06 | BPM=88
+2026-04-30 21:38:58 | INFO     | data_collection | [DUDUK] P1 n=240 | aStd=0.0077 | gStd=0.58 | BPM=71
+2026-04-30 21:39:18 | INFO     | data_collection | [DUDUK] P1 n=250 | aStd=0.0067 | gStd=0.54 | BPM=69
+2026-04-30 21:39:38 | INFO     | data_collection | [DUDUK] P1 n=260 | aStd=0.0080 | gStd=0.67 | BPM=69
+2026-04-30 21:39:58 | INFO     | data_collection | [DUDUK] P1 n=270 | aStd=0.0079 | gStd=0.52 | BPM=67
+2026-04-30 21:40:18 | INFO     | data_collection | [DUDUK] P1 n=280 | aStd=0.0078 | gStd=0.28 | BPM=87
+2026-04-30 21:40:38 | INFO     | data_collection | [DUDUK] P1 n=290 | aStd=0.0072 | gStd=0.58 | BPM=72
+2026-04-30 21:40:58 | INFO     | data_collection | [DUDUK] P1 n=300 | aStd=0.0122 | gStd=0.91 | BPM=69
+2026-04-30 21:41:18 | INFO     | data_collection | [DUDUK] P1 n=310 | aStd=0.0061 | gStd=0.14 | BPM=72
+2026-04-30 21:41:38 | INFO     | data_collection | [DUDUK] P1 n=320 | aStd=0.0100 | gStd=0.86 | BPM=79
+2026-04-30 21:41:58 | INFO     | data_collection | [DUDUK] P1 n=330 | aStd=0.0056 | gStd=0.36 | BPM=77
+2026-04-30 21:42:18 | INFO     | data_collection | [DUDUK] P1 n=340 | aStd=0.0188 | gStd=5.87 | BPM=81
+2026-04-30 21:42:38 | INFO     | data_collection | [DUDUK] P1 n=350 | aStd=0.0068 | gStd=0.60 | BPM=77
+2026-04-30 21:42:58 | INFO     | data_collection | [DUDUK] P1 n=360 | aStd=0.0061 | gStd=0.56 | BPM=70
+2026-04-30 21:43:18 | INFO     | data_collection | [DUDUK] P1 n=370 | aStd=0.0081 | gStd=0.24 | BPM=73
+2026-04-30 21:43:38 | INFO     | data_collection | [DUDUK] P1 n=380 | aStd=0.0101 | gStd=1.43 | BPM=70
+2026-04-30 21:43:59 | INFO     | data_collection | [DUDUK] P1 n=390 | aStd=0.0124 | gStd=1.09 | BPM=72
+2026-04-30 21:44:19 | INFO     | data_collection | [DUDUK] P1 n=400 | aStd=0.0116 | gStd=1.16 | BPM=75
+2026-04-30 21:44:39 | INFO     | data_collection | [DUDUK] P1 n=410 | aStd=0.0107 | gStd=0.28 | BPM=95
+2026-04-30 21:44:59 | INFO     | data_collection | [DUDUK] P1 n=420 | aStd=0.0093 | gStd=0.60 | BPM=71
+2026-04-30 21:45:19 | INFO     | data_collection | [DUDUK] P1 n=430 | aStd=0.0076 | gStd=1.00 | BPM=71
+2026-04-30 21:45:40 | INFO     | data_collection | [DUDUK] P1 n=440 | aStd=0.0106 | gStd=2.20 | BPM=72
+2026-04-30 21:45:54 | INFO     | data_collection | STOP terkirim ke control/session
+2026-04-30 21:45:55 | INFO     | data_collection | Raw disimpan → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\data\raw\P001_PSR_01_DUDUK_20260430_214555.csv (447 baris)
+2026-04-30 21:45:55 | INFO     | data_collection | Dataset +447 baris → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\dataset\dataset.csv
