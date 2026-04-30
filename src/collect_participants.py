@@ -1,12 +1,30 @@
+"""
+collect_participants.py — Pengambilan data training per partisipan
+=================================================================
+Alur:
+  1. Operator masukkan ID partisipan secara manual
+  2. Operator pilih label aktivitas (DUDUK / BERJALAN / BERLARI)
+  3. Kirim START ke ESP32 via MQTT (hanya untuk memberi tahu ID partisipan)
+  4. Terima data sensor dari ESP32 selama 15 menit
+  5. Setiap baris data diberi label sesuai pilihan operator
+  6. Simpan ke raw CSV + dataset.csv + sessions_summary.csv
+  7. Lanjut ke peserta berikutnya
+
+Catatan penting:
+  - ESP32 TIDAK mengirim label aktivitas apa pun
+  - Pelabelan 100% dilakukan di sini berdasarkan input manual operator
+  - Satu sesi = satu aktivitas (operator HARUS memilih satu aktivitas per sesi)
+  - Satu partisipan bisa punya beberapa sesi (misal: duduk 15 mnt, lalu berjalan 15 mnt)
+"""
+
 import json, os, sys, csv, signal, time, threading, shutil
-from collections import Counter
 from datetime import datetime
 import paho.mqtt.client as mqtt
 
 sys.path.insert(0, os.path.dirname(__file__))
 from config import (
     MQTT_BROKER, MQTT_PORT,
-    TOPIC_SENSOR_DATA, TOPIC_STATUS, TOPIC_COMMAND,
+    TOPIC_SENSOR_DATA, TOPIC_COMMAND,
     DATA_RAW_DIR, DATASET_PATH, DATASET_DIR,
     CLASSES, SESSION_DURATION_SEC
 )
@@ -14,34 +32,46 @@ from utils import get_logger, parse_sensor_payload
 
 logger = get_logger("collect_participants")
 
-SESSION_DURATION = SESSION_DURATION_SEC
+SESSION_DURATION = SESSION_DURATION_SEC  # detik, default 900 (15 menit)
 SUMMARY_PATH     = os.path.join(DATASET_DIR, "sessions_summary.csv")
 BACKUP_DIR       = os.path.join(DATASET_DIR, "backup")
 
+# ─────────────────────────────────────────────
+#  FIELD DEFINITIONS
+# ─────────────────────────────────────────────
 SUMMARY_FIELDS = [
-    "participant_no","participant_id","timestamp",
-    "final_activity","final_bpm","avg_bpm",
-    "count_duduk","count_berjalan","count_berlari",
-    "total_samples","bpm_valid_pct","durasi_detik","sumber_hasil"
+    "session_no", "participant_no", "participant_id",
+    "activity", "timestamp",
+    "total_samples", "bpm_valid", "bpm_valid_pct",
+    "avg_accel_stddev", "avg_gyro_stddev", "avg_bpm",
+    "durasi_detik"
 ]
 DATASET_FIELDS = [
-    "received_at","participant_no","participant_id",
-    "accel_stddev","gyro_stddev","bpm",
-    "activity","local_act","timestamp"
+    "received_at", "participant_no", "participant_id",
+    "accel_stddev", "gyro_stddev", "bpm",
+    "activity",      # label manual dari operator
+    "timestamp"
 ]
 RAW_FIELDS = [
-    "received_at","participant_no","participant_id",
-    "accel_stddev","gyro_stddev","bpm","local_act","timestamp"
+    "received_at", "participant_no", "participant_id",
+    "accel_stddev", "gyro_stddev", "bpm",
+    "activity",      # label manual
+    "timestamp"
 ]
 
+
+# ─────────────────────────────────────────────
+#  STATE
+# ─────────────────────────────────────────────
 class State:
     def __init__(self):
-        self.current_no      = 0
-        self.current_id      = ""
+        self.current_no      = 0       # nomor partisipan
+        self.current_id      = ""      # ID partisipan
+        self.current_label   = ""      # label aktivitas sesi ini (MANUAL)
+        self.session_no      = 0       # nomor sesi global (bertambah tiap sesi)
         self.session_active  = False
         self.session_done    = threading.Event()
-        self.session_result  = {}
-        self.raw_rows        = []
+        self.raw_rows        = []      # buffer data sensor sesi ini
         self.aborted         = False
         self.restart_flag    = False
         self.stop_requested  = False
@@ -49,33 +79,6 @@ class State:
 
 state = State()
 
-# ─────────────────────────────────────────────
-#  HITUNG HASIL DARI RAW (fallback)
-# ─────────────────────────────────────────────
-def compute_result_from_raw(raw_rows):
-    if not raw_rows:
-        return {"final_activity":"","final_bpm":0,"avg_bpm":0,
-                "count_duduk":0,"count_berjalan":0,"count_berlari":0,"total_samples":0}
-    act_counts = Counter()
-    bpm_vals   = []
-    for row in raw_rows:
-        act = str(row.get("local_act","")).upper().strip()
-        if act in CLASSES:
-            act_counts[act] += 1
-        bpm = int(row.get("bpm", 0) or 0)
-        if 40 < bpm < 220:
-            bpm_vals.append(bpm)
-    final_activity = act_counts.most_common(1)[0][0] if act_counts else "DUDUK"
-    final_bpm      = int(sum(bpm_vals) / len(bpm_vals)) if bpm_vals else 0
-    return {
-        "final_activity": final_activity,
-        "final_bpm":      final_bpm,
-        "avg_bpm":        final_bpm,
-        "count_duduk":    act_counts.get("DUDUK",    0),
-        "count_berjalan": act_counts.get("BERJALAN", 0),
-        "count_berlari":  act_counts.get("BERLARI",  0),
-        "total_samples":  len(raw_rows),
-    }
 
 # ─────────────────────────────────────────────
 #  MQTT CALLBACKS
@@ -84,124 +87,67 @@ def on_connect(client, userdata, flags, rc, properties=None):
     if rc == 0:
         logger.info(f"MQTT terhubung ke {MQTT_BROKER}:{MQTT_PORT}")
         client.subscribe(TOPIC_SENSOR_DATA)
-        client.subscribe(TOPIC_STATUS)
-        print(f"\n  ✅ Terhubung ke EMQX Cloud!")
+        print(f"\n  ✅ Terhubung ke broker {MQTT_BROKER}:{MQTT_PORT}!")
     else:
         logger.error(f"MQTT gagal rc={rc}")
+        print(f"\n  ❌ Gagal terhubung MQTT (rc={rc})")
+
 
 def on_message(client, userdata, msg):
+    """
+    Terima data sensor dari ESP32.
+    Label aktivitas TIDAK diambil dari payload — seluruhnya dari input manual.
+    """
+    if msg.topic != TOPIC_SENSOR_DATA:
+        return
+    if not state.session_active:
+        return
+
     try:
         data = json.loads(msg.payload.decode("utf-8"))
     except Exception:
         return
 
-    # ── Data sensor → simpan ke buffer ─────────────────────
-    if msg.topic == TOPIC_SENSOR_DATA and state.session_active:
-        row = parse_sensor_payload(data)
-        if row:
-            row["participant_no"] = state.current_no
-            row["participant_id"] = state.current_id
-            row["local_act"]      = data.get("local_act", "")
-            state.raw_rows.append(row)
+    row = parse_sensor_payload(data)
+    if row is None:
+        return
 
-    # ── Status akhir sesi dari ESP32 ────────────────────────
-    elif msg.topic == TOPIC_STATUS and state.session_active:
+    # Tambahkan info partisipan + label manual
+    row["participant_no"] = state.current_no
+    row["participant_id"] = state.current_id
+    row["activity"]       = state.current_label  # ← label dari input operator
+    # Hapus field local_act jika ada (tidak relevan)
+    row.pop("local_act", None)
+    row.pop("user",      None)
 
-        # ══ PERBAIKAN UTAMA ══════════════════════════════════
-        # Validasi KETAT: pesan harus punya SEMUA field ini
-        # untuk dianggap sebagai sinyal selesai sesi.
-        # Ping online ("status":"online") tidak punya field ini
-        # sehingga TIDAK akan memicu penghentian sesi.
-        # ═════════════════════════════════════════════════════
-        required_fields = ["final_activity", "count_duduk",
-                           "count_berjalan", "count_berlari", "total_samples"]
-        is_valid_result = all(f in data for f in required_fields)
+    state.raw_rows.append(row)
 
-        if not is_valid_result:
-            logger.debug(
-                f"STATUS diterima tapi bukan hasil sesi "
-                f"(mungkin ping). Field ada: {list(data.keys())}"
-            )
-            return
-
-        # Validasi participant_no harus cocok
-        p_no = data.get("participant_no")
-        if p_no is None:
-            logger.debug("STATUS tanpa participant_no, diabaikan.")
-            return
-
-        p_no = int(p_no)
-        if p_no != state.current_no:
-            logger.warning(
-                f"STATUS P{p_no} diterima tapi sesi aktif adalah P{state.current_no}. "
-                f"Diabaikan (mungkin kiriman lama / delay)."
-            )
-            return
-
-        # Validasi durasi minimum — abaikan jika terlalu singkat
-        elapsed = time.time() - state.session_start
-        MIN_VALID_DURATION = 60   # minimal 60 detik agar dianggap valid
-        if elapsed < MIN_VALID_DURATION:
-            logger.warning(
-                f"STATUS P{p_no} diterima terlalu cepat "
-                f"({elapsed:.1f}s < {MIN_VALID_DURATION}s minimum). "
-                f"Kemungkinan STATUS sesi SEBELUMNYA yang terlambat datang. Diabaikan."
-            )
-            return
-
-        # Semua validasi lolos → sesi selesai
-        bpm_vals = [int(r.get("bpm",0)) for r in state.raw_rows if int(r.get("bpm",0)) > 0]
-        state.session_result = {
-            "final_activity": data.get("final_activity", ""),
-            "final_bpm":      int(data.get("final_bpm", 0) or 0),
-            "avg_bpm":        int(sum(bpm_vals)/len(bpm_vals)) if bpm_vals else 0,
-            "count_duduk":    int(data.get("count_duduk",    0)),
-            "count_berjalan": int(data.get("count_berjalan", 0)),
-            "count_berlari":  int(data.get("count_berlari",  0)),
-            "total_samples":  int(data.get("total_samples",  len(state.raw_rows))),
-        }
-        logger.info(
-            f"[STATUS VALID] P{p_no} selesai: "
-            f"akt={state.session_result['final_activity']} "
-            f"elapsed={elapsed:.1f}s"
-        )
-        state.session_active = False
-        state.session_done.set()
 
 # ─────────────────────────────────────────────
-#  WATCHDOG — hanya timeout setelah durasi penuh + buffer
+#  KIRIM PERINTAH KE ESP32
 # ─────────────────────────────────────────────
-def session_timer_watchdog():
+def send_start(client, participant_id: str, participant_no: int):
     """
-    Watchdog aktif hanya SETELAH SESSION_DURATION + 15 detik.
-    Tidak akan memotong sesi sebelum waktunya.
+    Kirim START ke ESP32 agar ESP32 tahu ID partisipan aktif.
+    ESP32 akan menyertakan participant_id di setiap payload sensor.
     """
-    # Tunggu durasi penuh + 15 detik buffer
-    time.sleep(SESSION_DURATION + 15)
-
-    if state.session_active:
-        logger.warning(
-            f"[WATCHDOG] P{state.current_no} timeout setelah "
-            f"{SESSION_DURATION + 15}s — fallback Python."
-        )
-        state.session_active = False
-        state.session_done.set()
-
-# ─────────────────────────────────────────────
-#  KIRIM PERINTAH
-# ─────────────────────────────────────────────
-def send_start(client, participant_id, participant_no):
     payload = json.dumps({
         "cmd":            "START",
         "participant_id": participant_id,
         "participant_no": participant_no,
-        "total":          999
     })
-    r = client.publish(TOPIC_COMMAND, payload, qos=1)
-    r.wait_for_publish(timeout=3)
-    logger.info(f"START → P{participant_no} [{participant_id}]")
+    try:
+        r = client.publish(TOPIC_COMMAND, payload, qos=1)
+        r.wait_for_publish(timeout=3)
+        logger.info(f"START → P{participant_no} [{participant_id}]")
+        return True
+    except Exception as e:
+        logger.error(f"Gagal kirim START: {e}")
+        return False
 
-def send_stop(client, participant_no):
+
+def send_stop(client, participant_no: int):
+    """Kirim STOP ke ESP32 agar ESP32 kosongkan participant_id."""
     payload = json.dumps({"cmd": "STOP", "participant_no": participant_no})
     try:
         r = client.publish(TOPIC_COMMAND, payload, qos=1)
@@ -210,20 +156,25 @@ def send_stop(client, participant_no):
     except Exception as e:
         logger.error(f"Gagal kirim STOP: {e}")
 
+
 # ─────────────────────────────────────────────
 #  SIMPAN DATA
 # ─────────────────────────────────────────────
-def save_raw_session(participant_id, participant_no):
+def save_raw_session(participant_id: str, participant_no: int, activity: str) -> str:
+    """Simpan raw data sesi ke file CSV tersendiri."""
     ts   = datetime.now().strftime("%Y%m%d_%H%M%S")
-    path = os.path.join(DATA_RAW_DIR,
-                        f"P{participant_no:03d}_{participant_id}_{ts}.csv")
+    fname = f"P{participant_no:03d}_{participant_id}_{activity}_{ts}.csv"
+    path  = os.path.join(DATA_RAW_DIR, fname)
     with open(path, "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=RAW_FIELDS, extrasaction="ignore")
         w.writeheader()
         w.writerows(state.raw_rows)
     logger.info(f"Raw → {path} ({len(state.raw_rows)} baris)")
+    return path
+
 
 def append_to_dataset():
+    """Tambahkan baris sesi ini ke dataset.csv utama."""
     if not state.raw_rows:
         return
     file_exists = os.path.isfile(DATASET_PATH)
@@ -240,51 +191,229 @@ def append_to_dataset():
                 "accel_stddev":   row.get("accel_stddev", ""),
                 "gyro_stddev":    row.get("gyro_stddev", ""),
                 "bpm":            row.get("bpm", 0),
-                "activity":       row.get("local_act", ""),
-                "local_act":      row.get("local_act", ""),
+                "activity":       row.get("activity", ""),   # label manual
                 "timestamp":      row.get("timestamp", ""),
             })
             added += 1
     logger.info(f"Dataset +{added} baris → {DATASET_PATH}")
 
-def save_summary(participant_no, participant_id, result, duration_sec, sumber):
-    file_exists = os.path.isfile(SUMMARY_PATH)
-    bpm_vals    = [int(r.get("bpm", 0)) for r in state.raw_rows
-                   if int(r.get("bpm", 0)) > 0]
-    bpm_pct     = round(len(bpm_vals)/len(state.raw_rows)*100, 1) \
-                  if state.raw_rows else 0
 
+def save_summary(participant_no: int, participant_id: str,
+                 activity: str, duration_actual: float) -> None:
+    """Simpan ringkasan sesi ke sessions_summary.csv."""
+    state.session_no += 1
+    rows = state.raw_rows
+
+    total   = len(rows)
+    bpm_ok  = [int(r.get("bpm", 0)) for r in rows if int(r.get("bpm", 0)) > 0]
+    bpm_pct = round(len(bpm_ok) / total * 100, 1) if total > 0 else 0
+    avg_bpm = round(sum(bpm_ok) / len(bpm_ok), 1) if bpm_ok else 0
+
+    avg_accel = (round(sum(r["accel_stddev"] for r in rows) / total, 4)
+                 if total > 0 else 0)
+    avg_gyro  = (round(sum(r["gyro_stddev"]  for r in rows) / total, 2)
+                 if total > 0 else 0)
+
+    file_exists = os.path.isfile(SUMMARY_PATH)
     with open(SUMMARY_PATH, "a", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=SUMMARY_FIELDS, extrasaction="ignore")
         if not file_exists:
             w.writeheader()
         w.writerow({
+            "session_no":      state.session_no,
             "participant_no":  participant_no,
             "participant_id":  participant_id,
+            "activity":        activity,
             "timestamp":       datetime.now().isoformat(),
-            "final_activity":  result.get("final_activity", ""),
-            "final_bpm":       result.get("final_bpm", 0),
-            "avg_bpm":         result.get("avg_bpm", 0),
-            "count_duduk":     result.get("count_duduk", 0),
-            "count_berjalan":  result.get("count_berjalan", 0),
-            "count_berlari":   result.get("count_berlari", 0),
-            "total_samples":   result.get("total_samples", 0),
+            "total_samples":   total,
+            "bpm_valid":       len(bpm_ok),
             "bpm_valid_pct":   bpm_pct,
-            "durasi_detik":    round(duration_sec, 1),
-            "sumber_hasil":    sumber,
+            "avg_accel_stddev": avg_accel,
+            "avg_gyro_stddev":  avg_gyro,
+            "avg_bpm":          avg_bpm,
+            "durasi_detik":     round(duration_actual, 1),
         })
+    logger.info(f"Summary sesi #{state.session_no} disimpan → {SUMMARY_PATH}")
+
 
 # ─────────────────────────────────────────────
-#  RESTART
+#  TAMPILAN TIMER SESI (thread)
 # ─────────────────────────────────────────────
-def do_restart():
+def show_session_timer(participant_no: int, participant_id: str, activity: str):
+    start = time.time()
+    while state.session_active and not state.stop_requested:
+        elapsed   = time.time() - start
+        remaining = max(0, SESSION_DURATION - elapsed)
+        m, s      = int(remaining // 60), int(remaining % 60)
+        n         = len(state.raw_rows)
+        bpm_ok    = sum(1 for r in state.raw_rows if int(r.get("bpm", 0)) > 0)
+        last_bpm  = state.raw_rows[-1].get("bpm", 0) if state.raw_rows else 0
+
+        print(
+            f"\r  ⏱  [{activity}] P{participant_no} [{participant_id}] | "
+            f"Sisa: {m:02d}:{s:02d} | "
+            f"Sampel: {n:4d} | "
+            f"BPM: {last_bpm if last_bpm > 0 else '--':<4}   ",
+            end="", flush=True
+        )
+        time.sleep(0.5)
     print()
-    print("  ┌────────────────────────────────────────────────────┐")
-    print("  │               ⚠  KONFIRMASI RESTART               │")
-    print("  │  Semua data di-BACKUP lalu dihapus. Mulai dari P1 │")
-    print("  └────────────────────────────────────────────────────┘")
+
+
+# ─────────────────────────────────────────────
+#  WATCHDOG TIMER (thread)
+#  Hentikan sesi setelah durasi penuh + 5 detik buffer
+# ─────────────────────────────────────────────
+def session_watchdog():
+    time.sleep(SESSION_DURATION + 5)
+    if state.session_active:
+        logger.info(f"[WATCHDOG] Sesi selesai setelah {SESSION_DURATION}s")
+        state.session_active = False
+        state.session_done.set()
+
+
+# ─────────────────────────────────────────────
+#  INPUT INTERAKTIF
+# ─────────────────────────────────────────────
+def input_participant(no: int, completed_ids: list) -> str | None:
+    """
+    Input ID partisipan.
+    Perintah: r=restart, s=skip, q=quit
+    """
+    print(f"\n{'─'*60}")
+    print(f"  👤 PESERTA KE-{no}")
+    if completed_ids:
+        print(f"  Sebelumnya : {', '.join(completed_ids[-5:])}")
+    print(f"{'─'*60}")
+    print(f"  Perintah   : [r]estart | [s]kip | [q]uit\n")
+
+    while True:
+        try:
+            raw = input(f"  ID Peserta {no}: ").strip()
+        except (EOFError, KeyboardInterrupt):
+            state.aborted = True
+            return None
+
+        lower = raw.lower()
+        if lower in ("q", "quit"):
+            state.aborted = True
+            return None
+        if lower in ("s", "skip"):
+            print(f"  ⏭  Peserta ke-{no} dilewati.\n")
+            return "__SKIP__"
+        if lower in ("r", "restart"):
+            if do_restart():
+                state.restart_flag = True
+                return None
+            continue
+        if not raw:
+            print("  ⚠  ID tidak boleh kosong.")
+            continue
+        if len(raw) > 30:
+            print("  ⚠  Terlalu panjang (maks 30 karakter).")
+            continue
+        safe = raw.replace(" ", "_").replace(",", "").replace('"', "").replace("'", "")
+        if safe != raw:
+            print(f"  ℹ  ID diubah: '{safe}'")
+        return safe
+
+
+def select_activity(participant_id: str) -> str | None:
+    """
+    Pilih label aktivitas untuk sesi ini.
+    Operator HARUS memilih satu aktivitas sebelum pengambilan data dimulai.
+    """
+    print()
+    print(f"  ┌──────────────────────────────────────────────────┐")
+    print(f"  │  🏃 PILIH AKTIVITAS untuk [{participant_id}]        ")
+    print(f"  ├──────────────────────────────────────────────────┤")
+    print(f"  │  1. DUDUK    — Peserta dalam posisi duduk diam   │")
+    print(f"  │  2. BERJALAN — Peserta berjalan kaki             │")
+    print(f"  │  3. BERLARI  — Peserta berlari                   │")
+    print(f"  │  q. Batal / skip peserta ini                     │")
+    print(f"  └──────────────────────────────────────────────────┘")
+    print()
+
+    while True:
+        try:
+            pilih = input("  Pilih aktivitas (1/2/3 atau q): ").strip().upper()
+        except (EOFError, KeyboardInterrupt):
+            return None
+
+        if pilih in ("1", "DUDUK"):    return "DUDUK"
+        if pilih in ("2", "BERJALAN"): return "BERJALAN"
+        if pilih in ("3", "BERLARI"):  return "BERLARI"
+        if pilih in ("Q", "QUIT"):     return None
+        print("  ⚠  Pilihan tidak valid. Masukkan 1, 2, 3, atau q.")
+
+
+def confirm_session(participant_id: str, participant_no: int, activity: str) -> bool:
+    """Konfirmasi sebelum sesi dimulai."""
+    print()
+    print(f"  ┌──────────────────────────────────────────────────┐")
+    print(f"  │  KONFIRMASI SESI                                 │")
+    print(f"  │  Peserta  : P{participant_no} [{participant_id:<20}]│")
+    print(f"  │  Aktivitas: {activity:<37}│")
+    print(f"  │  Durasi   : {SESSION_DURATION//60} menit ({SESSION_DURATION} detik){'':>20}│")
+    print(f"  │  Broker   : {MQTT_BROKER}:{MQTT_PORT:<25}│")
+    print(f"  └──────────────────────────────────────────────────┘")
+    print()
+    print(f"  ⚠  Pastikan peserta siap melakukan aktivitas: {activity}")
+    try:
+        ans = input("  Tekan ENTER untuk mulai, atau 'c' untuk batal: ").strip().lower()
+        return ans != "c"
+    except (EOFError, KeyboardInterrupt):
+        return False
+
+
+# ─────────────────────────────────────────────
+#  RINGKASAN SESI
+# ─────────────────────────────────────────────
+def print_session_summary(participant_id: str, participant_no: int,
+                           activity: str, duration: float) -> None:
+    rows  = state.raw_rows
+    total = len(rows)
+    bpm_ok = [int(r.get("bpm", 0)) for r in rows if int(r.get("bpm", 0)) > 0]
+    bpm_pct = round(len(bpm_ok) / total * 100, 1) if total > 0 else 0
+    avg_bpm = round(sum(bpm_ok) / len(bpm_ok), 1) if bpm_ok else 0
+    avg_accel = round(sum(r["accel_stddev"] for r in rows) / total, 4) if total > 0 else 0
+    avg_gyro  = round(sum(r["gyro_stddev"]  for r in rows) / total, 2) if total > 0 else 0
+
+    print()
+    print(f"  {'═'*54}")
+    print(f"  RINGKASAN SESI P{participant_no} [{participant_id}]")
+    print(f"  Aktivitas   : {activity} (label manual)")
+    print(f"  {'═'*54}")
+    print(f"  Total sampel : {total}")
+    print(f"  BPM valid    : {len(bpm_ok)} ({bpm_pct}%)")
+    print(f"  Rata accel   : {avg_accel:.4f} g")
+    print(f"  Rata gyro    : {avg_gyro:.2f} °/s")
+    print(f"  Rata BPM     : {avg_bpm:.0f} bpm")
+    print(f"  Durasi aktual: {duration:.1f}s ({duration/60:.1f} menit)")
+    print(f"  {'─'*54}")
+
+    if total == 0:
+        print(f"\n  ❌ Tidak ada data! Periksa:")
+        print(f"     • ESP32 menyala dan terhubung WiFi?")
+        print(f"     • ESP32 terhubung ke broker: {MQTT_BROKER}?")
+        print(f"     • Cek Serial Monitor ESP32")
+    else:
+        print(f"\n  ✅ Sesi tersimpan. Label: {activity}")
+        print(f"     Raw    : {DATA_RAW_DIR}/")
+        print(f"     Dataset: {DATASET_PATH}")
+
+
+# ─────────────────────────────────────────────
+#  RESTART (hapus semua data, mulai dari P1)
+# ─────────────────────────────────────────────
+def do_restart() -> bool:
+    print()
+    print("  ┌──────────────────────────────────────────────────┐")
+    print("  │               ⚠  KONFIRMASI RESTART             │")
+    print("  │  Semua data di-BACKUP lalu dihapus. Mulai P1    │")
+    print("  └──────────────────────────────────────────────────┘")
     if input("  Ketik YES untuk konfirmasi: ").strip() != "YES":
-        print("  ↩ Dibatalkan.\n")
+        print("  ↩  Dibatalkan.\n")
         return False
 
     ts  = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -307,211 +436,180 @@ def do_restart():
             os.remove(src)
             moved.append(fname)
 
+    state.session_no = 0
     print(f"\n  ✅ Backup → {dst} ({len(moved)} file)")
     print(f"  🔄 Mulai ulang dari Peserta 1...\n")
     logger.info(f"RESTART: backup ke {dst}")
     return True
 
-# ─────────────────────────────────────────────
-#  TIMER DISPLAY
-# ─────────────────────────────────────────────
-def show_session_timer(participant_no, participant_id):
-    start = time.time()
-    while state.session_active and not state.stop_requested:
-        elapsed   = time.time() - start
-        remaining = max(0, SESSION_DURATION - elapsed)
-        m, s      = int(remaining // 60), int(remaining % 60)
-        bpm_ok    = sum(1 for r in state.raw_rows if int(r.get("bpm", 0)) > 0)
-        act       = state.raw_rows[-1].get("local_act", "?") if state.raw_rows else "?"
-        print(
-            f"\r  ⏱  P{participant_no} [{participant_id}] | "
-            f"Deteksi: {act:<8} | "
-            f"Sisa: {m:02d}:{s:02d} | "
-            f"Sampel: {len(state.raw_rows):4d} | "
-            f"BPM: {bpm_ok:3d}   ",
-            end="", flush=True
-        )
-        time.sleep(0.5)
-    print()
-
-# ─────────────────────────────────────────────
-#  INPUT PESERTA
-# ─────────────────────────────────────────────
-def input_participant(no, completed_ids):
-    print(f"\n{'─'*57}")
-    print(f"  👤 PESERTA KE-{no}")
-    print(f"  Sebelumnya: {', '.join(completed_ids[-5:]) if completed_ids else '-'}")
-    print(f"{'─'*57}")
-    print(f"  Perintah: [r]estart | [s]kip | [q]uit\n")
-
-    while True:
-        try:
-            raw = input(f"  ID Peserta {no}: ").strip()
-        except (EOFError, KeyboardInterrupt):
-            state.aborted = True
-            return None
-
-        lower = raw.lower()
-        if lower in ("q", "quit"):
-            state.aborted = True
-            return None
-        if lower in ("s", "skip"):
-            print(f"  ⏭ Peserta ke-{no} dilewati.\n")
-            return "__SKIP__"
-        if lower in ("r", "restart"):
-            if do_restart():
-                state.restart_flag = True
-                return None
-            continue
-        if not raw:
-            print("  ⚠ ID tidak boleh kosong.")
-            continue
-        if len(raw) > 30:
-            print("  ⚠ Terlalu panjang (maks 30 karakter).")
-            continue
-        safe = raw.replace(" ", "_").replace(",", "").replace('"', "").replace("'", "")
-        if safe != raw:
-            print(f"  ℹ ID diubah: '{safe}'")
-        return safe
 
 # ─────────────────────────────────────────────
 #  JALANKAN SATU SESI
 # ─────────────────────────────────────────────
-def run_session(client, participant_no, participant_id):
-    state.current_no     = participant_no
-    state.current_id     = participant_id
-    state.session_active = True
-    state.stop_requested = False
+def run_session(client, participant_no: int, participant_id: str, activity: str) -> bool:
+    """
+    Jalankan satu sesi pengambilan data.
+    activity: label yang dipilih operator secara manual.
+    Mengembalikan True jika data berhasil dikumpulkan.
+    """
+    # Reset state sesi
+    state.current_no    = participant_no
+    state.current_id    = participant_id
+    state.current_label = activity
+    state.session_active  = True
+    state.stop_requested  = False
     state.session_done.clear()
-    state.session_result = {}
-    state.raw_rows       = []
-    state.session_start  = time.time()
+    state.raw_rows        = []
+    state.session_start   = time.time()
 
+    # Kirim START ke ESP32 (beri tahu ID partisipan aktif)
     send_start(client, participant_id, participant_no)
+    time.sleep(1)  # beri waktu ESP32 memproses
 
-    print(f"\n  🟢 P{participant_no} [{participant_id}] mulai — {SESSION_DURATION//60} menit")
+    print(f"\n  🟢 Merekam [{activity}] untuk P{participant_no} [{participant_id}]"
+          f" selama {SESSION_DURATION//60} menit...")
     print(f"  Tekan Ctrl+C untuk berhenti darurat\n")
 
     # Thread: tampilan timer
     threading.Thread(
         target=show_session_timer,
-        args=(participant_no, participant_id),
+        args=(participant_no, participant_id, activity),
         daemon=True
     ).start()
 
-    # Thread: watchdog (hanya aktif setelah durasi penuh)
-    threading.Thread(
-        target=session_timer_watchdog,
-        daemon=True
-    ).start()
+    # Thread: watchdog timer
+    threading.Thread(target=session_watchdog, daemon=True).start()
 
-    # Tunggu sinyal selesai
+    # Tunggu sampai watchdog selesai
     state.session_done.wait()
     state.session_active = False
     duration = time.time() - state.session_start
 
     if state.stop_requested:
         print(f"\n  🛑 Mengirim STOP ke ESP32...")
-        send_stop(client, participant_no)
-        time.sleep(1)
 
-    time.sleep(0.6)  # tunggu timer thread print newline
-
-    # Tentukan hasil
-    if state.session_result and state.session_result.get("final_activity"):
-        result = state.session_result
-        sumber = "esp32"
-    else:
-        result = compute_result_from_raw(state.raw_rows)
-        sumber = "python"
-        logger.info(f"Fallback Python: {result}")
+    # Kirim STOP ke ESP32 (bersihkan participant_id)
+    send_stop(client, participant_no)
+    time.sleep(0.6)
 
     if not state.raw_rows:
         print(f"\n  ❌ Tidak ada data P{participant_no}. Cek ESP32.\n")
         return False
 
-    save_raw_session(participant_id, participant_no)
+    # Simpan data
+    save_raw_session(participant_id, participant_no, activity)
     append_to_dataset()
-    save_summary(participant_no, participant_id, result, duration, sumber)
+    save_summary(participant_no, participant_id, activity, duration)
 
-    bpm_vals = [int(r.get("bpm", 0)) for r in state.raw_rows if int(r.get("bpm", 0)) > 0]
-    bpm_pct  = round(len(bpm_vals)/len(state.raw_rows)*100, 1) if state.raw_rows else 0
-    src      = "📡 ESP32" if sumber == "esp32" else "🐍 Python"
-
-    print(f"\n  ✅ P{participant_no} [{participant_id}] selesai! [{src}]")
-    print(f"     Aktivitas : {result.get('final_activity', 'N/A')}")
-    print(f"     BPM rata  : {result.get('avg_bpm', 0)} bpm | valid: {bpm_pct}%")
-    print(f"     D:{result.get('count_duduk',0)}  J:{result.get('count_berjalan',0)}  "
-          f"L:{result.get('count_berlari',0)}  | {result.get('total_samples',0)} sampel")
-    print(f"     Durasi    : {duration:.1f}s ({duration/60:.1f} menit)\n")
+    print_session_summary(participant_id, participant_no, activity, duration)
     return True
 
+
 # ─────────────────────────────────────────────
-#  RINGKASAN
+#  RINGKASAN AKHIR
 # ─────────────────────────────────────────────
-def print_final_summary(completed_count):
+def print_final_summary(completed_count: int) -> None:
     print(f"\n{'═'*62}")
     print(f"  SELESAI — {completed_count} sesi terekam")
     print(f"  Dataset   : {DATASET_PATH}")
     print(f"  Ringkasan : {SUMMARY_PATH}")
-    if os.path.isfile(SUMMARY_PATH):
-        try:
-            with open(SUMMARY_PATH, "r", encoding="utf-8") as f:
-                rows = list(csv.DictReader(f))
-            print(f"\n  {'No':<5} {'ID':<15} {'Aktivitas':<12} {'BPM':>5} {'Durasi':>10}")
-            print(f"  {'─'*52}")
-            for r in rows[-10:]:
-                dur = float(r.get("durasi_detik", 0))
-                print(f"  {r['participant_no']:<5} {r['participant_id']:<15} "
-                      f"{r['final_activity']:<12} {r['final_bpm']:>5}  "
-                      f"{dur/60:.1f}m")
-        except Exception:
-            pass
-    print(f"\n  Langkah berikutnya:")
-    print(f"    1. Buka notebook 01_eksplorasi_data.ipynb")
-    print(f"    2. Buka notebook 02_training_model.ipynb")
-    print(f"    3. python src/server_knn.py")
-
-# ─────────────────────────────────────────────
-#  SIGINT
-# ─────────────────────────────────────────────
-def handle_sigint(sig, frame):
-    print("\n\n  Ctrl+C — menghentikan...")
-    state.aborted        = True
-    state.session_active = False
-    state.session_done.set()
-
-# ─────────────────────────────────────────────
-#  LOOP UTAMA
-# ─────────────────────────────────────────────
-def run_collection_loop(client):
-    start_from    = 1
-    completed_ids = []
 
     if os.path.isfile(SUMMARY_PATH):
         try:
             with open(SUMMARY_PATH, "r", encoding="utf-8") as f:
                 rows = list(csv.DictReader(f))
             if rows:
-                start_from    = max(int(r["participant_no"]) for r in rows) + 1
-                completed_ids = [r["participant_id"] for r in rows]
-                print(f"\n  ℹ Melanjutkan dari sesi ke-{start_from} ({len(rows)} terekam)")
+                print(f"\n  {'Sesi':<6} {'No':<5} {'ID':<15} {'Aktivitas':<12}"
+                      f" {'Sampel':>7} {'Durasi':>8}")
+                print(f"  {'─'*60}")
+                for r in rows[-10:]:
+                    dur = float(r.get("durasi_detik", 0))
+                    print(f"  {r.get('session_no',''):<6} "
+                          f"{r['participant_no']:<5} "
+                          f"{r['participant_id']:<15} "
+                          f"{r['activity']:<12} "
+                          f"{r.get('total_samples','')!s:>7} "
+                          f"{dur/60:.1f}m")
+        except Exception:
+            pass
+
+    # Distribusi per kelas
+    if os.path.isfile(DATASET_PATH):
+        try:
+            counts = {}
+            with open(DATASET_PATH, "r", encoding="utf-8") as f:
+                for row in csv.DictReader(f):
+                    act = row.get("activity", "")
+                    counts[act] = counts.get(act, 0) + 1
+            total_ds = sum(counts.values())
+            print(f"\n  Distribusi dataset ({total_ds} total baris):")
+            for cls in ["DUDUK", "BERJALAN", "BERLARI"]:
+                n   = counts.get(cls, 0)
+                pct = round(n / total_ds * 100, 1) if total_ds > 0 else 0
+                bar = "█" * int(pct / 5)
+                print(f"    {cls:<10}: {n:6d} ({pct:5.1f}%) {bar}")
+        except Exception:
+            pass
+
+    print(f"\n  Langkah berikutnya:")
+    print(f"    1. Buka notebook 01_eksplorasi_data.ipynb")
+    print(f"    2. Buka notebook 02_training_model.ipynb")
+    print(f"    3. python src/server_knn.py")
+    print(f"{'═'*62}\n")
+
+
+# ─────────────────────────────────────────────
+#  SIGINT HANDLER
+# ─────────────────────────────────────────────
+def handle_sigint(sig, frame):
+    print("\n\n  Ctrl+C — menghentikan sesi...")
+    state.aborted        = True
+    state.session_active = False
+    state.session_done.set()
+
+
+# ─────────────────────────────────────────────
+#  LOOP UTAMA PENGUMPULAN DATA
+# ─────────────────────────────────────────────
+def run_collection_loop(client) -> bool:
+    """
+    Loop utama: iterasi peserta satu per satu.
+    Setiap peserta bisa punya lebih dari satu sesi (aktivitas berbeda).
+    Mengembalikan True jika harus restart, False jika selesai normal.
+    """
+    start_from    = 1
+    completed_ids = []
+
+    # Lanjutkan dari sesi terakhir jika ada summary
+    if os.path.isfile(SUMMARY_PATH):
+        try:
+            with open(SUMMARY_PATH, "r", encoding="utf-8") as f:
+                rows = list(csv.DictReader(f))
+            if rows:
+                state.session_no = max(int(r.get("session_no", 0)) for r in rows)
+                last_no          = max(int(r["participant_no"]) for r in rows)
+                start_from       = last_no + 1
+                completed_ids    = list(dict.fromkeys(r["participant_id"] for r in rows))
+                print(f"\n  ℹ  Melanjutkan dari peserta ke-{start_from} "
+                      f"({len(rows)} sesi terekam, sesi terakhir #{state.session_no})")
         except Exception:
             pass
 
     print(f"\n  ✅ MQTT terhubung ke {MQTT_BROKER}:{MQTT_PORT}")
-    print(f"  ℹ Durasi: {SESSION_DURATION//60} menit/sesi | Peserta: tidak terbatas")
-    print(f"  Perintah: [r]estart | [s]kip | [q]uit\n")
+    print(f"  ℹ  Durasi per sesi: {SESSION_DURATION//60} menit")
+    print(f"  ℹ  Pelabelan aktivitas: MANUAL oleh operator")
+    print(f"  ℹ  Perintah: [r]estart | [s]kip | [q]uit\n")
 
-    input("  Tekan ENTER untuk mulai... ")
+    input("  Tekan ENTER untuk mulai...")
 
-    completed_count = start_from - 1
+    completed_count = 0
     no = start_from
 
     while True:
         if state.aborted:
             break
 
+        # ── Input ID Partisipan ──
         pid = input_participant(no, completed_ids)
 
         if pid is None:
@@ -523,21 +621,62 @@ def run_collection_loop(client):
             no += 1
             continue
 
-        run_session(client, no, pid)
+        # ── Sesi untuk partisipan ini ──────────────────────
+        # Satu partisipan bisa punya beberapa sesi (aktivitas berbeda)
+        session_count_for_participant = 0
+        while True:
+            if state.aborted:
+                break
+
+            # Pilih aktivitas
+            activity = select_activity(pid)
+            if activity is None:
+                print(f"  ↩  Selesai untuk peserta [{pid}].\n")
+                break
+
+            # Konfirmasi
+            if not confirm_session(pid, no, activity):
+                print(f"  ↩  Sesi dibatalkan.\n")
+                continue
+
+            # Jalankan sesi
+            success = run_session(client, no, pid, activity)
+            if state.aborted:
+                break
+
+            if success:
+                session_count_for_participant += 1
+                completed_count += 1
+                print(f"\n  📊 Total sesi terekam: {completed_count} | "
+                      f"Sesi untuk [{pid}]: {session_count_for_participant}")
+
+            if state.restart_flag:
+                state.restart_flag = False
+                return True
+
+            # Tanya apakah peserta ini punya aktivitas lain
+            print()
+            try:
+                lagi = input(
+                    f"  Tambah sesi aktivitas lain untuk [{pid}]? (y/n): "
+                ).strip().lower()
+            except (EOFError, KeyboardInterrupt):
+                state.aborted = True
+                break
+
+            if lagi != "y":
+                break
+
         if state.aborted:
             break
-        if state.restart_flag:
-            state.restart_flag = False
-            return True
 
-        completed_count += 1
-        completed_ids.append(pid)
+        if pid not in completed_ids:
+            completed_ids.append(pid)
 
-        print(f"  📊 Total sesi terekam: {completed_count}")
-
+        # Jeda sebelum peserta berikutnya
         if not state.aborted:
-            print(f"\n  ⏳ Jeda 10 detik sebelum peserta berikutnya...")
-            for i in range(10, 0, -1):
+            print(f"\n  ⏳ Jeda 5 detik sebelum peserta berikutnya...")
+            for i in range(5, 0, -1):
                 if state.aborted:
                     break
                 print(f"\r  Lanjut dalam {i}s...", end="", flush=True)
@@ -549,6 +688,7 @@ def run_collection_loop(client):
     print_final_summary(completed_count)
     return False
 
+
 # ─────────────────────────────────────────────
 #  MAIN
 # ─────────────────────────────────────────────
@@ -556,33 +696,38 @@ def main():
     os.makedirs(DATA_RAW_DIR, exist_ok=True)
     os.makedirs(DATASET_DIR,  exist_ok=True)
     os.makedirs(BACKUP_DIR,   exist_ok=True)
+
     signal.signal(signal.SIGINT, handle_sigint)
 
     print("╔═══════════════════════════════════════════════════════╗")
     print("║    AIoT Watch — Pengambilan Data Partisipan           ║")
-    print(f"║    Setiap sesi: {SESSION_DURATION//60} menit | Peserta: tidak terbatas ║")
+    print(f"║    Sesi: {SESSION_DURATION//60} menit | Pelabelan: MANUAL           ║")
+    print("║    ESP32 hanya kirim data sensor (tanpa label)        ║")
     print("╚═══════════════════════════════════════════════════════╝")
 
+    # Koneksi MQTT
     client = mqtt.Client(callback_api_version=mqtt.CallbackAPIVersion.VERSION2)
     client.on_connect = on_connect
     client.on_message = on_message
 
+    print(f"\n  Menghubungkan ke {MQTT_BROKER}:{MQTT_PORT}...")
     try:
         client.connect(MQTT_BROKER, MQTT_PORT, keepalive=60)
     except Exception as e:
-        print(f"\n  ❌ Tidak bisa konek ke {MQTT_BROKER}:{MQTT_PORT}: {e}")
+        print(f"\n  ❌ Tidak bisa konek: {e}")
         sys.exit(1)
 
     client.loop_start()
-    time.sleep(1)
+    time.sleep(2)  # tunggu koneksi stabil
 
+    # Loop utama
     while True:
         state.aborted = state.restart_flag = state.stop_requested = False
         should_restart = run_collection_loop(client)
         if not should_restart:
             break
         print("\n" + "═"*60)
-        print("  🔄 RESTART — Mulai dari Sesi 1...")
+        print("  🔄 RESTART — Mulai dari Peserta 1...")
         print("═"*60 + "\n")
 
     client.loop_stop()
