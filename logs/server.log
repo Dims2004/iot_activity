@@ -27382,3 +27382,6 @@ ne bpm=None D=None J=None L=None
 2026-04-30 20:54:58 | INFO     | data_collection | START terkirim ke PPSR_01 [PSR_01]
 2026-04-30 20:54:59 | INFO     | data_collection | STOP terkirim ke control/session
 2026-04-30 20:55:00 | WARNING  | data_collection | Tidak ada data terkumpul.
+2026-04-30 20:58:33 | INFO     | data_collection | Terhubung ke cloud broker broker.emqx.io:1883
+2026-04-30 20:58:39 | INFO     | data_collection | START terkirim ke P1 [PSR_01]
+2026-04-30 20:58:58 | INFO     | data_collection | STOP terkirim ke control/session
