@@ -27378,3 +27378,7 @@ ne bpm=None D=None J=None L=None
   BERLARI   :     7 (12.3%)
 2026-04-30 20:45:25 | INFO     | collect_participants | MQTT terhubung ke broker.emqx.io:1883
 2026-04-30 20:45:46 | INFO     | collect_participants | RESTART: backup ke C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\dataset\backup\backup_20260430_204546
+2026-04-30 20:54:56 | INFO     | data_collection | Terhubung ke cloud broker broker.emqx.io:1883
+2026-04-30 20:54:58 | INFO     | data_collection | START terkirim ke PPSR_01 [PSR_01]
+2026-04-30 20:54:59 | INFO     | data_collection | STOP terkirim ke control/session
+2026-04-30 20:55:00 | WARNING  | data_collection | Tidak ada data terkumpul.

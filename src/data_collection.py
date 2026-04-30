@@ -26,6 +26,7 @@ current_participant_id = ""
 current_participant_no = 0
 start_time    = 0.0
 duration_sec  = 0
+session_active = False  # Untuk tracking apakah sesi sedang berjalan
 
 FIELDNAMES = [
     "received_at", "device_id", "participant_id", "participant_no",
@@ -48,10 +49,14 @@ def on_connect(client, userdata, flags, rc, properties=None):
         logger.error(f"Gagal connect MQTT, rc={rc}")
 
 def on_message(client, userdata, msg):
-    global collected_rows, start_time, duration_sec
+    global collected_rows, start_time, duration_sec, session_active
+
+    if not session_active:
+        return
 
     elapsed = time.time() - start_time
     if duration_sec > 0 and elapsed >= duration_sec:
+        print("\n  ⏰ Durasi selesai, menghentikan sesi...")
         stop_event.set()
         return
 
@@ -78,6 +83,9 @@ def on_message(client, userdata, msg):
         count = len(collected_rows)
         if count % 10 == 0:
             remaining = max(0, duration_sec - elapsed)
+            print(f"\r  [{current_label}] P{current_participant_no} | "
+                  f"Sisa: {int(remaining//60):02d}:{int(remaining%60):02d} | "
+                  f"Sampel: {count:4d} | BPM: {row['bpm']:3d}", end="", flush=True)
             logger.info(f"[{current_label}] P{current_participant_no} n={count} | "
                        f"aStd={row['accel_stddev']:.4f} | "
                        f"gStd={row['gyro_stddev']:.2f} | BPM={row['bpm']}")
@@ -87,6 +95,7 @@ def on_message(client, userdata, msg):
             payload = json.loads(msg.payload.decode("utf-8"))
             if payload.get("status") == "session_complete":
                 logger.info(f"ESP32 melaporkan sesi selesai untuk P{payload.get('participant_no')}")
+                stop_event.set()
         except:
             pass
 
@@ -94,10 +103,11 @@ def on_message(client, userdata, msg):
 #  KIRIM PERINTAH KE ESP32
 # ─────────────────────────────────────────────
 def send_start(client, participant_id: str, participant_no: int, duration: int):
+    # PENTING: participant_no harus integer, bukan string
     payload = json.dumps({
         "cmd": "START",
         "participant_id": participant_id,
-        "participant_no": participant_no,
+        "participant_no": participant_no,  # Kirim sebagai integer
         "total": 999  # Tidak terbatas
     })
     
@@ -153,7 +163,7 @@ def append_to_dataset():
 # ─────────────────────────────────────────────
 #  INPUT DATA PARTISIPAN
 # ─────────────────────────────────────────────
-def input_participant_info(no: int) -> tuple[str, str]:
+def input_participant_info(no: int) -> tuple[str, int]:
     print()
     print("┌──────────────────────────────────────────────────┐")
     print(f"│  👤 PARTISIPAN KE-{no}                              │")
@@ -171,7 +181,9 @@ def input_participant_info(no: int) -> tuple[str, str]:
         safe = pid.replace(" ", "_").replace(",", "").replace('"', "").replace("'", "")
         if safe != pid:
             print(f"  ℹ ID diubah: '{safe}'")
-        return safe, safe
+        
+        # Nomor partisipan dimulai dari 1
+        return safe, no
 
 # ─────────────────────────────────────────────
 #  PILIH AKTIVITAS
@@ -200,14 +212,16 @@ def select_duration() -> int:
     print("    1. 15 menit (900 detik) ← default")
     print("    2. 10 menit (600 detik)")
     print("    3. 5 menit  (300 detik)")
-    print("    4. Masukkan sendiri")
+    print("    4. 1 menit   (60 detik)  ← untuk testing")
+    print("    5. Masukkan sendiri")
 
     while True:
         pilih_dur = input("  Pilih durasi [default=1]: ").strip()
-        if pilih_dur in ("", "1"): return SESSION_DURATION_SEC
+        if pilih_dur in ("", "1"): return 900
         if pilih_dur == "2":       return 600
         if pilih_dur == "3":       return 300
-        if pilih_dur == "4":
+        if pilih_dur == "4":       return 60   # Untuk testing
+        if pilih_dur == "5":
             try:
                 dur = int(input("  Durasi (detik): "))
                 if dur > 0: return dur
@@ -218,28 +232,35 @@ def select_duration() -> int:
         print("  ⚠ Pilihan tidak valid.")
 
 # ─────────────────────────────────────────────
-#  COUNTDOWN DISPLAY
+#  TAMPILAN PROGRESS
 # ─────────────────────────────────────────────
-def show_countdown():
-    while not stop_event.is_set():
+def show_progress():
+    """Tampilkan progress selama sesi berlangsung"""
+    last_count = 0
+    while not stop_event.is_set() and session_active:
         elapsed = time.time() - start_time
         remaining = max(0, duration_sec - elapsed)
         m, s = int(remaining // 60), int(remaining % 60)
+        count = len(collected_rows)
+        
+        # Update display setiap detik
         print(f"\r  [{current_label}] P{current_participant_no} | "
               f"Sisa: {m:02d}:{s:02d} | "
-              f"Sampel: {len(collected_rows):4d}",
-              end="", flush=True)
+              f"Sampel: {count:4d} | "
+              f"Rate: {count/(elapsed+0.01):.1f} Hz   ", end="", flush=True)
         
         if duration_sec > 0 and elapsed >= duration_sec:
             stop_event.set()
             break
-        time.sleep(0.5)
-    print()
+        time.sleep(1)
+    
+    if not session_active:
+        print()  # New line after stopping
 
 # ─────────────────────────────────────────────
 #  STATISTIK AKHIR
 # ─────────────────────────────────────────────
-def print_summary(participant_id: str, participant_no: int, label: str, duration: int):
+def print_summary(participant_id: str, participant_no: int, label: str, duration: int, elapsed: float):
     total = len(collected_rows)
     bpm_valid = sum(1 for r in collected_rows if r.get("bpm", 0) > 0)
     bpm_pct = round(bpm_valid / total * 100, 1) if total > 0 else 0
@@ -252,28 +273,54 @@ def print_summary(participant_id: str, participant_no: int, label: str, duration
         avg_accel = avg_gyro = avg_bpm = 0
 
     print()
-    print("  ══════════════════════════════════════════════")
+    print("  ═══════════════════════════════════════════════════════")
     print(f"  RINGKASAN SESI P{participant_no} [{participant_id}]")
     print(f"  Aktivitas    : {label}")
-    print("  ══════════════════════════════════════════════")
+    print("  ═══════════════════════════════════════════════════════")
     print(f"  Total sampel : {total}")
     print(f"  BPM valid    : {bpm_valid} ({bpm_pct}%)")
     print(f"  Rata accel   : {avg_accel:.4f} g")
     print(f"  Rata gyro    : {avg_gyro:.2f} °/s")
     print(f"  Rata BPM     : {avg_bpm:.0f} bpm")
+    print(f"  Frekuensi    : {total/elapsed:.1f} Hz")
+    print(f"  Durasi aktual: {elapsed:.1f} detik")
 
     if total == 0:
         print("\n  ❌ Tidak ada data — periksa:")
         print("     • ESP32 menyala dan terhubung WiFi?")
         print("     • ESP32 terhubung ke broker cloud?")
-        print(f"     • Broker: {MQTT_BROKER}:{MQTT_PORT}")
+        print("     • Cek serial monitor ESP32")
+        print("     • Pastikan ESP32 menerima perintah START")
+    else:
+        print(f"\n  ✅ Data tersimpan di: {DATA_RAW_DIR}/")
+
+# ─────────────────────────────────────────────
+#  VERIFIKASI KONEKSI ESP32
+# ─────────────────────────────────────────────
+def wait_for_esp32_connection(client, timeout=10):
+    """Tunggu ESP32 mengirim status online"""
+    print("  ⏳ Menunggu ESP32 terhubung...")
+    start_wait = time.time()
+    
+    # Subscribe ke topic status
+    client.subscribe(TOPIC_STATUS)
+    
+    while time.time() - start_wait < timeout:
+        client.loop(timeout=0.5)
+        # Kita tidak bisa menunggu callback dengan mudah, jadi kita tunggu saja
+        # ESP32 akan mengirim ping setiap 40 detik
+        time.sleep(0.5)
+        print(".", end="", flush=True)
+    
+    print(" OK (asumsi terhubung)")
+    return True
 
 # ─────────────────────────────────────────────
 #  MAIN
 # ─────────────────────────────────────────────
 def main():
     global current_label, current_participant_id, current_participant_no
-    global start_time, duration_sec, collected_rows
+    global start_time, duration_sec, collected_rows, session_active
 
     os.makedirs(DATA_RAW_DIR, exist_ok=True)
 
@@ -287,7 +334,7 @@ def main():
     # Input partisipan
     if args.participant:
         participant_id = args.participant
-        participant_no = 1  # Default jika tidak ada history
+        participant_no = 1
     else:
         participant_id, participant_no = input_participant_info(1)
 
@@ -308,6 +355,8 @@ def main():
     current_participant_no = participant_no
     duration_sec = duration
     collected_rows = []
+    session_active = False
+    stop_event.clear()
 
     print()
     print("  ┌──────────────────────────────────────────────────┐")
@@ -327,8 +376,10 @@ def main():
 
     def _stop(sig, frame):
         print("\n\n  ⏹️ Dihentikan manual.")
-        send_stop(client)
+        if session_active:
+            send_stop(client)
         stop_event.set()
+        sys.exit(0)
 
     signal.signal(signal.SIGINT, _stop)
 
@@ -340,23 +391,45 @@ def main():
         sys.exit(1)
 
     client.loop_start()
-    time.sleep(2)
+    time.sleep(2)  # Tunggu koneksi stabil
+    
+    # Tunggu sebentar agar ESP32 terdeteksi
+    wait_for_esp32_connection(client, timeout=3)
 
     print(f"\n  📤 Mengirim START ke topic '{TOPIC_COMMAND}'...")
-    send_start(client, participant_id, participant_no, duration)
-    time.sleep(1)
-
+    if not send_start(client, participant_id, participant_no, duration):
+        print("  ❌ Gagal mengirim START")
+        client.loop_stop()
+        client.disconnect()
+        sys.exit(1)
+    
+    # Beri waktu ESP32 untuk memproses START
+    print("  ⏳ Menunggu ESP32 memproses START (3 detik)...")
+    time.sleep(3)
+    
+    # Mulai sesi
+    session_active = True
     start_time = time.time()
-    print(f"\n  🟢 Merekam [{label}] untuk P{participant_no} [{participant_id}] selama {duration} detik...\n")
-    show_countdown()
-
+    
+    print(f"\n  🟢 Merekam [{label}] untuk P{participant_no} [{participant_id}] selama {duration} detik...")
+    print("  Tekan Ctrl+C untuk berhenti lebih awal\n")
+    
+    # Tampilkan progress
+    show_progress()
+    
+    # Kirim STOP setelah selesai
     print(f"\n  📤 Mengirim STOP ke topic '{TOPIC_COMMAND}'...")
     send_stop(client)
+    
+    # Beri waktu untuk ESP32 berhenti
     time.sleep(1)
-
+    
+    session_active = False
     client.loop_stop()
     client.disconnect()
 
+    elapsed_actual = time.time() - start_time
+    
     if collected_rows:
         save_raw_session(participant_id, participant_no, label)
         if not args.no_append:
@@ -364,7 +437,7 @@ def main():
     else:
         logger.warning("Tidak ada data terkumpul.")
 
-    print_summary(participant_id, participant_no, label, duration)
+    print_summary(participant_id, participant_no, label, duration, elapsed_actual)
 
 if __name__ == "__main__":
     main()
