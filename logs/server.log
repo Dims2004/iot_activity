@@ -27437,3 +27437,12 @@ ne bpm=None D=None J=None L=None
 2026-04-30 21:45:54 | INFO     | data_collection | STOP terkirim ke control/session
 2026-04-30 21:45:55 | INFO     | data_collection | Raw disimpan → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\data\raw\P001_PSR_01_DUDUK_20260430_214555.csv (447 baris)
 2026-04-30 21:45:55 | INFO     | data_collection | Dataset +447 baris → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\dataset\dataset.csv
+2026-04-30 21:50:59 | INFO     | collect_participants | MQTT terhubung ke broker.emqx.io:1883
+2026-04-30 21:51:49 | INFO     | collect_participants | START → P1 [PSR_01]
+2026-04-30 22:06:55 | INFO     | collect_participants | [WATCHDOG] Sesi selesai setelah 900s
+2026-04-30 22:06:55 | INFO     | collect_participants | STOP → P1
+2026-04-30 22:06:56 | INFO     | collect_participants | Raw → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\data\raw\P001_PSR_01_DUDUK_20260430_220656.csv (453 baris)
+2026-04-30 22:06:56 | INFO     | collect_participants | Dataset +453 baris → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\dataset\dataset.csv
+2026-04-30 22:06:56 | INFO     | collect_participants | Summary sesi #1 disimpan → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\dataset\sessions_summary.csv
+2026-04-30 22:08:32 | INFO     | collect_participants | RESTART: backup ke C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\dataset\backup\backup_20260430_220832
+2026-04-30 22:17:24 | INFO     | collect_participants | START → P1 [PSR_01]
