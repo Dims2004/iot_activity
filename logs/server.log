@@ -27385,3 +27385,5 @@ ne bpm=None D=None J=None L=None
 2026-04-30 20:58:33 | INFO     | data_collection | Terhubung ke cloud broker broker.emqx.io:1883
 2026-04-30 20:58:39 | INFO     | data_collection | START terkirim ke P1 [PSR_01]
 2026-04-30 20:58:58 | INFO     | data_collection | STOP terkirim ke control/session
+2026-04-30 21:08:26 | INFO     | data_collection | Terhubung ke cloud broker broker.emqx.io:1883
+2026-04-30 21:08:31 | ERROR    | data_collection | Gagal kirim START: Message publish failed: The client is not currently connected.
