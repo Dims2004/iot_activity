@@ -1,2 +1,3 @@
 session_no,participant_no,participant_id,activity,timestamp,total_samples,bpm_valid,bpm_valid_pct,avg_accel_stddev,avg_gyro_stddev,avg_bpm,durasi_detik
 1,1,PSR_001,DUDUK,2026-05-01T10:52:50.871823,450,447,99.3,0.0118,3.6,72.2,906.2
+2,1,PSR_001,BERJALAN,2026-05-01T12:43:56.659032,450,445,98.9,0.0763,13.39,76.5,906.2
