@@ -126,15 +126,18 @@ def on_message(client, userdata, msg):
 # ─────────────────────────────────────────────
 #  KIRIM PERINTAH KE ESP32
 # ─────────────────────────────────────────────
-def send_start(client, participant_id: str, participant_no: int):
+def send_start(client, participant_id: str, participant_no: int,
+               duration: int = SESSION_DURATION):
     """
-    Kirim START ke ESP32 agar ESP32 tahu ID partisipan aktif.
-    ESP32 akan menyertakan participant_id di setiap payload sensor.
+    Kirim START ke ESP32.
+    - participant_id / participant_no : disertakan di setiap payload sensor.
+    - duration (detik)               : diteruskan ke ESP32 untuk countdown OLED.
     """
     payload = json.dumps({
         "cmd":            "START",
         "participant_id": participant_id,
         "participant_no": participant_no,
+        "duration":       duration,      # ESP32 pakai ini untuk countdown OLED
     })
     try:
         r = client.publish(TOPIC_COMMAND, payload, qos=1)
@@ -462,8 +465,8 @@ def run_session(client, participant_no: int, participant_id: str, activity: str)
     state.raw_rows        = []
     state.session_start   = time.time()
 
-    # Kirim START ke ESP32 (beri tahu ID partisipan aktif)
-    send_start(client, participant_id, participant_no)
+    # Kirim START ke ESP32 — sertakan durasi untuk countdown OLED
+    send_start(client, participant_id, participant_no, duration=SESSION_DURATION)
     time.sleep(1)  # beri waktu ESP32 memproses
 
     print(f"\n  🟢 Merekam [{activity}] untuk P{participant_no} [{participant_id}]"
