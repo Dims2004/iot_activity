@@ -134,7 +134,7 @@ def on_message(client, userdata, msg):
 #  KIRIM PERINTAH KE ESP32
 # ─────────────────────────────────────────────
 def send_start(client, participant_id: str, participant_no: int,
-               duration: int = SESSION_DURATION):
+               duration: int = DEFAULT_DURATION_SEC):
     """
     Kirim START ke ESP32.
     - participant_id / participant_no : disertakan di setiap payload sensor.
@@ -269,17 +269,6 @@ def show_session_timer(participant_no: int, participant_id: str, activity: str, 
         time.sleep(0.5)
     print()
 
-
-# ─────────────────────────────────────────────
-#  WATCHDOG TIMER (thread)
-#  Hentikan sesi setelah durasi penuh + 5 detik buffer
-# ─────────────────────────────────────────────
-def session_watchdog():
-    time.sleep(SESSION_DURATION + 5)
-    if state.session_active:
-        logger.info(f"[WATCHDOG] Sesi selesai setelah {SESSION_DURATION}s")
-        state.session_active = False
-        state.session_done.set()
 
 
 # ─────────────────────────────────────────────
