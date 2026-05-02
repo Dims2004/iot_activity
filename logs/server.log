@@ -27512,3 +27512,4 @@ ne bpm=None D=None J=None L=None
 2026-05-02 11:46:05 | INFO     | collect_participants | Dataset +300 baris → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\dataset\dataset.csv
 2026-05-02 11:46:05 | INFO     | collect_participants | Summary sesi #6 disimpan → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\dataset\sessions_summary.csv
 2026-05-02 11:48:37 | INFO     | collect_participants | START → P3 [PSR_003]
+2026-05-02 11:49:09 | INFO     | collect_participants | MQTT terhubung ke broker.emqx.io:1883
