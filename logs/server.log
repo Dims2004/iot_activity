@@ -27487,3 +27487,9 @@ ne bpm=None D=None J=None L=None
 2026-05-02 10:57:17 | INFO     | collect_participants | Raw → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\data\raw\P001_PSR_001_BERJALAN_20260502_105717.csv (301 baris)
 2026-05-02 10:57:17 | INFO     | collect_participants | Dataset +301 baris → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\dataset\dataset.csv
 2026-05-02 10:57:17 | INFO     | collect_participants | Summary sesi #2 disimpan → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\dataset\sessions_summary.csv
+2026-05-02 10:58:31 | INFO     | collect_participants | START → P1 [PSR_001]
+2026-05-02 11:08:37 | INFO     | collect_participants | [WATCHDOG] Sesi selesai setelah 600s
+2026-05-02 11:08:37 | INFO     | collect_participants | STOP → P1
+2026-05-02 11:08:38 | INFO     | collect_participants | Raw → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\data\raw\P001_PSR_001_BERLARI_20260502_110838.csv (302 baris)
+2026-05-02 11:08:38 | INFO     | collect_participants | Dataset +302 baris → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\dataset\dataset.csv
+2026-05-02 11:08:38 | INFO     | collect_participants | Summary sesi #3 disimpan → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\dataset\sessions_summary.csv
