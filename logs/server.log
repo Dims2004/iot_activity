@@ -27514,3 +27514,8 @@ ne bpm=None D=None J=None L=None
 2026-05-02 11:48:37 | INFO     | collect_participants | START → P3 [PSR_003]
 2026-05-02 11:49:09 | INFO     | collect_participants | MQTT terhubung ke broker.emqx.io:1883
 2026-05-02 11:55:43 | INFO     | collect_participants | START → P3 [PSR_003]
+2026-05-02 12:05:49 | INFO     | collect_participants | [WATCHDOG] Sesi selesai setelah 600s
+2026-05-02 12:05:49 | INFO     | collect_participants | STOP → P3
+2026-05-02 12:05:50 | INFO     | collect_participants | Raw → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\data\raw\P003_PSR_003_DUDUK_20260502_120550.csv (296 baris)
+2026-05-02 12:05:50 | INFO     | collect_participants | Dataset +296 baris → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\dataset\dataset.csv
+2026-05-02 12:05:50 | INFO     | collect_participants | Summary sesi #7 disimpan → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\dataset\sessions_summary.csv
