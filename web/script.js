@@ -1,6 +1,15 @@
 /**
  * script.js — AIoT Watch Dashboard
  * MQTT WebSocket: broker.emqx.io:8083/mqtt
+ *
+ * MODE OTOMATIS:
+ *   DATA COLLECTION MODE — hanya sensor/esp32/data (server_knn TIDAK perlu)
+ *                          Tampil: nilai sensor live, BPM, grafik real-time
+ *   KNN MODE             — classification/result diterima (server_knn aktif)
+ *                          Tampil: aktivitas + confidence + bar chart
+ *
+ * Deteksi otomatis: classification/result masuk → KNN mode.
+ * 10 detik tanpa classification → kembali ke DATA COLLECTION mode.
  */
 
 'use strict';
@@ -11,190 +20,106 @@ const CONFIG = {
   path: '/mqtt',
   clientId: 'dashboard_' + Math.random().toString(16).slice(2, 10),
   topics: {
-    sensorData: 'sensor/esp32/data',
+    sensorData:     'sensor/esp32/data',
     classification: 'classification/result',
-    status: 'status/esp32',
   },
 };
 
-const STORAGE_KEY = 'aiot_history_cloud_v2';
-const MAX_POINTS = 200; // Dikurangi untuk performa lebih baik
-
+const MAX_POINTS = 200;
 const sensorBuffer = { labels: [], accel: [], gyro: [], bpm: [] };
-let sensorChart = null;
+let sensorChart   = null;
 let activityChart = null;
-let msgCount = 0;
+let msgCount      = 0;
 const activityHistory = [];
-let historyRecords = [];
 
-// ============================================================
-// HISTORY MANAGEMENT
-// ============================================================
-function loadHistoryFromStorage() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    return [];
+// ── Mode tracking ─────────────────────────────────────────────────────────────
+let knnMode          = false;
+let lastKnnTimestamp = 0;
+const KNN_TIMEOUT_MS = 10000;
+
+// Cek periodis apakah KNN masih kirim data
+setInterval(() => {
+  if (knnMode && Date.now() - lastKnnTimestamp > KNN_TIMEOUT_MS) {
+    setKnnMode(false);
+  }
+}, 2000);
+
+function setKnnMode(active) {
+  if (knnMode === active) return;
+  knnMode = active;
+  renderModeUI();
+}
+
+function renderModeUI() {
+  const modeBadge      = document.getElementById('modeBadge');
+  const modeLabel      = document.getElementById('modeLabel');
+  const knnPanel       = document.getElementById('knnPanel');
+  const sensorPanel    = document.getElementById('sensorPanel');
+  const actHeader      = document.getElementById('actChartHeader');
+  const actPlaceholder = document.getElementById('actPlaceholder');
+  const actChartWrap   = document.getElementById('actChartWrap');
+
+  if (knnMode) {
+    modeBadge.className   = 'mode-badge knn-active';
+    modeLabel.textContent = '● KNN AKTIF';
+    knnPanel.style.display       = 'block';
+    sensorPanel.style.display    = 'none';
+    if (actHeader)      actHeader.textContent        = '📊 ACTIVITY RESULT (Last Hour)';
+    if (actPlaceholder) actPlaceholder.style.display = 'none';
+    if (actChartWrap)   actChartWrap.style.display   = 'block';
+  } else {
+    modeBadge.className   = 'mode-badge collection';
+    modeLabel.textContent = '● DATA COLLECTION';
+    knnPanel.style.display       = 'none';
+    sensorPanel.style.display    = 'block';
+    if (actHeader)      actHeader.textContent        = '📊 ACTIVITY RESULT';
+    if (actPlaceholder) actPlaceholder.style.display = 'flex';
+    if (actChartWrap)   actChartWrap.style.display   = 'none';
   }
 }
 
-function saveHistoryToStorage(records) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-}
-
-historyRecords = loadHistoryFromStorage();
-
-function addHistoryRecord(data) {
-  const no = parseInt(data.participant_no) || (historyRecords.length + 1);
-  const pid = data.participant_id || data.user || '—';
-  const activity = (data.final_activity || '').toUpperCase();
-  const bpm = parseInt(data.final_bpm) || 0;
-  const cDuduk = parseInt(data.count_duduk) || 0;
-  const cBerjalan = parseInt(data.count_berjalan) || 0;
-  const cBerlari = parseInt(data.count_berlari) || 0;
-  const totalSamp = parseInt(data.total_samples) || (cDuduk + cBerjalan + cBerlari);
-  const waktu = new Date().toLocaleTimeString('id-ID');
-
-  if (historyRecords.some(r => r.no === no && r.pid === pid)) return;
-
-  historyRecords.unshift({ no, pid, activity, bpm, cDuduk, cBerjalan, cBerlari, totalSamp, waktu });
-  saveHistoryToStorage(historyRecords);
-  renderHistory(true);
-  updateHistoryStats();
-}
-
-function renderHistory(animateNew = false) {
-  const tbody = document.getElementById('historyBody');
-  if (!tbody) return;
-
-  if (historyRecords.length === 0) {
-    tbody.innerHTML = '<tr class="history-empty"><td colspan="9">Menunggu hasil sesi peserta pertama...<\/td><\/tr>';
-    return;
+// ── Sensor live card ──────────────────────────────────────────────────────────
+function updateSensorCard(accel, gyro, bpm) {
+  const elA = document.getElementById('liveAccel');
+  const elG = document.getElementById('liveGyro');
+  const elB = document.getElementById('liveBpm');
+  if (elA) elA.textContent = accel.toFixed(4);
+  if (elG) elG.textContent = gyro.toFixed(2);
+  if (elB) {
+    elB.textContent = bpm > 0 ? bpm : '--';
+    elB.style.color = bpm > 0
+      ? (bpm >= 140 ? '#F87171' : bpm >= 100 ? '#FBBF24' : '#34D399')
+      : 'var(--text-secondary)';
   }
-
-  tbody.innerHTML = historyRecords.map((r, i) => `
-    <tr class="${animateNew && i === 0 ? 'new-row' : ''}">
-      <td>${r.no}<\/td>
-      <td><strong>${r.pid}<\/strong><\/td>
-      <td><span class="act-badge ${r.activity}">${r.activity || '—'}<\/span><\/td>
-      <td>${r.bpm > 0 ? r.bpm + ' bpm' : '—'}<\/td>
-      <td>${r.cDuduk}<\/td>
-      <td>${r.cBerjalan}<\/td>
-      <td>${r.cBerlari}<\/td>
-      <td>${r.totalSamp}<\/td>
-      <td>${r.waktu}<\/td>
-    <\/tr>
-  `).join('');
 }
-
-function updateHistoryStats() {
-  const total = historyRecords.length;
-  const nDuduk = historyRecords.filter(r => r.activity === 'DUDUK').length;
-  const nJalan = historyRecords.filter(r => r.activity === 'BERJALAN').length;
-  const nLari = historyRecords.filter(r => r.activity === 'BERLARI').length;
-
-  document.getElementById('hstatTotal').textContent = `${total} Peserta`;
-  document.getElementById('hstatDuduk').textContent = `Duduk: ${nDuduk}`;
-  document.getElementById('hstatJalan').textContent = `Jalan: ${nJalan}`;
-  document.getElementById('hstatLari').textContent = `Lari: ${nLari}`;
-}
-
-window.clearHistory = function() {
-  if (confirm('Hapus semua riwayat peserta?')) {
-    historyRecords = [];
-    saveHistoryToStorage(historyRecords);
-    renderHistory();
-    updateHistoryStats();
-  }
-};
 
 // ============================================================
-// CHARTS - HIGH RESOLUTION (FIX BLUR)
+// CHARTS
 // ============================================================
 function initSensorChart() {
   const canvas = document.getElementById('sensorChart');
-  const container = canvas.parentElement;
-  const width = container.clientWidth;
-  const height = 320;
-  
-  // CRITICAL: Set canvas resolution ke 2x untuk menghilangkan blur
-  canvas.width = width * 2;
-  canvas.height = height * 2;
-  canvas.style.width = width + 'px';
-  canvas.style.height = height + 'px';
-  
+  const w = canvas.parentElement.clientWidth;
+  canvas.width = w * 2; canvas.height = 320 * 2;
+  canvas.style.width = w + 'px'; canvas.style.height = '320px';
   const ctx = canvas.getContext('2d');
   ctx.scale(2, 2);
-  
   sensorChart = new Chart(ctx, {
     type: 'line',
     data: {
       labels: sensorBuffer.labels,
       datasets: [
-        {
-          label: 'Accel (g)',
-          data: sensorBuffer.accel,
-          borderColor: '#60A5FA',
-          backgroundColor: 'transparent',
-          borderWidth: 2.5,
-          pointRadius: 0,
-          pointHoverRadius: 5,
-          tension: 0.1,
-          fill: false,
-        },
-        {
-          label: 'Gyro (°/s ÷10)',
-          data: sensorBuffer.gyro,
-          borderColor: '#34D399',
-          backgroundColor: 'transparent',
-          borderWidth: 2.5,
-          pointRadius: 0,
-          pointHoverRadius: 5,
-          tension: 0.1,
-          fill: false,
-        },
-        {
-          label: 'BPM ÷100',
-          data: sensorBuffer.bpm,
-          borderColor: '#F87171',
-          backgroundColor: 'transparent',
-          borderWidth: 2.5,
-          pointRadius: 0,
-          pointHoverRadius: 5,
-          tension: 0.1,
-          fill: false,
-        },
+        { label: 'Accel (g)',     data: sensorBuffer.accel, borderColor: '#60A5FA', backgroundColor: 'transparent', borderWidth: 2.5, pointRadius: 0, tension: 0.1, fill: false },
+        { label: 'Gyro (°/s÷10)',data: sensorBuffer.gyro,  borderColor: '#34D399', backgroundColor: 'transparent', borderWidth: 2.5, pointRadius: 0, tension: 0.1, fill: false },
+        { label: 'BPM÷100',      data: sensorBuffer.bpm,   borderColor: '#F87171', backgroundColor: 'transparent', borderWidth: 2.5, pointRadius: 0, tension: 0.1, fill: false },
       ],
     },
     options: {
-      responsive: false,
-      maintainAspectRatio: false,
-      animation: false,
+      responsive: false, maintainAspectRatio: false, animation: false,
       interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: 'rgba(0,0,0,0.85)',
-          titleColor: '#fff',
-          bodyColor: '#ddd',
-          padding: 10,
-          cornerRadius: 8,
-          titleFont: { size: 12, weight: 'bold' },
-          bodyFont: { size: 11 },
-        },
-      },
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(0,0,0,0.85)', titleColor: '#fff', bodyColor: '#ddd', padding: 10, cornerRadius: 8 } },
       scales: {
-        x: {
-          grid: { color: 'rgba(128,128,128,0.08)', drawBorder: true, lineWidth: 0.5 },
-          ticks: { color: '#9CA3AF', font: { size: 10, family: 'JetBrains Mono', weight: '500' }, maxTicksLimit: 8 },
-        },
-        y: {
-          grid: { color: 'rgba(128,128,128,0.08)', lineWidth: 0.5 },
-          ticks: { color: '#9CA3AF', font: { size: 10, family: 'JetBrains Mono', weight: '500' }, callback: v => v.toFixed(2) },
-          suggestedMin: 0,
-          suggestedMax: 1.5,
-        },
+        x: { grid: { color: 'rgba(128,128,128,0.08)', lineWidth: 0.5 }, ticks: { color: '#9CA3AF', font: { size: 10, family: 'JetBrains Mono' }, maxTicksLimit: 8 } },
+        y: { grid: { color: 'rgba(128,128,128,0.08)', lineWidth: 0.5 }, ticks: { color: '#9CA3AF', font: { size: 10, family: 'JetBrains Mono' }, callback: v => v.toFixed(2) }, suggestedMin: 0, suggestedMax: 1.5 },
       },
     },
   });
@@ -202,59 +127,24 @@ function initSensorChart() {
 
 function initActivityChart() {
   const canvas = document.getElementById('activityChart');
-  const container = canvas.parentElement;
-  const width = container.clientWidth;
-  const height = 240;
-  
-  canvas.width = width * 2;
-  canvas.height = height * 2;
-  canvas.style.width = width + 'px';
-  canvas.style.height = height + 'px';
-  
+  const w = canvas.parentElement.clientWidth;
+  canvas.width = w * 2; canvas.height = 210 * 2;
+  canvas.style.width = w + 'px'; canvas.style.height = '210px';
   const ctx = canvas.getContext('2d');
   ctx.scale(2, 2);
-  
   activityChart = new Chart(ctx, {
     type: 'bar',
     data: {
       labels: ['Duduk', 'Berjalan', 'Berlari'],
-      datasets: [{
-        data: [0, 0, 0],
-        backgroundColor: ['rgba(96,165,250,0.85)', 'rgba(52,211,153,0.85)', 'rgba(248,113,113,0.85)'],
-        borderColor: ['#60A5FA', '#34D399', '#F87171'],
-        borderWidth: 1.5,
-        borderRadius: 8,
-        barPercentage: 0.65,
-        categoryPercentage: 0.8,
-      }],
+      datasets: [{ data: [0, 0, 0], backgroundColor: ['rgba(96,165,250,0.85)', 'rgba(52,211,153,0.85)', 'rgba(248,113,113,0.85)'], borderColor: ['#60A5FA', '#34D399', '#F87171'], borderWidth: 1.5, borderRadius: 8, barPercentage: 0.65, categoryPercentage: 0.8 }],
     },
     options: {
-      responsive: false,
-      maintainAspectRatio: false,
+      responsive: false, maintainAspectRatio: false,
       animation: { duration: 300, easing: 'easeOutQuad' },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: 'rgba(0,0,0,0.85)',
-          titleColor: '#fff',
-          bodyColor: '#ddd',
-          padding: 8,
-          cornerRadius: 8,
-          callbacks: {
-            label: (context) => `${context.raw} kali terdeteksi`,
-          },
-        },
-      },
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(0,0,0,0.85)', callbacks: { label: c => `${c.raw} kali` } } },
       scales: {
-        x: {
-          grid: { display: false },
-          ticks: { color: '#9CA3AF', font: { size: 12, weight: '600', family: 'Inter' } },
-        },
-        y: {
-          grid: { color: 'rgba(128,128,128,0.08)', lineWidth: 0.5 },
-          ticks: { color: '#9CA3AF', font: { size: 10, family: 'JetBrains Mono' }, stepSize: 1, precision: 0 },
-          beginAtZero: true,
-        },
+        x: { grid: { display: false }, ticks: { color: '#9CA3AF', font: { size: 12, weight: '600', family: 'Inter' } } },
+        y: { grid: { color: 'rgba(128,128,128,0.08)', lineWidth: 0.5 }, ticks: { color: '#9CA3AF', font: { size: 10, family: 'JetBrains Mono' }, stepSize: 1, precision: 0 }, beginAtZero: true },
       },
     },
   });
@@ -266,187 +156,152 @@ function pushSensorData(accel, gyro, bpm) {
   sensorBuffer.accel.push(accel);
   sensorBuffer.gyro.push(gyro / 10);
   sensorBuffer.bpm.push(bpm > 0 ? bpm / 100 : null);
-  
   if (sensorBuffer.labels.length > MAX_POINTS) {
-    sensorBuffer.labels.shift();
-    sensorBuffer.accel.shift();
-    sensorBuffer.gyro.shift();
-    sensorBuffer.bpm.shift();
+    sensorBuffer.labels.shift(); sensorBuffer.accel.shift();
+    sensorBuffer.gyro.shift();   sensorBuffer.bpm.shift();
   }
-  
-  if (sensorChart) {
-    sensorChart.update('none');
-  }
+  if (sensorChart) sensorChart.update('none');
 }
 
 function pushActivityResult(activity) {
   const now = Date.now();
-  const cutoff = now - 60 * 60 * 1000;
   activityHistory.push({ time: now, activity });
-  while (activityHistory.length > 0 && activityHistory[0].time < cutoff) activityHistory.shift();
-  
+  while (activityHistory.length > 0 && activityHistory[0].time < now - 3600000) activityHistory.shift();
   const c = { DUDUK: 0, BERJALAN: 0, BERLARI: 0 };
   activityHistory.forEach(r => { if (c[r.activity] !== undefined) c[r.activity]++; });
-  
-  if (activityChart) {
-    activityChart.data.datasets[0].data = [c.DUDUK, c.BERJALAN, c.BERLARI];
-    activityChart.update();
-  }
+  if (activityChart) { activityChart.data.datasets[0].data = [c.DUDUK, c.BERJALAN, c.BERLARI]; activityChart.update(); }
 }
 
 // ============================================================
 // UI UPDATES
 // ============================================================
 const ACTIVITY_META = {
-  DUDUK: { label: 'DUDUK', icon: '🪑', sub: 'Sedang duduk / diam', color: '#60A5FA' },
+  DUDUK:    { label: 'DUDUK',    icon: '🪑', sub: 'Sedang duduk / diam',  color: '#60A5FA' },
   BERJALAN: { label: 'BERJALAN', icon: '🚶', sub: 'Sedang berjalan kaki', color: '#34D399' },
-  BERLARI: { label: 'BERLARI', icon: '🏃', sub: 'Sedang berlari', color: '#F87171' },
+  BERLARI:  { label: 'BERLARI',  icon: '🏃', sub: 'Sedang berlari',       color: '#F87171' },
 };
-
 let lastActivity = '';
 
 function updateActivity(activity) {
   if (activity === lastActivity) return;
   lastActivity = activity;
   const meta = ACTIVITY_META[activity] || { label: activity, icon: '❓', sub: '', color: '#9CA3AF' };
-  document.getElementById('activityValue').textContent = meta.label;
-  document.getElementById('actIcon').textContent = meta.icon;
-  document.getElementById('actSub').textContent = meta.sub;
+  const v = document.getElementById('activityValue');
+  const i = document.getElementById('actIcon');
+  const s = document.getElementById('actSub');
+  if (v) v.textContent = meta.label;
+  if (i) i.textContent = meta.icon;
+  if (s) s.textContent = meta.sub;
 }
 
 function updateBPM(bpm) {
   const el = document.getElementById('bpmValue');
   const st = document.getElementById('bpmStatus');
   const bar = document.getElementById('bpmBar');
-  
   if (bpm <= 0) {
-    el.textContent = '--';
-    st.textContent = 'Tidak terbaca';
-    bar.style.width = '0%';
-    return;
+    if (el) el.textContent = '--'; if (st) st.textContent = 'Tidak terbaca'; if (bar) bar.style.width = '0%'; return;
   }
-  
-  el.textContent = bpm;
+  if (el) el.textContent = bpm;
   let label = 'Normal';
-  if (bpm < 60) label = 'Terlalu Lambat';
-  else if (bpm >= 140) label = 'Sangat Tinggi';
-  else if (bpm >= 100) label = 'Tinggi';
-  st.textContent = label;
-  bar.style.width = Math.min(100, (bpm / 200) * 100) + '%';
+  if (bpm < 60) label = 'Terlalu Lambat'; else if (bpm >= 140) label = 'Sangat Tinggi'; else if (bpm >= 100) label = 'Tinggi';
+  if (st) st.textContent = label;
+  if (bar) bar.style.width = Math.min(100, (bpm / 200) * 100) + '%';
 }
 
 function updateAccuracy(confidence) {
   const pct = Math.round(confidence * 100);
   const ring = document.getElementById('ringFill');
-  const circumference = 2 * Math.PI * 32;
-  ring.style.strokeDasharray = circumference;
-  ring.style.strokeDashoffset = circumference - (pct / 100) * circumference;
-  ring.style.stroke = pct >= 85 ? '#34D399' : pct >= 65 ? '#FBBF24' : '#F87171';
-  document.getElementById('accuracyValue').textContent = pct + '%';
+  const circ = 2 * Math.PI * 32;
+  if (ring) {
+    ring.style.strokeDasharray  = circ;
+    ring.style.strokeDashoffset = circ - (pct / 100) * circ;
+    ring.style.stroke = pct >= 85 ? '#34D399' : pct >= 65 ? '#FBBF24' : '#F87171';
+  }
+  const el = document.getElementById('accuracyValue');
+  if (el) el.textContent = pct + '%';
 }
 
 function updateInfo(data) {
-  if (data.device_id) document.getElementById('infoDevice').textContent = data.device_id;
-  if (data.participant_id || data.user) document.getElementById('infoUser').textContent = data.participant_id || data.user;
+  if (data.device_id)                   document.getElementById('infoDevice').textContent   = data.device_id;
+  if (data.participant_id || data.user) document.getElementById('infoUser').textContent     = data.participant_id || data.user;
   document.getElementById('infoLastMsg').textContent = new Date().toLocaleTimeString('id-ID');
-  document.getElementById('infoTotal').textContent = msgCount;
+  document.getElementById('infoTotal').textContent   = msgCount;
+  const elSesi = document.getElementById('infoSesi');
+  if (elSesi && (data.participant_id || data.user)) {
+    const pid = data.participant_id || data.user;
+    const pno = data.participant_no ? `P${data.participant_no} — ` : '';
+    elSesi.textContent = `${pno}${pid}`;
+  }
 }
 
 function setConnectionStatus(online) {
-  const dot = document.getElementById('badgeDot');
-  const badge = document.getElementById('badgeLabel');
-  const sd = document.getElementById('statusDot');
-  const st = document.getElementById('statusText');
-  
+  const dot = document.getElementById('badgeDot'), badge = document.getElementById('badgeLabel');
+  const sd  = document.getElementById('statusDot'), st    = document.getElementById('statusText');
   if (online) {
-    dot.className = 'badge-dot online';
-    badge.textContent = 'Connected';
-    sd.className = 'status-dot online';
-    st.textContent = 'Connected';
+    if (dot) dot.className = 'badge-dot online'; if (badge) badge.textContent = 'Connected';
+    if (sd)  sd.className  = 'status-dot online'; if (st) st.textContent = 'Connected';
   } else {
-    dot.className = 'badge-dot';
-    badge.textContent = 'Disconnected';
-    sd.className = 'status-dot';
-    st.textContent = 'Disconnected';
+    if (dot) dot.className = 'badge-dot'; if (badge) badge.textContent = 'Disconnected';
+    if (sd)  sd.className  = 'status-dot'; if (st) st.textContent = 'Disconnected';
   }
 }
 
 // ============================================================
-// MQTT CONNECTION
+// MQTT
 // ============================================================
 function connectMQTT() {
-  const wsUrl = `ws://${CONFIG.broker}:${CONFIG.port}${CONFIG.path}`;
-  console.log('[MQTT] Connecting to:', wsUrl);
-  
-  const client = mqtt.connect(wsUrl, {
-    clientId: CONFIG.clientId,
-    connectTimeout: 10000,
-    reconnectPeriod: 5000,
+  const client = mqtt.connect(`ws://${CONFIG.broker}:${CONFIG.port}${CONFIG.path}`, {
+    clientId: CONFIG.clientId, connectTimeout: 10000, reconnectPeriod: 5000,
   });
 
   client.on('connect', () => {
-    console.log('[MQTT] Connected to EMQX Cloud!');
     setConnectionStatus(true);
     Object.values(CONFIG.topics).forEach(t => client.subscribe(t));
   });
-
   client.on('close', () => setConnectionStatus(false));
-  client.on('error', (err) => console.error('[MQTT] Error:', err.message));
+  client.on('error', err => console.error('[MQTT]', err.message));
 
   client.on('message', (topic, payload) => {
     let data;
-    try { data = JSON.parse(payload.toString()); } catch(e) { return; }
+    try { data = JSON.parse(payload.toString()); } catch (e) { return; }
 
     if (topic === CONFIG.topics.sensorData) {
-      pushSensorData(data.accel_stddev || 0, data.gyro_stddev || 0, data.bpm || 0);
-      updateBPM(data.bpm || 0);
+      const accel = data.accel_stddev || 0;
+      const gyro  = data.gyro_stddev  || 0;
+      const bpm   = data.bpm          || 0;
+      pushSensorData(accel, gyro, bpm);
+      updateSensorCard(accel, gyro, bpm);
+      updateBPM(bpm);
       updateInfo(data);
-      if (data.local_act) updateActivity(data.local_act.toUpperCase());
     }
     else if (topic === CONFIG.topics.classification) {
+      lastKnnTimestamp = Date.now();
+      setKnnMode(true);
       const act = (data.activity || '').toUpperCase();
       updateActivity(act);
       pushActivityResult(act);
       updateAccuracy(data.confidence || 0);
       if (data.bpm > 0) updateBPM(data.bpm);
     }
-    else if (topic === CONFIG.topics.status) {
-      if (data.final_activity) updateActivity(data.final_activity.toUpperCase());
-      addHistoryRecord(data);
-    }
   });
 }
 
-// Handle window resize untuk menjaga chart tetap tajam
 let resizeTimeout;
-function handleResize() {
+window.addEventListener('resize', () => {
   clearTimeout(resizeTimeout);
   resizeTimeout = setTimeout(() => {
-    if (sensorChart) {
-      sensorChart.destroy();
-      initSensorChart();
-    }
-    if (activityChart) {
-      activityChart.destroy();
-      initActivityChart();
-    }
+    if (sensorChart)   { sensorChart.destroy();  initSensorChart();   }
+    if (activityChart) { activityChart.destroy(); initActivityChart(); }
   }, 250);
-}
+});
 
 // ============================================================
-// INITIALIZATION
+// INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
   initSensorChart();
   initActivityChart();
-  
   document.getElementById('infobroker').textContent = `${CONFIG.broker}:${CONFIG.port}`;
-  
-  renderHistory();
-  updateHistoryStats();
-  
+  renderModeUI();
   connectMQTT();
-  
-  // Tambahkan event listener untuk resize
-  window.addEventListener('resize', handleResize);
 });

@@ -198,32 +198,83 @@
     .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #EF4444; }
     .status-dot.online { background: #22C55E; }
 
-    /* History */
-    .history-section { margin-top: 24px; }
-    .history-card { padding: 20px; }
-    .history-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px; }
-    .history-stats { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
-    .hstat { font-size: 12px; padding: 4px 10px; background: var(--bg-primary); border-radius: 20px; }
-    .btn-clear { background: var(--bg-primary); border: 1px solid var(--border); color: var(--accent-red); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 12px; }
-    .history-table-wrap { overflow-x: auto; }
-    .history-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .history-table th, .history-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
-    .history-table th { color: var(--text-secondary); font-weight: 500; }
-    
-    .act-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-    .act-badge.DUDUK { background: rgba(96,165,250,0.2); color: var(--accent-blue); }
-    .act-badge.BERJALAN { background: rgba(52,211,153,0.2); color: var(--accent-green); }
-    .act-badge.BERLARI { background: rgba(248,113,113,0.2); color: var(--accent-red); }
-    
-    .new-row { animation: highlight 1s ease-out; }
-    @keyframes highlight { 0% { background: rgba(96,165,250,0.3); } 100% { background: transparent; } }
-    .history-empty td { text-align: center; padding: 40px; color: var(--text-secondary); }
+
 
     @media (max-width: 1024px) {
       .main-grid { grid-template-columns: 1fr; }
       .stat-row { grid-template-columns: 1fr; }
       .header-inner { flex-direction: column; }
       .header-right { width: 100%; justify-content: space-between; }
+    }
+
+    /* ── Mode Badge ─────────────────────────────────────────── */
+    .mode-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px; border-radius: 20px; font-size: 11px;
+      font-weight: 700; letter-spacing: 0.5px; margin-left: 8px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .mode-badge.collection {
+      background: rgba(251,191,36,0.15); color: #FBBF24;
+      border: 1px solid rgba(251,191,36,0.3);
+    }
+    .mode-badge.knn-active {
+      background: rgba(52,211,153,0.15); color: #34D399;
+      border: 1px solid rgba(52,211,153,0.3);
+    }
+
+    /* ── Sensor live panel (DATA COLLECTION mode) ───────────── */
+    .sensor-live-panel {
+      margin-top: 6px;
+    }
+    .sensor-live-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+    }
+    .sensor-live-item {
+      background: var(--bg-primary); border-radius: 12px;
+      padding: 12px 8px; text-align: center;
+    }
+    .sensor-live-label {
+      font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px;
+      color: var(--text-secondary); margin-bottom: 6px;
+    }
+    .sensor-live-value {
+      font-family: 'JetBrains Mono', monospace; font-size: 22px;
+      font-weight: 700; color: var(--accent-blue);
+    }
+    .sensor-live-unit {
+      font-size: 10px; color: var(--text-secondary); margin-top: 2px;
+    }
+    .collection-note {
+      margin-top: 10px; padding: 8px 12px;
+      background: rgba(251,191,36,0.08); border-radius: 10px;
+      font-size: 11px; color: #FBBF24; text-align: center;
+      border: 1px solid rgba(251,191,36,0.15);
+    }
+    .sesi-info {
+      font-size: 12px; color: var(--text-secondary);
+      margin-top: 8px; text-align: center;
+    }
+    .sesi-info span { color: var(--accent-blue); font-weight: 600; }
+
+    /* ── KNN panel (KNN mode) ────────────────────────────────── */
+    .knn-panel .stat-sub {
+      font-size: 11px; color: var(--text-secondary); margin-top: 6px;
+    }
+
+    /* ── Activity chart placeholder ──────────────────────────── */
+    .act-placeholder {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      height: 210px; gap: 10px;
+      color: var(--text-secondary);
+    }
+    .act-placeholder .ph-icon { font-size: 36px; opacity: 0.4; }
+    .act-placeholder .ph-text { font-size: 12px; text-align: center; line-height: 1.6; }
+    .act-placeholder .ph-badge {
+      font-size: 10px; padding: 3px 10px; border-radius: 20px;
+      background: rgba(251,191,36,0.15); color: #FBBF24;
+      border: 1px solid rgba(251,191,36,0.2);
     }
   </style>
 </head>
@@ -257,10 +308,42 @@
     <!-- STAT CARDS -->
     <section class="stat-row">
       <div class="card stat-card">
-        <div class="stat-label">Current Activity</div>
-        <div class="stat-icon" id="actIcon">🚶</div>
-        <div class="stat-value activity-value" id="activityValue">--</div>
-        <div class="stat-sub" id="actSub">Menunggu data...</div>
+        <div class="stat-label">
+          Mode
+          <span class="mode-badge collection" id="modeBadge">
+            <span id="modeLabel">● DATA COLLECTION</span>
+          </span>
+        </div>
+
+        <!-- Panel: DATA COLLECTION mode (sensor live values) -->
+        <div id="sensorPanel" class="sensor-live-panel">
+          <div class="sensor-live-grid">
+            <div class="sensor-live-item">
+              <div class="sensor-live-label">Accel Std</div>
+              <div class="sensor-live-value" id="liveAccel">--</div>
+              <div class="sensor-live-unit">g</div>
+            </div>
+            <div class="sensor-live-item">
+              <div class="sensor-live-label">Gyro Std</div>
+              <div class="sensor-live-value" id="liveGyro">--</div>
+              <div class="sensor-live-unit">°/s</div>
+            </div>
+            <div class="sensor-live-item">
+              <div class="sensor-live-label">BPM</div>
+              <div class="sensor-live-value" id="liveBpm" style="color:var(--accent-red)">--</div>
+              <div class="sensor-live-unit">bpm</div>
+            </div>
+          </div>
+          <div class="collection-note">⚡ Sensor aktif — server_knn tidak diperlukan</div>
+          <div class="sesi-info">Peserta: <span id="infoSesi">menunggu...</span></div>
+        </div>
+
+        <!-- Panel: KNN mode (hasil klasifikasi) -->
+        <div id="knnPanel" class="knn-panel" style="display:none">
+          <div class="stat-icon" id="actIcon">🚶</div>
+          <div class="stat-value activity-value" id="activityValue">--</div>
+          <div class="stat-sub" id="actSub">Menunggu data...</div>
+        </div>
       </div>
 
       <div class="card stat-card">
@@ -307,9 +390,18 @@
         <!-- Activity bar chart -->
         <section class="card">
           <div class="card-header">
-            <span class="card-title">📊 ACTIVITY RESULT <span class="hour-tag">(Last Hour)</span></span>
+            <span class="card-title" id="actChartHeader">📊 ACTIVITY RESULT</span>
           </div>
-          <div class="bar-chart-wrap">
+          <!-- Placeholder: muncul saat DATA COLLECTION mode -->
+          <div class="act-placeholder" id="actPlaceholder">
+            <div class="ph-icon">📊</div>
+            <div class="ph-text">
+              Hasil klasifikasi aktivitas<br>ditampilkan saat server_knn aktif
+            </div>
+            <div class="ph-badge">server_knn tidak aktif</div>
+          </div>
+          <!-- Chart: muncul saat KNN mode -->
+          <div class="bar-chart-wrap" id="actChartWrap" style="display:none">
             <canvas id="activityChart"></canvas>
           </div>
         </section>
@@ -332,27 +424,6 @@
       </div>
     </main>
 
-    <!-- HISTORY -->
-    <section class="history-section">
-      <div class="card history-card">
-        <div class="history-header">
-          <span class="card-title">📋 RIWAYAT HASIL PENGAMBILAN DATA PESERTA</span>
-          <div class="history-stats">
-            <span class="hstat" id="hstatTotal">0 Peserta</span>
-            <span class="hstat" id="hstatDuduk">Duduk: 0</span>
-            <span class="hstat" id="hstatJalan">Jalan: 0</span>
-            <span class="hstat" id="hstatLari">Lari: 0</span>
-            <button class="btn-clear" onclick="clearHistory()">Hapus Riwayat</button>
-          </div>
-        </div>
-        <div class="history-table-wrap">
-          <table class="history-table">
-            <thead><tr><th>No</th><th>ID Peserta</th><th>Aktivitas Final</th><th>BPM</th><th>Duduk</th><th>Jalan</th><th>Lari</th><th>Sampel</th><th>Waktu Selesai</th></tr></thead>
-            <tbody id="historyBody"><tr class="history-empty"><td colspan="9">Menunggu hasil sesi peserta pertama...</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
 
   </div>
 
