@@ -69,7 +69,7 @@ function renderModeUI() {
     if (actChartWrap)   actChartWrap.style.display   = 'block';
   } else {
     modeBadge.className   = 'mode-badge collection';
-    modeLabel.textContent = '● DATA COLLECTION';
+    modeLabel.textContent = '● COLLECT PARTICIPANT';
     knnPanel.style.display       = 'none';
     sensorPanel.style.display    = 'block';
     if (actHeader)      actHeader.textContent        = '📊 ACTIVITY RESULT';
