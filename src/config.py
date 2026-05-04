@@ -22,7 +22,7 @@ for _d in [DATA_RAW_DIR, DATA_PROC_DIR, DATASET_DIR, MODEL_DIR, LOG_DIR]:
 MQTT_BROKER    = "broker.emqx.io"
 MQTT_PORT      = 1883
 MQTT_CLIENT_ID = "python_server_001"
-MQTT_KEEPALIVE = 60  # Ditambahkan
+MQTT_KEEPALIVE = 60  
 
 # WebSocket port untuk dashboard
 MQTT_WS_PORT   = 8083
