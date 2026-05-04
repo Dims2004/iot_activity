@@ -1,22 +1,3 @@
-"""
-collect_participants.py — Pengambilan data training per partisipan
-=================================================================
-Alur:
-  1. Operator masukkan ID partisipan secara manual
-  2. Operator pilih label aktivitas (DUDUK / BERJALAN / BERLARI)
-  3. Kirim START ke ESP32 via MQTT (hanya untuk memberi tahu ID partisipan)
-  4. Terima data sensor dari ESP32 selama 15 menit
-  5. Setiap baris data diberi label sesuai pilihan operator
-  6. Simpan ke raw CSV + dataset.csv + sessions_summary.csv
-  7. Lanjut ke peserta berikutnya
-
-Catatan penting:
-  - ESP32 TIDAK mengirim label aktivitas apa pun
-  - Pelabelan 100% dilakukan di sini berdasarkan input manual operator
-  - Satu sesi = satu aktivitas (operator HARUS memilih satu aktivitas per sesi)
-  - Satu partisipan bisa punya beberapa sesi (misal: duduk 15 mnt, lalu berjalan 15 mnt)
-"""
-
 import json, os, sys, csv, signal, time, threading, shutil
 from datetime import datetime
 import paho.mqtt.client as mqtt
