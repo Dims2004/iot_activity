@@ -27732,3 +27732,4 @@ ne bpm=None D=None J=None L=None
 2026-05-04 11:59:21 | INFO     | collect_participants | Raw → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\data\raw\P014_PSR_014_BERLARI_20260504_115921.csv (302 baris)
 2026-05-04 11:59:21 | INFO     | collect_participants | Dataset +302 baris → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\dataset\dataset.csv
 2026-05-04 11:59:21 | INFO     | collect_participants | Summary sesi #42 disimpan → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\dataset\sessions_summary.csv
+2026-05-04 15:43:26 | INFO     | collect_participants | MQTT terhubung ke broker.emqx.io:1883
