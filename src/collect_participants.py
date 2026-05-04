@@ -158,7 +158,6 @@ def save_raw_session(participant_id: str, participant_no: int, activity: str) ->
 
 
 def append_to_dataset():
-    """Tambahkan baris sesi ini ke dataset.csv utama."""
     if not state.raw_rows:
         return
     file_exists = os.path.isfile(DATASET_PATH)
