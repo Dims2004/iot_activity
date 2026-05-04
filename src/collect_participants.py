@@ -100,11 +100,9 @@ def on_message(client, userdata, msg):
     if row is None:
         return
 
-    # Tambahkan info partisipan + label manual
     row["participant_no"] = state.current_no
     row["participant_id"] = state.current_id
-    row["activity"]       = state.current_label  # ← label dari input operator
-    # Hapus field local_act jika ada (tidak relevan)
+    row["activity"]       = state.current_label
     row.pop("local_act", None)
     row.pop("user",      None)
 
@@ -116,16 +114,11 @@ def on_message(client, userdata, msg):
 # ─────────────────────────────────────────────
 def send_start(client, participant_id: str, participant_no: int,
                duration: int = DEFAULT_DURATION_SEC):
-    """
-    Kirim START ke ESP32.
-    - participant_id / participant_no : disertakan di setiap payload sensor.
-    - duration (detik)               : diteruskan ke ESP32 untuk countdown OLED.
-    """
     payload = json.dumps({
         "cmd":            "START",
         "participant_id": participant_id,
         "participant_no": participant_no,
-        "duration":       duration,      # ESP32 pakai ini untuk countdown OLED
+        "duration":       duration, 
     })
     try:
         r = client.publish(TOPIC_COMMAND, payload, qos=1)
