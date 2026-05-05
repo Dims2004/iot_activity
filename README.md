@@ -1,29 +1,23 @@
-Berikut README GitHub yang bisa kamu langsung pakai untuk project tugas akhir kamu (tinggal copy–paste ke `README.md`):
-
 ---
 
-# 🐱 IoT Activity Recognition System (Tugas Akhir)
+# 📡 Klasifikasi Aktivitas Manusia Menggunakan Algoritma K-Nearest Neighbor Berbasis Internet of Things
 
-Proyek ini merupakan implementasi sistem **IoT berbasis ESP32** untuk melakukan **pengambilan data sensor aktivitas manusia** dan mengirimkannya ke server untuk proses **machine learning**. Sistem ini dirancang menggunakan arsitektur *sensor-only*, di mana proses klasifikasi dilakukan di sisi server agar lebih efisien dan fleksibel.
+Proyek ini merupakan implementasi sistem **Internet of Things (IoT)** untuk melakukan **klasifikasi aktivitas manusia** menggunakan algoritma **K-Nearest Neighbor (KNN)** berdasarkan data sensor dari perangkat wearable berbasis ESP32.
 
 ---
 
 ## 📌 Deskripsi Proyek
 
-Sistem ini bertujuan untuk:
+Penelitian ini bertujuan untuk mengembangkan sistem yang mampu mengenali aktivitas manusia secara otomatis menggunakan data sensor, yaitu:
 
-* Mengumpulkan data aktivitas menggunakan sensor:
+* Accelerometer dan Gyroscope (MPU6050)
+* Sensor detak jantung (Pulse Sensor)
 
-  * Accelerometer & Gyroscope (MPU6050)
-  * Heart Rate (Pulse Sensor)
-* Melakukan preprocessing ringan (feature extraction)
-* Mengirim data ke server menggunakan **MQTT**
-* Menyimpan data dalam format CSV untuk pelatihan model
-* Mengklasifikasikan aktivitas:
+Data yang diperoleh akan dikirim ke server dan diproses menggunakan algoritma **K-Nearest Neighbor (KNN)** untuk mengklasifikasikan aktivitas berikut:
 
-  * 🪑 Duduk
-  * 🚶 Berjalan
-  * 🏃 Berlari
+* 🪑 Duduk
+* 🚶 Berjalan
+* 🏃 Berlari
 
 ---
 
@@ -32,23 +26,30 @@ Sistem ini bertujuan untuk:
 ```
 ESP32 (Sensor Node)
    ↓
-MQTT Broker
+MQTT Protocol
    ↓
-Python (Data Collection & Processing)
+Python Server
    ↓
-CSV Dataset
+Data Processing & Feature Extraction
    ↓
-Machine Learning Model
+KNN Classification
+   ↓
+Hasil Prediksi Aktivitas
 ```
 
-Konsep yang digunakan:
+### Konsep Utama:
 
 > **Sensor-only architecture**
-> ESP32 hanya sebagai pengambil data, bukan untuk klasifikasi.
+> ESP32 hanya bertugas untuk:
+
+* Mengambil data sensor
+* Mengirim data ke server
+
+Seluruh proses machine learning dilakukan di sisi server.
 
 ---
 
-## 📂 Struktur Folder
+## 📂 Struktur Project
 
 ```
 iot_activity/
@@ -56,39 +57,39 @@ iot_activity/
 ├── data/               # Data mentah dari sensor
 ├── dataset/            # Dataset hasil preprocessing
 ├── logs/               # Log sistem
-├── models/             # Model machine learning
-├── notebooks/          # Eksperimen & analisis
+├── models/             # Model KNN
+├── notebooks/          # Analisis & eksperimen
 ├── src/                # Source code utama
-├── tests/              # Testing
-├── web/                # Web interface (jika ada)
+├── tests/              # Pengujian
+├── web/                # (Optional) Web monitoring
 │
-├── requirements.txt    # Dependencies Python
-└── README.md           # Dokumentasi proyek
+├── requirements.txt
+└── README.md
 ```
 
 ---
 
 ## 🧠 Teknologi yang Digunakan
 
-* **Hardware**
+### Hardware
 
-  * ESP32 / ESP8266
-  * MPU6050 (Accelerometer & Gyroscope)
-  * Pulse Sensor
+* ESP32 / ESP8266
+* MPU6050 (Accelerometer & Gyroscope)
+* Pulse Sensor
 
-* **Software**
+### Software
 
-  * Python
-  * MQTT (Mosquitto / Broker lain)
-  * Pandas, NumPy
-  * Scikit-learn / TensorFlow
-  * Arduino IDE
+* Python
+* MQTT (Mosquitto)
+* Pandas & NumPy
+* Scikit-learn (KNN)
+* Arduino IDE
 
 ---
 
-## 🚀 Cara Menjalankan
+## 🚀 Cara Menjalankan Sistem
 
-### 1. Setup Python Environment
+### 1. Install Dependency
 
 ```bash
 pip install -r requirements.txt
@@ -97,8 +98,6 @@ pip install -r requirements.txt
 ---
 
 ### 2. Jalankan MQTT Broker
-
-Contoh menggunakan Mosquitto:
 
 ```bash
 mosquitto
@@ -114,75 +113,92 @@ python src/data_collection.py
 
 Fungsi:
 
-* Mengambil data dari MQTT
-* Menyimpan ke CSV
-* Menambahkan ID partisipan
+* Menerima data dari ESP32 melalui MQTT
+* Menyimpan data ke file CSV
+* Menambahkan label aktivitas secara manual
 
 ---
 
-### 4. Upload Code ke ESP32
+### 4. Training Model KNN
 
-* Buka Arduino IDE
-* Upload kode ESP32
-* Pastikan WiFi & MQTT sudah dikonfigurasi
+```bash
+python src/train_model.py
+```
+
+---
+
+### 5. Jalankan Prediksi
+
+```bash
+python src/predict.py
+```
 
 ---
 
 ## 📊 Dataset
 
-Dataset terdiri dari fitur:
+Dataset yang digunakan memiliki fitur sebagai berikut:
 
-| Feature      | Deskripsi          |
-| ------------ | ------------------ |
-| accel_stddev | Variasi percepatan |
-| gyro_stddev  | Variasi rotasi     |
-| bpm          | Detak jantung      |
-| activity     | Label aktivitas    |
+| Feature      | Deskripsi                  |
+| ------------ | -------------------------- |
+| accel_stddev | Standar deviasi percepatan |
+| gyro_stddev  | Standar deviasi rotasi     |
+| bpm          | Detak jantung              |
+| activity     | Label aktivitas            |
 
 ---
 
-## 🤖 Machine Learning
+## 🤖 Metode Klasifikasi
 
-Model digunakan untuk klasifikasi aktivitas berdasarkan data sensor.
+Algoritma yang digunakan adalah:
 
-Tahapan:
+### 🔹 K-Nearest Neighbor (KNN)
 
-1. Data Collection
+Karakteristik:
+
+* Berbasis jarak (distance-based)
+* Tidak memerlukan training kompleks
+* Cocok untuk dataset kecil hingga menengah
+
+### Tahapan:
+
+1. Pengumpulan data
 2. Preprocessing
-3. Training Model
-4. Evaluation
-5. Deployment (Server)
+3. Feature extraction
+4. Training model KNN
+5. Evaluasi model
+6. Prediksi aktivitas
 
 ---
 
-## 🎯 Tujuan Pengembangan
+## 🎯 Tujuan Penelitian
 
-* Monitoring aktivitas manusia berbasis IoT
-* Implementasi real-time data streaming
-* Integrasi sensor dengan machine learning
-* Efisiensi komputasi pada perangkat IoT
+* Mengimplementasikan IoT untuk pengenalan aktivitas manusia
+* Menganalisis performa algoritma KNN
+* Menghasilkan sistem klasifikasi aktivitas berbasis sensor
+* Membangun sistem real-time berbasis MQTT
 
 ---
 
-## 📌 Catatan
+## 📌 Catatan Penting
 
-* ESP32 tidak melakukan klasifikasi → hanya kirim data
+* ESP32 **tidak melakukan klasifikasi**
 * Label aktivitas diberikan secara manual saat pengambilan data
-* Data diambil setiap interval tertentu (misalnya 15 menit)
+* Data dikirim secara real-time menggunakan MQTT
 
 ---
 
 ## 👤 Author
 
 **Nama:** Dimas
-**Project:** Tugas Akhir Informatika
-**Topik:** IoT + Activity Recognition
+**Program Studi:** Informatika
+**Judul:**
+*Klasifikasi Aktivitas Manusia Menggunakan Algoritma K-Nearest Neighbor Berbasis Internet of Things*
 
 ---
 
 ## 📄 Lisensi
 
-Project ini dibuat untuk keperluan akademik (Tugas Akhir).
+Digunakan untuk keperluan akademik (Tugas Akhir)
 
 ---
-
