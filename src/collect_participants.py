@@ -75,7 +75,7 @@ def on_connect(client, userdata, flags, rc, properties=None):
     if rc == 0:
         logger.info(f"MQTT terhubung ke {MQTT_BROKER}:{MQTT_PORT}")
         client.subscribe(TOPIC_SENSOR_DATA)
-        print(f"\n  ✅ Terhubung ke broker {MQTT_BROKER}:{MQTT_PORT}!")
+        print(f"\n  Terhubung ke broker {MQTT_BROKER}:{MQTT_PORT}!")
     else:
         logger.error(f"MQTT gagal rc={rc}")
         print(f"\n  ❌ Gagal terhubung MQTT (rc={rc})")
