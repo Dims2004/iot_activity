@@ -752,7 +752,7 @@ def main():
         if not should_restart:
             break
         print("\n" + "═"*60)
-        print("  🔄 RESTART — Mulai dari Peserta 1...")
+        print("  RESTART — Mulai dari Peserta 1...")
         print("═"*60 + "\n")
 
     client.loop_stop()
