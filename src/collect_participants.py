@@ -78,7 +78,7 @@ def on_connect(client, userdata, flags, rc, properties=None):
         print(f"\n  Terhubung ke broker {MQTT_BROKER}:{MQTT_PORT}!")
     else:
         logger.error(f"MQTT gagal rc={rc}")
-        print(f"\n  ❌ Gagal terhubung MQTT (rc={rc})")
+        print(f"\n  Gagal terhubung MQTT (rc={rc})")
 
 
 def on_message(client, userdata, msg):
