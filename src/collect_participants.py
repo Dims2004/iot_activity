@@ -477,7 +477,7 @@ def run_session(client, participant_no: int, participant_id: str, activity: str,
     send_start(client, participant_id, participant_no, duration=duration_sec)
     time.sleep(1)  # beri waktu ESP32 memproses
 
-    print(f"\n  🟢 Merekam [{activity}] untuk P{participant_no} [{participant_id}]"
+    print(f"\n  Merekam [{activity}] untuk P{participant_no} [{participant_id}]"
           f" selama {duration_sec//60} menit ({duration_sec}s)...")
     print(f"  Tekan Ctrl+C untuk berhenti darurat\n")
 
@@ -503,7 +503,7 @@ def run_session(client, participant_no: int, participant_id: str, activity: str,
     duration = time.time() - state.session_start
 
     if state.stop_requested:
-        print(f"\n  🛑 Mengirim STOP ke ESP32...")
+        print(f"\n  Mengirim STOP ke ESP32...")
 
     # Kirim STOP ke ESP32 (bersihkan participant_id)
     send_stop(client, participant_no)
