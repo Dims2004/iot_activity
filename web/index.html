@@ -29,6 +29,7 @@
       --accent-green: #34D399;
       --accent-red: #F87171;
       --accent-purple: #A78BFA;
+      --accent-yellow: #FBBF24;
     }
 
     [data-theme="light"] {
@@ -42,6 +43,7 @@
       --accent-green: #10B981;
       --accent-red: #EF4444;
       --accent-purple: #8B5CF6;
+      --accent-yellow: #D97706;
     }
 
     body {
@@ -171,14 +173,12 @@
     .chart-legend { display: flex; gap: 16px; font-size: 11px; color: var(--text-secondary); }
     .leg-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; }
 
-    /* FIX: Chart container dengan fixed height */
     .chart-wrap {
       height: 320px;
       width: 100%;
       position: relative;
     }
     
-    /* FIX: Canvas rendering sharp */
     canvas {
       display: block;
       width: 100% !important;
@@ -198,15 +198,6 @@
     .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #EF4444; }
     .status-dot.online { background: #22C55E; }
 
-
-
-    @media (max-width: 1024px) {
-      .main-grid { grid-template-columns: 1fr; }
-      .stat-row { grid-template-columns: 1fr; }
-      .header-inner { flex-direction: column; }
-      .header-right { width: 100%; justify-content: space-between; }
-    }
-
     /* ── Mode Badge ─────────────────────────────────────────── */
     .mode-badge {
       display: inline-flex; align-items: center; gap: 6px;
@@ -221,6 +212,10 @@
     .mode-badge.knn-active {
       background: rgba(52,211,153,0.15); color: #34D399;
       border: 1px solid rgba(52,211,153,0.3);
+    }
+    .mode-badge.test-mode {
+      background: rgba(168,85,247,0.15); color: #A78BFA;
+      border: 1px solid rgba(168,85,247,0.3);
     }
 
     /* ── Sensor live panel (DATA COLLECTION mode) ───────────── */
@@ -275,6 +270,174 @@
       font-size: 10px; padding: 3px 10px; border-radius: 20px;
       background: rgba(251,191,36,0.15); color: #FBBF24;
       border: 1px solid rgba(251,191,36,0.2);
+    }
+
+    /* ── TESTING PANEL (BARU) ───────────────────────────────── */
+    .testing-panel {
+      margin-top: 24px;
+    }
+    .testing-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 12px;
+    }
+    .test-control {
+      background: var(--bg-primary);
+      border-radius: 16px;
+      padding: 16px;
+    }
+    .test-control-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--accent-purple);
+      margin-bottom: 12px;
+    }
+    .activity-buttons {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .act-test-btn {
+      padding: 10px 20px;
+      border-radius: 40px;
+      border: none;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+    .act-test-btn.duduk {
+      background: rgba(96,165,250,0.2);
+      color: #60A5FA;
+      border: 1px solid rgba(96,165,250,0.3);
+    }
+    .act-test-btn.duduk.active {
+      background: #60A5FA;
+      color: white;
+      box-shadow: 0 0 12px rgba(96,165,250,0.5);
+    }
+    .act-test-btn.berjalan {
+      background: rgba(52,211,153,0.2);
+      color: #34D399;
+      border: 1px solid rgba(52,211,153,0.3);
+    }
+    .act-test-btn.berjalan.active {
+      background: #34D399;
+      color: white;
+      box-shadow: 0 0 12px rgba(52,211,153,0.5);
+    }
+    .act-test-btn.berlari {
+      background: rgba(248,113,113,0.2);
+      color: #F87171;
+      border: 1px solid rgba(248,113,113,0.3);
+    }
+    .act-test-btn.berlari.active {
+      background: #F87171;
+      color: white;
+      box-shadow: 0 0 12px rgba(248,113,113,0.5);
+    }
+    .test-mode-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+    .toggle-switch {
+      position: relative;
+      width: 50px;
+      height: 24px;
+      background: var(--border);
+      border-radius: 40px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .toggle-switch.active {
+      background: var(--accent-purple);
+    }
+    .toggle-knob {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      top: 2px;
+      left: 3px;
+      transition: left 0.3s;
+    }
+    .toggle-switch.active .toggle-knob {
+      left: 27px;
+    }
+    .sim-input-group {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .sim-input {
+      flex: 1;
+      padding: 8px 12px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+    .sim-input:focus {
+      outline: none;
+      border-color: var(--accent-purple);
+    }
+    .sim-btn {
+      padding: 8px 16px;
+      background: var(--accent-purple);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .sim-btn:hover {
+      opacity: 0.85;
+    }
+    .test-server-status {
+      font-size: 11px;
+      padding: 6px 10px;
+      border-radius: 20px;
+      background: rgba(168,85,247,0.1);
+      color: var(--accent-purple);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .test-server-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #EF4444;
+    }
+    .test-server-dot.active {
+      background: #22C55E;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    @media (max-width: 1024px) {
+      .main-grid { grid-template-columns: 1fr; }
+      .stat-row { grid-template-columns: 1fr; }
+      .header-inner { flex-direction: column; }
+      .header-right { width: 100%; justify-content: space-between; }
+      .testing-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -391,6 +554,10 @@
         <section class="card">
           <div class="card-header">
             <span class="card-title" id="actChartHeader">📊 ACTIVITY RESULT</span>
+            <div id="testServerStatus" class="test-server-status" style="display:none">
+              <span class="test-server-dot" id="testServerDot"></span>
+              <span id="testServerLabel">Test Server</span>
+            </div>
           </div>
           <!-- Placeholder: muncul saat DATA COLLECTION mode -->
           <div class="act-placeholder" id="actPlaceholder">
@@ -424,6 +591,54 @@
       </div>
     </main>
 
+    <!-- TESTING PANEL (BARU) -->
+    <section class="card testing-panel">
+      <div class="card-header">
+        <span class="card-title">🧪 TESTING MODE — Kontrol Manual</span>
+        <span id="testModeIndicator" class="test-server-status" style="background:rgba(251,191,36,0.15); color:#FBBF24;">
+          <span class="test-server-dot" style="background:#FBBF24;"></span>
+          <span>Manual Mode OFF</span>
+        </span>
+      </div>
+      
+      <div class="testing-grid">
+        <!-- Kiri: Manual Mode Control -->
+        <div class="test-control">
+          <div class="test-control-title">🎮 MANUAL OVERRIDE</div>
+          <div class="activity-buttons">
+            <button class="act-test-btn duduk" data-activity="DUDUK">🪑 DUDUK</button>
+            <button class="act-test-btn berjalan" data-activity="BERJALAN">🚶 BERJALAN</button>
+            <button class="act-test-btn berlari" data-activity="BERLARI">🏃 BERLARI</button>
+          </div>
+          <div class="test-mode-toggle">
+            <span style="font-size:12px;">Override Klasifikasi Otomatis</span>
+            <div class="toggle-switch" id="manualModeToggle">
+              <div class="toggle-knob"></div>
+            </div>
+          </div>
+          <p style="font-size:10px; color:var(--text-secondary); margin-top:12px;">
+            * Saat manual mode aktif, dashboard akan mengirim aktivitas pilihan ke server test
+          </p>
+        </div>
+
+        <!-- Kanan: Simulasi Data -->
+        <div class="test-control">
+          <div class="test-control-title">📡 SIMULASI DATA SENSOR</div>
+          <div class="sim-input-group">
+            <input type="number" id="simAccel" class="sim-input" placeholder="Accel Std" step="0.01" value="0.12">
+            <input type="number" id="simGyro" class="sim-input" placeholder="Gyro Std" step="0.1" value="45.0">
+            <input type="number" id="simBpm" class="sim-input" placeholder="BPM" value="75">
+          </div>
+          <div class="sim-input-group">
+            <input type="text" id="simUserId" class="sim-input" placeholder="User ID" value="test_user">
+            <button id="simSendBtn" class="sim-btn">Kirim Simulasi →</button>
+          </div>
+          <p style="font-size:10px; color:var(--text-secondary); margin-top:12px;">
+            * Kirim data sensor simulasi ke server test (tanpa ESP32)
+          </p>
+        </div>
+      </div>
+    </section>
 
   </div>
 
