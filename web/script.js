@@ -4,10 +4,12 @@
  *
  * MODE OTOMATIS:
  *   DATA COLLECTION MODE — hanya sensor/esp32/data (server_knn TIDAK perlu)
+ *                          Tampil: nilai sensor live, BPM, grafik real-time
  *   KNN MODE             — classification/result diterima (server_knn aktif)
+ *                          Tampil: aktivitas + confidence + bar chart
  *
- * FITUR BARU:
- *   Testing Mode: Manual override + Simulasi data sensor
+ * Deteksi otomatis: classification/result masuk → KNN mode.
+ * 10 detik tanpa classification → kembali ke DATA COLLECTION mode.
  */
 
 'use strict';
@@ -20,8 +22,6 @@ const CONFIG = {
   topics: {
     sensorData:     'sensor/esp32/data',
     classification: 'classification/result',
-    testCommand:    'test/command',
-    testStatus:     'test/status',
   },
 };
 
@@ -34,7 +34,6 @@ const activityHistory = [];
 
 // ── Mode tracking ─────────────────────────────────────────────────────────────
 let knnMode          = false;
-let testServerActive = false;
 let lastKnnTimestamp = 0;
 const KNN_TIMEOUT_MS = 10000;
 
@@ -59,7 +58,6 @@ function renderModeUI() {
   const actHeader      = document.getElementById('actChartHeader');
   const actPlaceholder = document.getElementById('actPlaceholder');
   const actChartWrap   = document.getElementById('actChartWrap');
-  const testServerStatus = document.getElementById('testServerStatus');
 
   if (knnMode) {
     modeBadge.className   = 'mode-badge knn-active';
@@ -69,7 +67,6 @@ function renderModeUI() {
     if (actHeader)      actHeader.textContent        = '📊 ACTIVITY RESULT (Last Hour)';
     if (actPlaceholder) actPlaceholder.style.display = 'none';
     if (actChartWrap)   actChartWrap.style.display   = 'block';
-    if (testServerStatus && testServerActive) testServerStatus.style.display = 'inline-flex';
   } else {
     modeBadge.className   = 'mode-badge collection';
     modeLabel.textContent = '● COLLECT PARTICIPANT';
@@ -78,7 +75,6 @@ function renderModeUI() {
     if (actHeader)      actHeader.textContent        = '📊 ACTIVITY RESULT';
     if (actPlaceholder) actPlaceholder.style.display = 'flex';
     if (actChartWrap)   actChartWrap.style.display   = 'none';
-    if (testServerStatus) testServerStatus.style.display = 'none';
   }
 }
 
@@ -251,127 +247,21 @@ function setConnectionStatus(online) {
 }
 
 // ============================================================
-// TESTING MODE FUNCTIONS
-// ============================================================
-let mqttClient = null;
-let manualModeActive = false;
-
-function initTestingUI() {
-  // Manual mode toggle
-  const toggle = document.getElementById('manualModeToggle');
-  const indicator = document.getElementById('testModeIndicator');
-  
-  if (toggle) {
-    toggle.addEventListener('click', () => {
-      manualModeActive = !manualModeActive;
-      if (manualModeActive) {
-        toggle.classList.add('active');
-        if (indicator) {
-          indicator.style.background = 'rgba(168,85,247,0.15)';
-          indicator.style.color = '#A78BFA';
-          indicator.innerHTML = '<span class="test-server-dot" style="background:#A78BFA;"></span><span>Manual Mode ON</span>';
-        }
-        // Kirim perintah ke server test
-        sendTestCommand('SET_MANUAL_MODE', { enabled: true, activity: currentSelectedActivity });
-      } else {
-        toggle.classList.remove('active');
-        if (indicator) {
-          indicator.style.background = 'rgba(251,191,36,0.15)';
-          indicator.style.color = '#FBBF24';
-          indicator.innerHTML = '<span class="test-server-dot" style="background:#FBBF24;"></span><span>Manual Mode OFF</span>';
-        }
-        sendTestCommand('SET_MANUAL_MODE', { enabled: false });
-      }
-    });
-  }
-  
-  // Activity buttons
-  const btns = document.querySelectorAll('.act-test-btn');
-  btns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      // Remove active class from all
-      btns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentSelectedActivity = btn.dataset.activity;
-      
-      // If manual mode active, send update
-      if (manualModeActive) {
-        sendTestCommand('SET_MANUAL_MODE', { enabled: true, activity: currentSelectedActivity });
-      }
-    });
-  });
-  
-  // Simulasi send button
-  const simBtn = document.getElementById('simSendBtn');
-  if (simBtn) {
-    simBtn.addEventListener('click', () => {
-      const accel = parseFloat(document.getElementById('simAccel').value) || 0.1;
-      const gyro = parseFloat(document.getElementById('simGyro').value) || 50.0;
-      const bpm = parseInt(document.getElementById('simBpm').value) || 75;
-      const userId = document.getElementById('simUserId').value || 'test_user';
-      
-      sendTestCommand('SIMULATE_SENSOR', {
-        accel_stddev: accel,
-        gyro_stddev: gyro,
-        bpm: bpm,
-        participant_id: userId,
-        participant_no: 99
-      });
-      
-      // Visual feedback
-      simBtn.style.opacity = '0.6';
-      setTimeout(() => { simBtn.style.opacity = '1'; }, 200);
-    });
-  }
-}
-
-let currentSelectedActivity = 'DUDUK';
-
-function sendTestCommand(cmd, params = {}) {
-  if (!mqttClient || !mqttClient.connected) {
-    console.warn('MQTT not connected, cannot send test command');
-    return;
-  }
-  
-  const payload = { cmd, ...params, timestamp: Date.now() };
-  mqttClient.publish(CONFIG.topics.testCommand, JSON.stringify(payload));
-}
-
-function updateTestServerStatus(active, stats = null) {
-  testServerActive = active;
-  const statusDiv = document.getElementById('testServerStatus');
-  const dot = document.getElementById('testServerDot');
-  const label = document.getElementById('testServerLabel');
-  
-  if (statusDiv) {
-    if (active && knnMode) {
-      statusDiv.style.display = 'inline-flex';
-      if (dot) dot.className = 'test-server-dot active';
-      if (label) label.textContent = stats ? `Test Server (${stats.total_received})` : 'Test Server Active';
-    } else {
-      statusDiv.style.display = 'none';
-    }
-  }
-}
-
-// ============================================================
 // MQTT
 // ============================================================
 function connectMQTT() {
-  mqttClient = mqtt.connect(`ws://${CONFIG.broker}:${CONFIG.port}${CONFIG.path}`, {
+  const client = mqtt.connect(`ws://${CONFIG.broker}:${CONFIG.port}${CONFIG.path}`, {
     clientId: CONFIG.clientId, connectTimeout: 10000, reconnectPeriod: 5000,
   });
 
-  mqttClient.on('connect', () => {
+  client.on('connect', () => {
     setConnectionStatus(true);
-    Object.values(CONFIG.topics).forEach(t => mqttClient.subscribe(t));
-    // Subscribe juga ke test status
-    mqttClient.subscribe(CONFIG.topics.testStatus);
+    Object.values(CONFIG.topics).forEach(t => client.subscribe(t));
   });
-  mqttClient.on('close', () => setConnectionStatus(false));
-  mqttClient.on('error', err => console.error('[MQTT]', err.message));
+  client.on('close', () => setConnectionStatus(false));
+  client.on('error', err => console.error('[MQTT]', err.message));
 
-  mqttClient.on('message', (topic, payload) => {
+  client.on('message', (topic, payload) => {
     let data;
     try { data = JSON.parse(payload.toString()); } catch (e) { return; }
 
@@ -392,23 +282,6 @@ function connectMQTT() {
       pushActivityResult(act);
       updateAccuracy(data.confidence || 0);
       if (data.bpm > 0) updateBPM(data.bpm);
-      
-      // Highlight jika dari test mode
-      if (data.test_mode) {
-        console.log('[TEST] Classification from test server:', act);
-      }
-    }
-    else if (topic === CONFIG.topics.testStatus) {
-      // Status dari test server
-      if (data.cmd === 'MANUAL_MODE_CONFIRM') {
-        console.log('[TEST] Manual mode confirmed:', data.enabled, data.activity);
-      } else if (data.cmd === 'STATS_RESPONSE') {
-        updateTestServerStatus(true, data.stats);
-      } else if (data.server === 'test_knn' && data.status === 'active') {
-        updateTestServerStatus(true);
-      } else if (data.server === 'test_knn' && data.status === 'inactive') {
-        updateTestServerStatus(false);
-      }
     }
   });
 }
@@ -428,12 +301,7 @@ window.addEventListener('resize', () => {
 document.addEventListener('DOMContentLoaded', () => {
   initSensorChart();
   initActivityChart();
-  initTestingUI();
   document.getElementById('infobroker').textContent = `${CONFIG.broker}:${CONFIG.port}`;
   renderModeUI();
   connectMQTT();
-  
-  // Set default active button
-  document.querySelector('.act-test-btn.duduk')?.classList.add('active');
-  currentSelectedActivity = 'DUDUK';
 });
