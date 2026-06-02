@@ -1,15 +1,10 @@
 /**
- * script.js — AIoT Watch Dashboard
+ * script.js — AIoT Watch Dashboard (Real-Time Testing Mode)
  * MQTT WebSocket: broker.emqx.io:8083/mqtt
  *
  * MODE OTOMATIS:
  *   DATA COLLECTION MODE — hanya sensor/esp32/data (server_knn TIDAK perlu)
- *                          Tampil: nilai sensor live, BPM, grafik real-time
  *   KNN MODE             — classification/result diterima (server_knn aktif)
- *                          Tampil: aktivitas + confidence + bar chart
- *
- * Deteksi otomatis: classification/result masuk → KNN mode.
- * 10 detik tanpa classification → kembali ke DATA COLLECTION mode.
  */
 
 'use strict';
@@ -32,12 +27,12 @@ let activityChart = null;
 let msgCount      = 0;
 const activityHistory = [];
 
-// ── Mode tracking ─────────────────────────────────────────────────────────────
+// Mode tracking
 let knnMode          = false;
 let lastKnnTimestamp = 0;
 const KNN_TIMEOUT_MS = 10000;
 
-// Cek periodis apakah KNN masih kirim data
+// Cek periodik apakah KNN masih kirim data
 setInterval(() => {
   if (knnMode && Date.now() - lastKnnTimestamp > KNN_TIMEOUT_MS) {
     setKnnMode(false);
@@ -78,7 +73,7 @@ function renderModeUI() {
   }
 }
 
-// ── Sensor live card ──────────────────────────────────────────────────────────
+// Sensor live card
 function updateSensorCard(accel, gyro, bpm) {
   const elA = document.getElementById('liveAccel');
   const elG = document.getElementById('liveGyro');
@@ -221,6 +216,47 @@ function updateAccuracy(confidence) {
   if (el) el.textContent = pct + '%';
 }
 
+// ============================================================
+// === BARU: REAL-TIME UI UPDATE FUNCTION ===
+// ============================================================
+function updateRealtimeUI(activity, confidence, bpm, user, timestamp) {
+  const activityElem = document.getElementById('realtimeActivityValue');
+  const iconElem = document.getElementById('realtimeActIcon');
+  const confidenceElem = document.getElementById('realtimeConfidence');
+  const lastUpdateElem = document.getElementById('realtimeLastUpdate');
+  const card = document.getElementById('realtimeStatusCard');
+
+  if (!activityElem) return;
+
+  // Pilih ikon berdasarkan aktivitas
+  let icon = '❓';
+  if (activity === 'DUDUK') icon = '🪑';
+  else if (activity === 'BERJALAN') icon = '🚶';
+  else if (activity === 'BERLARI') icon = '🏃';
+
+  iconElem.textContent = icon;
+  activityElem.textContent = activity;
+
+  // Update confidence dan BPM
+  if (confidenceElem) {
+    confidenceElem.innerHTML = `Confidence: <strong>${(confidence * 100).toFixed(1)}%</strong> | BPM: ${bpm}`;
+  }
+  
+  // Update timestamp
+  if (lastUpdateElem) {
+    const now = new Date();
+    lastUpdateElem.innerHTML = `Last update: ${now.toLocaleTimeString()}`;
+  }
+
+  // Efek visual flash pada card
+  if (card) {
+    card.classList.remove('realtime-update');
+    // Force reflow
+    void card.offsetWidth;
+    card.classList.add('realtime-update');
+  }
+}
+
 function updateInfo(data) {
   if (data.device_id)                   document.getElementById('infoDevice').textContent   = data.device_id;
   if (data.participant_id || data.user) document.getElementById('infoUser').textContent     = data.participant_id || data.user;
@@ -282,6 +318,9 @@ function connectMQTT() {
       pushActivityResult(act);
       updateAccuracy(data.confidence || 0);
       if (data.bpm > 0) updateBPM(data.bpm);
+      
+      // === BARU: Update real-time UI card ===
+      updateRealtimeUI(act, data.confidence || 0, data.bpm || 0, data.user || '', data.server_ts);
     }
   });
 }

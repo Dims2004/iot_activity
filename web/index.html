@@ -120,7 +120,7 @@
     /* Stat Cards */
     .stat-row {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);  /* === BARU: ubah dari 3 ke 4 kolom */
       gap: 24px;
       margin-bottom: 24px;
     }
@@ -171,14 +171,12 @@
     .chart-legend { display: flex; gap: 16px; font-size: 11px; color: var(--text-secondary); }
     .leg-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; }
 
-    /* FIX: Chart container dengan fixed height */
     .chart-wrap {
       height: 320px;
       width: 100%;
       position: relative;
     }
     
-    /* FIX: Canvas rendering sharp */
     canvas {
       display: block;
       width: 100% !important;
@@ -198,16 +196,29 @@
     .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #EF4444; }
     .status-dot.online { background: #22C55E; }
 
+    /* === BARU: Animasi untuk real-time update card === */
+    @keyframes realtimeFlash {
+      0% { background-color: transparent; border-color: var(--border); }
+      50% { background-color: rgba(96, 165, 250, 0.15); border-color: var(--accent-blue); }
+      100% { background-color: transparent; border-color: var(--border); }
+    }
 
+    .realtime-update {
+      animation: realtimeFlash 0.4s ease-out;
+    }
 
     @media (max-width: 1024px) {
       .main-grid { grid-template-columns: 1fr; }
-      .stat-row { grid-template-columns: 1fr; }
+      .stat-row { grid-template-columns: repeat(2, 1fr); }  /* === BARU: responsive */
       .header-inner { flex-direction: column; }
       .header-right { width: 100%; justify-content: space-between; }
     }
 
-    /* ── Mode Badge ─────────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .stat-row { grid-template-columns: 1fr; }
+    }
+
+    /* Mode Badge */
     .mode-badge {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 4px 12px; border-radius: 20px; font-size: 11px;
@@ -223,7 +234,7 @@
       border: 1px solid rgba(52,211,153,0.3);
     }
 
-    /* ── Sensor live panel (DATA COLLECTION mode) ───────────── */
+    /* Sensor live panel */
     .sensor-live-panel {
       margin-top: 6px;
     }
@@ -257,12 +268,11 @@
     }
     .sesi-info span { color: var(--accent-blue); font-weight: 600; }
 
-    /* ── KNN panel (KNN mode) ────────────────────────────────── */
+    /* KNN panel */
     .knn-panel .stat-sub {
       font-size: 11px; color: var(--text-secondary); margin-top: 6px;
     }
 
-    /* ── Activity chart placeholder ──────────────────────────── */
     .act-placeholder {
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
@@ -305,8 +315,9 @@
 
   <div class="main-content">
 
-    <!-- STAT CARDS -->
+    <!-- STAT CARDS - 4 kolom -->
     <section class="stat-row">
+      <!-- Card 1: Mode -->
       <div class="card stat-card">
         <div class="stat-label">
           Mode
@@ -315,7 +326,7 @@
           </span>
         </div>
 
-        <!-- Panel: DATA COLLECTION mode (sensor live values) -->
+        <!-- Panel: DATA COLLECTION mode -->
         <div id="sensorPanel" class="sensor-live-panel">
           <div class="sensor-live-grid">
             <div class="sensor-live-item">
@@ -338,7 +349,7 @@
           <div class="sesi-info">Peserta: <span id="infoSesi">menunggu...</span></div>
         </div>
 
-        <!-- Panel: KNN mode (hasil klasifikasi) -->
+        <!-- Panel: KNN mode -->
         <div id="knnPanel" class="knn-panel" style="display:none">
           <div class="stat-icon" id="actIcon">🚶</div>
           <div class="stat-value activity-value" id="activityValue">--</div>
@@ -346,6 +357,7 @@
         </div>
       </div>
 
+      <!-- Card 2: Detak Jantung -->
       <div class="card stat-card">
         <div class="stat-label">DETAK JANTUNG (BPM)</div>
         <div class="stat-value bpm-value" id="bpmValue">--</div>
@@ -353,6 +365,7 @@
         <div class="bpm-bar-wrap"><div class="bpm-bar" id="bpmBar"></div></div>
       </div>
 
+      <!-- Card 3: KNN Accuracy -->
       <div class="card stat-card">
         <div class="stat-label">KNN Accuracy</div>
         <div class="accuracy-ring-wrap">
@@ -363,6 +376,15 @@
           <div class="ring-text" id="accuracyValue">--%</div>
         </div>
         <div class="stat-sub">Confidence KNN</div>
+      </div>
+
+      <!-- === BARU: Card 4 - REAL-TIME STATUS === -->
+      <div class="card stat-card" id="realtimeStatusCard">
+        <div class="stat-label">⚡ REAL-TIME STATUS</div>
+        <div class="stat-icon" id="realtimeActIcon">⏳</div>
+        <div class="stat-value activity-value" id="realtimeActivityValue" style="font-size: 28px;">--</div>
+        <div class="stat-sub" id="realtimeConfidence">Menunggu data dari server_knn...</div>
+        <div class="stat-sub" id="realtimeLastUpdate" style="margin-top: 8px; font-size: 10px;"></div>
       </div>
     </section>
 
@@ -392,7 +414,6 @@
           <div class="card-header">
             <span class="card-title" id="actChartHeader">📊 ACTIVITY RESULT</span>
           </div>
-          <!-- Placeholder: muncul saat DATA COLLECTION mode -->
           <div class="act-placeholder" id="actPlaceholder">
             <div class="ph-icon">📊</div>
             <div class="ph-text">
@@ -400,7 +421,6 @@
             </div>
             <div class="ph-badge">server_knn tidak aktif</div>
           </div>
-          <!-- Chart: muncul saat KNN mode -->
           <div class="bar-chart-wrap" id="actChartWrap" style="display:none">
             <canvas id="activityChart"></canvas>
           </div>
@@ -423,7 +443,6 @@
 
       </div>
     </main>
-
 
   </div>
 
