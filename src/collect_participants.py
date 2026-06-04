@@ -297,7 +297,7 @@ def select_activity(participant_id: str) -> str | None:
     """
     print()
     print(f"  ┌──────────────────────────────────────────────────┐")
-    print(f"  │  🏃 PILIH AKTIVITAS untuk [{participant_id}]        ")
+    print(f"  │  PILIH AKTIVITAS untuk [{participant_id}]        ")
     print(f"  ├──────────────────────────────────────────────────┤")
     print(f"  │  1. DUDUK    — Peserta dalam posisi duduk diam   │")
     print(f"  │  2. BERJALAN — Peserta berjalan kaki             │")
@@ -316,7 +316,7 @@ def select_activity(participant_id: str) -> str | None:
         if pilih in ("2", "BERJALAN"): return "BERJALAN"
         if pilih in ("3", "BERLARI"):  return "BERLARI"
         if pilih in ("Q", "QUIT"):     return None
-        print("  ⚠  Pilihan tidak valid. Masukkan 1, 2, 3, atau q.")
+        print("  Pilihan tidak valid. Masukkan 1, 2, 3, atau q.")
 
 
 def select_duration(participant_id: str, activity: str) -> int | None:
@@ -326,7 +326,7 @@ def select_duration(participant_id: str, activity: str) -> int | None:
     """
     print()
     print(f"  ┌──────────────────────────────────────────────────┐")
-    print(f"  │  ⏱  PILIH DURASI SESI                           │")
+    print(f"  │  PILIH DURASI SESI                           │")
     print(f"  │  Peserta  : [{participant_id}]                   ")
     print(f"  │  Aktivitas: {activity:<37}│")
     print(f"  ├──────────────────────────────────────────────────┤")
@@ -353,9 +353,9 @@ def select_duration(participant_id: str, activity: str) -> int | None:
         if pilih in valid:
             sec = valid[pilih]
             mnt = sec // 60
-            print(f"  ✅ Durasi dipilih: {mnt} menit ({sec} detik)")
+            print(f"  Durasi dipilih: {mnt} menit ({sec} detik)")
             return sec
-        print(f"  ⚠  Pilihan tidak valid. Masukkan 1–{len(DURATION_OPTIONS)} atau q.")
+        print(f"  Pilihan tidak valid. Masukkan 1–{len(DURATION_OPTIONS)} atau q.")
 
 
 def confirm_session(participant_id: str, participant_no: int, activity: str, duration_sec: int) -> bool:
@@ -369,7 +369,7 @@ def confirm_session(participant_id: str, participant_no: int, activity: str, dur
     print(f"  │  Broker   : {MQTT_BROKER}:{MQTT_PORT:<25}│")
     print(f"  └──────────────────────────────────────────────────┘")
     print()
-    print(f"  ⚠  Pastikan peserta siap melakukan aktivitas: {activity}")
+    print(f"  Pastikan peserta siap melakukan aktivitas: {activity}")
     try:
         ans = input("  Tekan ENTER untuk mulai, atau 'c' untuk batal: ").strip().lower()
         return ans != "c"
@@ -404,12 +404,12 @@ def print_session_summary(participant_id: str, participant_no: int,
     print(f"  {'─'*54}")
 
     if total == 0:
-        print(f"\n  ❌ Tidak ada data! Periksa:")
+        print(f"\n  Tidak ada data! Periksa:")
         print(f"     • ESP32 menyala dan terhubung WiFi?")
         print(f"     • ESP32 terhubung ke broker: {MQTT_BROKER}?")
         print(f"     • Cek Serial Monitor ESP32")
     else:
-        print(f"\n  ✅ Sesi tersimpan. Label: {activity}")
+        print(f"\n  Sesi tersimpan. Label: {activity}")
         print(f"     Raw    : {DATA_RAW_DIR}/")
         print(f"     Dataset: {DATASET_PATH}")
 
@@ -420,11 +420,11 @@ def print_session_summary(participant_id: str, participant_no: int,
 def do_restart() -> bool:
     print()
     print("  ┌──────────────────────────────────────────────────┐")
-    print("  │               ⚠  KONFIRMASI RESTART             │")
+    print("  │               KONFIRMASI RESTART             │")
     print("  │  Semua data di-BACKUP lalu dihapus. Mulai P1    │")
     print("  └──────────────────────────────────────────────────┘")
     if input("  Ketik YES untuk konfirmasi: ").strip() != "YES":
-        print("  ↩  Dibatalkan.\n")
+        print("  Dibatalkan.\n")
         return False
 
     ts  = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -448,8 +448,8 @@ def do_restart() -> bool:
             moved.append(fname)
 
     state.session_no = 0
-    print(f"\n  ✅ Backup → {dst} ({len(moved)} file)")
-    print(f"  🔄 Mulai ulang dari Peserta 1...\n")
+    print(f"\n  Backup → {dst} ({len(moved)} file)")
+    print(f"  Mulai ulang dari Peserta 1...\n")
     logger.info(f"RESTART: backup ke {dst}")
     return True
 
@@ -510,7 +510,7 @@ def run_session(client, participant_no: int, participant_id: str, activity: str,
     time.sleep(0.6)
 
     if not state.raw_rows:
-        print(f"\n  ❌ Tidak ada data P{participant_no}. Cek ESP32.\n")
+        print(f"\n  Tidak ada data P{participant_no}. Cek ESP32.\n")
         return False
 
     # Simpan data
@@ -612,7 +612,7 @@ def run_collection_loop(client) -> bool:
         except Exception:
             pass
 
-    print(f"\n  ✅ MQTT terhubung ke {MQTT_BROKER}:{MQTT_PORT}")
+    print(f"\n  MQTT terhubung ke {MQTT_BROKER}:{MQTT_PORT}")
     dur_labels = "/".join(str(m) for m, _ in DURATION_OPTIONS)
     print(f"  ℹ  Durasi sesi    : pilihan {dur_labels} menit (dipilih per sesi)")
     print(f"  ℹ  Pelabelan aktivitas: MANUAL oleh operator")
@@ -739,7 +739,7 @@ def main():
     try:
         client.connect(MQTT_BROKER, MQTT_PORT, keepalive=60)
     except Exception as e:
-        print(f"\n  ❌ Tidak bisa konek: {e}")
+        print(f"\n  Tidak bisa konek: {e}")
         sys.exit(1)
 
     client.loop_start()
