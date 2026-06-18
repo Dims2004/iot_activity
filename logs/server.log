@@ -28503,3 +28503,4 @@ ne bpm=None D=None J=None L=None
   DUDUK     :    66 (37.5%)
   BERJALAN  :    71 (40.3%)
   BERLARI   :    39 (22.2%)
+2026-06-18 21:40:05 | INFO     | collect_participants | MQTT terhubung ke broker.emqx.io:1883
