@@ -28510,3 +28510,5 @@ ne bpm=None D=None J=None L=None
 2026-06-30 19:26:28 | INFO     | collect_participants | START → P1 [PSR_01]
 2026-06-30 19:30:12 | INFO     | collect_participants | MQTT terhubung ke broker.emqx.io:1883
 2026-06-30 19:31:40 | INFO     | collect_participants | START → P1 [PSR_01]
+2026-07-01 09:04:35 | INFO     | collect_participants | MQTT terhubung ke broker.emqx.io:1883
+2026-07-01 09:06:08 | INFO     | collect_participants | START → P1 [PSR01]
