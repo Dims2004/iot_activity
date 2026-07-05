@@ -1,9 +1,3 @@
-"""
-server_knn.py — Server KNN: terima sensor → klasifikasi → publish hasil
-
-Fitur: accel_stddev, gyro_stddev, bpm_filled (3 fitur dengan BPM)
-FIXED: Added better logging and error handling
-"""
 import json, os, sys, signal, time
 from datetime import datetime
 

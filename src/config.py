@@ -1,6 +1,3 @@
-"""
-config.py — Konfigurasi terpusat sistem AIoT Watch
-"""
 import os
 
 #  DIREKTORI
