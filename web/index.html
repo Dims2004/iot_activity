@@ -563,52 +563,7 @@
       </div>
     </main>
 
-    <!-- REAL-TIME ACTIVITY MONITOR (BARU) -->
-    <section class="card realtime-panel">
-      <div class="card-header">
-        <span class="card-title">🎯 REAL-TIME ACTIVITY MONITOR</span>
-        <div id="knnServerStatus" class="server-status-badge" style="display:none; background:rgba(34,197,94,0.15);">
-          <span class="server-status-dot"></span>
-          <span>KNN Server Online</span>
-        </div>
-      </div>
-      
-      <div class="realtime-grid">
-        <!-- Kiri: Aktivitas Saat Ini -->
-        <div class="realtime-card">
-          <div class="realtime-label">AKTIVITAS SAAT INI</div>
-          <div class="realtime-activity-icon" id="realtimeIcon">🪑</div>
-          <div class="realtime-activity-name duduk" id="realtimeActivity">DUDUK</div>
-          <div class="realtime-confidence" id="realtimeConfidence">Confidence: --%</div>
-          <div class="confidence-bar">
-            <div class="confidence-fill high" id="confidenceFill" style="width: 0%;"></div>
-          </div>
-          <div class="realtime-confidence" style="font-size: 11px; margin-top: 8px;" id="lastUpdateTime">
-            Terakhir update: --
-          </div>
-        </div>
-
-        <!-- Kanan: Timeline Aktivitas -->
-        <div class="activity-timeline">
-          <div class="timeline-title">📋 TIMELINE AKTIVITAS (10 Terbaru)</div>
-          <div class="timeline-items" id="timelineItems">
-            <div class="timeline-item">
-              <span class="timeline-time">--:--:--</span>
-              <span class="timeline-icon">🪑</span>
-              <span class="timeline-activity">Menunggu data...</span>
-              <span class="timeline-conf">--%</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div style="margin-top: 16px; padding: 12px; background: rgba(96,165,250,0.08); border-radius: 12px; text-align: center; font-size: 11px; color: var(--text-secondary);">
-        <span>📡 Data real-time dari ESP32 → Klasifikasi oleh server_knn.py → Tampilan aktivitas otomatis</span>
-      </div>
-    </section>
-
-  </div>
-
+  
   <script src="script.js"></script>
   
   <script>
