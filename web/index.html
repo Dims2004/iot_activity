@@ -29,6 +29,7 @@
       --accent-green: #34D399;
       --accent-red: #F87171;
       --accent-purple: #A78BFA;
+      --accent-yellow: #FBBF24;
     }
 
     [data-theme="light"] {
@@ -42,6 +43,7 @@
       --accent-green: #10B981;
       --accent-red: #EF4444;
       --accent-purple: #8B5CF6;
+      --accent-yellow: #D97706;
     }
 
     body {
@@ -120,7 +122,7 @@
     /* Stat Cards */
     .stat-row {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);  /* === BARU: ubah dari 3 ke 4 kolom */
+      grid-template-columns: repeat(3, 1fr);
       gap: 24px;
       margin-bottom: 24px;
     }
@@ -196,29 +198,7 @@
     .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #EF4444; }
     .status-dot.online { background: #22C55E; }
 
-    /* === BARU: Animasi untuk real-time update card === */
-    @keyframes realtimeFlash {
-      0% { background-color: transparent; border-color: var(--border); }
-      50% { background-color: rgba(96, 165, 250, 0.15); border-color: var(--accent-blue); }
-      100% { background-color: transparent; border-color: var(--border); }
-    }
-
-    .realtime-update {
-      animation: realtimeFlash 0.4s ease-out;
-    }
-
-    @media (max-width: 1024px) {
-      .main-grid { grid-template-columns: 1fr; }
-      .stat-row { grid-template-columns: repeat(2, 1fr); }  /* === BARU: responsive */
-      .header-inner { flex-direction: column; }
-      .header-right { width: 100%; justify-content: space-between; }
-    }
-
-    @media (max-width: 600px) {
-      .stat-row { grid-template-columns: 1fr; }
-    }
-
-    /* Mode Badge */
+    /* ── Mode Badge ─────────────────────────────────────────── */
     .mode-badge {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 4px 12px; border-radius: 20px; font-size: 11px;
@@ -234,7 +214,7 @@
       border: 1px solid rgba(52,211,153,0.3);
     }
 
-    /* Sensor live panel */
+    /* ── Sensor live panel (DATA COLLECTION mode) ───────────── */
     .sensor-live-panel {
       margin-top: 6px;
     }
@@ -268,11 +248,12 @@
     }
     .sesi-info span { color: var(--accent-blue); font-weight: 600; }
 
-    /* KNN panel */
+    /* ── KNN panel (KNN mode) ────────────────────────────────── */
     .knn-panel .stat-sub {
       font-size: 11px; color: var(--text-secondary); margin-top: 6px;
     }
 
+    /* ── Activity chart placeholder ──────────────────────────── */
     .act-placeholder {
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
@@ -285,6 +266,150 @@
       font-size: 10px; padding: 3px 10px; border-radius: 20px;
       background: rgba(251,191,36,0.15); color: #FBBF24;
       border: 1px solid rgba(251,191,36,0.2);
+    }
+
+    /* ── REAL-TIME ACTIVITY MONITOR (BARU) ───────────────────── */
+    .realtime-panel {
+      margin-top: 24px;
+    }
+    .realtime-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 12px;
+    }
+    .realtime-card {
+      background: var(--bg-primary);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+    }
+    .realtime-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+    .realtime-activity-icon {
+      font-size: 64px;
+      margin: 10px 0;
+      transition: transform 0.3s ease;
+    }
+    .realtime-activity-icon.pulse {
+      animation: pulse-icon 0.5s ease;
+    }
+    @keyframes pulse-icon {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    .realtime-activity-name {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: 3px;
+      margin: 10px 0;
+    }
+    .realtime-activity-name.duduk { color: #60A5FA; }
+    .realtime-activity-name.berjalan { color: #34D399; }
+    .realtime-activity-name.berlari { color: #F87171; }
+    .realtime-confidence {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin: 8px 0;
+    }
+    .confidence-bar {
+      width: 100%;
+      height: 6px;
+      background: var(--border);
+      border-radius: 10px;
+      margin-top: 12px;
+      overflow: hidden;
+    }
+    .confidence-fill {
+      width: 0%;
+      height: 100%;
+      border-radius: 10px;
+      transition: width 0.5s ease;
+    }
+    .confidence-fill.high { background: linear-gradient(90deg, #34D399, #10B981); }
+    .confidence-fill.medium { background: linear-gradient(90deg, #FBBF24, #F59E0B); }
+    .confidence-fill.low { background: linear-gradient(90deg, #F87171, #EF4444); }
+    
+    .activity-timeline {
+      background: var(--bg-primary);
+      border-radius: 16px;
+      padding: 16px;
+    }
+    .timeline-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--accent-purple);
+      margin-bottom: 12px;
+    }
+    .timeline-items {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .timeline-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 12px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
+      font-size: 12px;
+    }
+    .timeline-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-secondary);
+      min-width: 65px;
+    }
+    .timeline-icon { font-size: 16px; }
+    .timeline-activity {
+      flex: 1;
+      font-weight: 600;
+    }
+    .timeline-activity.duduk { color: #60A5FA; }
+    .timeline-activity.berjalan { color: #34D399; }
+    .timeline-activity.berlari { color: #F87171; }
+    .timeline-conf {
+      font-size: 10px;
+      color: var(--text-secondary);
+    }
+    .server-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      background: rgba(52,211,153,0.15);
+      color: #34D399;
+    }
+    .server-status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #34D399;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    @media (max-width: 1024px) {
+      .main-grid { grid-template-columns: 1fr; }
+      .stat-row { grid-template-columns: 1fr; }
+      .header-inner { flex-direction: column; }
+      .header-right { width: 100%; justify-content: space-between; }
+      .realtime-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -315,18 +440,17 @@
 
   <div class="main-content">
 
-    <!-- STAT CARDS - 4 kolom -->
+    <!-- STAT CARDS -->
     <section class="stat-row">
-      <!-- Card 1: Mode -->
       <div class="card stat-card">
         <div class="stat-label">
           Mode
           <span class="mode-badge collection" id="modeBadge">
-            <span id="modeLabel">● COLLECT_PARTICIPANTS</span>
+            <span id="modeLabel">● MENUNGGU DATA</span>
           </span>
         </div>
 
-        <!-- Panel: DATA COLLECTION mode -->
+        <!-- Panel: DATA COLLECTION mode (sensor live values) -->
         <div id="sensorPanel" class="sensor-live-panel">
           <div class="sensor-live-grid">
             <div class="sensor-live-item">
@@ -345,11 +469,11 @@
               <div class="sensor-live-unit">bpm</div>
             </div>
           </div>
-          <div class="collection-note">⚡ Sensor aktif — server_knn tidak diperlukan</div>
+          <div class="collection-note">⚡ Menunggu data dari ESP32...</div>
           <div class="sesi-info">Peserta: <span id="infoSesi">menunggu...</span></div>
         </div>
 
-        <!-- Panel: KNN mode -->
+        <!-- Panel: KNN mode (hasil klasifikasi) -->
         <div id="knnPanel" class="knn-panel" style="display:none">
           <div class="stat-icon" id="actIcon">🚶</div>
           <div class="stat-value activity-value" id="activityValue">--</div>
@@ -357,7 +481,6 @@
         </div>
       </div>
 
-      <!-- Card 2: Detak Jantung -->
       <div class="card stat-card">
         <div class="stat-label">DETAK JANTUNG (BPM)</div>
         <div class="stat-value bpm-value" id="bpmValue">--</div>
@@ -365,9 +488,8 @@
         <div class="bpm-bar-wrap"><div class="bpm-bar" id="bpmBar"></div></div>
       </div>
 
-      <!-- Card 3: KNN Accuracy -->
       <div class="card stat-card">
-        <div class="stat-label">KNN Accuracy</div>
+        <div class="stat-label">KNN Confidence</div>
         <div class="accuracy-ring-wrap">
           <svg class="accuracy-ring" viewBox="0 0 80 80">
             <circle class="ring-bg" cx="40" cy="40" r="32" />
@@ -375,16 +497,7 @@
           </svg>
           <div class="ring-text" id="accuracyValue">--%</div>
         </div>
-        <div class="stat-sub">Confidence KNN</div>
-      </div>
-
-      <!-- === BARU: Card 4 - REAL-TIME STATUS === -->
-      <div class="card stat-card" id="realtimeStatusCard">
-        <div class="stat-label">⚡ REAL-TIME STATUS</div>
-        <div class="stat-icon" id="realtimeActIcon">⏳</div>
-        <div class="stat-value activity-value" id="realtimeActivityValue" style="font-size: 28px;">--</div>
-        <div class="stat-sub" id="realtimeConfidence">Menunggu data dari server_knn...</div>
-        <div class="stat-sub" id="realtimeLastUpdate" style="margin-top: 8px; font-size: 10px;"></div>
+        <div class="stat-sub">Tingkat keyakinan model</div>
       </div>
     </section>
 
@@ -409,6 +522,29 @@
       <!-- RIGHT column -->
       <div class="right-col">
 
+        <!-- Activity bar chart -->
+        <section class="card">
+          <div class="card-header">
+            <span class="card-title" id="actChartHeader">📊 AKTIVITAS (Last Hour)</span>
+            <div id="serverStatus" class="server-status-badge" style="display:none">
+              <span class="server-status-dot"></span>
+              <span id="serverStatusLabel">KNN Server Active</span>
+            </div>
+          </div>
+          <!-- Placeholder: muncul saat belum ada data -->
+          <div class="act-placeholder" id="actPlaceholder">
+            <div class="ph-icon">📊</div>
+            <div class="ph-text">
+              Belum ada data klasifikasi<br>Jalankan server_knn.py dan ESP32
+            </div>
+            <div class="ph-badge">Menunggu koneksi...</div>
+          </div>
+          <!-- Chart: muncul saat ada data -->
+          <div class="bar-chart-wrap" id="actChartWrap" style="display:none">
+            <canvas id="activityChart"></canvas>
+          </div>
+        </section>
+
         <!-- System info -->
         <section class="card">
           <div class="card-header"><span class="card-title">ℹ️ INFO SISTEM IOT</span></div>
@@ -426,6 +562,50 @@
 
       </div>
     </main>
+
+    <!-- REAL-TIME ACTIVITY MONITOR (BARU) -->
+    <section class="card realtime-panel">
+      <div class="card-header">
+        <span class="card-title">🎯 REAL-TIME ACTIVITY MONITOR</span>
+        <div id="knnServerStatus" class="server-status-badge" style="display:none; background:rgba(34,197,94,0.15);">
+          <span class="server-status-dot"></span>
+          <span>KNN Server Online</span>
+        </div>
+      </div>
+      
+      <div class="realtime-grid">
+        <!-- Kiri: Aktivitas Saat Ini -->
+        <div class="realtime-card">
+          <div class="realtime-label">AKTIVITAS SAAT INI</div>
+          <div class="realtime-activity-icon" id="realtimeIcon">🪑</div>
+          <div class="realtime-activity-name duduk" id="realtimeActivity">DUDUK</div>
+          <div class="realtime-confidence" id="realtimeConfidence">Confidence: --%</div>
+          <div class="confidence-bar">
+            <div class="confidence-fill high" id="confidenceFill" style="width: 0%;"></div>
+          </div>
+          <div class="realtime-confidence" style="font-size: 11px; margin-top: 8px;" id="lastUpdateTime">
+            Terakhir update: --
+          </div>
+        </div>
+
+        <!-- Kanan: Timeline Aktivitas -->
+        <div class="activity-timeline">
+          <div class="timeline-title">📋 TIMELINE AKTIVITAS (10 Terbaru)</div>
+          <div class="timeline-items" id="timelineItems">
+            <div class="timeline-item">
+              <span class="timeline-time">--:--:--</span>
+              <span class="timeline-icon">🪑</span>
+              <span class="timeline-activity">Menunggu data...</span>
+              <span class="timeline-conf">--%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div style="margin-top: 16px; padding: 12px; background: rgba(96,165,250,0.08); border-radius: 12px; text-align: center; font-size: 11px; color: var(--text-secondary);">
+        <span>📡 Data real-time dari ESP32 → Klasifikasi oleh server_knn.py → Tampilan aktivitas otomatis</span>
+      </div>
+    </section>
 
   </div>
 
@@ -466,6 +646,7 @@
     function updateClock() { document.getElementById('clock').textContent = new Date().toLocaleTimeString('id-ID', { hour12: false }); }
     initDarkMode();
     updateClock();
-    </script>
+    setInterval(updateClock, 1000);
+  </script>
 </body>
 </html>
