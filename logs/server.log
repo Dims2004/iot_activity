@@ -28515,3 +28515,72 @@ ne bpm=None D=None J=None L=None
 2026-07-08 09:13:13 | INFO     | collect_participants | MQTT terhubung ke broker.emqx.io:1883
 2026-07-08 09:13:34 | INFO     | collect_participants | MQTT terhubung ke broker.emqx.io:1883
 2026-07-08 09:18:53 | INFO     | collect_participants | START → P1 [Psr01]
+2026-07-08 10:57:04 | INFO     | server_knn | =======================================================
+2026-07-08 10:57:04 | INFO     | server_knn |   AIoT Watch — KNN Inference Server (3 Fitur)
+2026-07-08 10:57:04 | INFO     | server_knn |   Fitur: ['accel_stddev', 'gyro_stddev', 'bpm_filled']
+2026-07-08 10:57:04 | INFO     | server_knn |   Broker: broker.emqx.io:1883
+2026-07-08 10:57:04 | INFO     | server_knn | =======================================================
+2026-07-08 10:57:06 | INFO     | server_knn | Model  : C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\models\knn_model.pkl
+2026-07-08 10:57:06 | INFO     | server_knn | Scaler : C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\models\scaler.pkl
+2026-07-08 10:57:06 | INFO     | server_knn | BPM median: {'DUDUK': 80, 'BERJALAN': 86, 'BERLARI': 130, '_global': 93}
+2026-07-08 10:57:06 | INFO     | server_knn | Fitur  : ['accel_stddev', 'gyro_stddev', 'bpm_filled']
+2026-07-08 10:57:07 | INFO     | server_knn | Server aktif. Tekan Ctrl+C untuk berhenti.
+2026-07-08 10:57:07 | INFO     | server_knn | Terhubung ke broker broker.emqx.io:1883
+2026-07-08 10:57:09 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0043 gStd=0.03 BPM=0(raw) 93(filled) | ESP32=
+2026-07-08 10:57:11 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0071 gStd=0.02 BPM=0(raw) 93(filled) | ESP32=
+2026-07-08 10:57:13 | INFO     | server_knn | [KNN] unknown → BERLARI (conf=0.47) | aStd=0.0197 gStd=45.26 BPM=0(raw) 93(filled) | ESP32=
+2026-07-08 10:57:15 | INFO     | server_knn | [KNN] unknown → BERJALAN (conf=0.89) | aStd=0.0385 gStd=17.80 BPM=0(raw) 93(filled) | ESP32=
+2026-07-08 10:57:17 | INFO     | server_knn | [KNN] unknown → BERJALAN (conf=0.66) | aStd=0.0578 gStd=16.88 BPM=82(raw) 82(filled) | ESP32=
+2026-07-08 10:57:19 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=0.68) | aStd=0.0172 gStd=3.42 BPM=96(raw) 96(filled) | ESP32=
+2026-07-08 10:57:21 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=0.69) | aStd=0.0100 gStd=6.55 BPM=93(raw) 93(filled) | ESP32=
+2026-07-08 10:57:23 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0096 gStd=0.72 BPM=85(raw) 85(filled) | ESP32=
+2026-07-08 10:57:25 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0078 gStd=0.65 BPM=79(raw) 79(filled) | ESP32=
+2026-07-08 10:57:27 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=0.96) | aStd=0.0080 gStd=4.46 BPM=73(raw) 73(filled) | ESP32=
+2026-07-08 10:57:29 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0092 gStd=2.31 BPM=63(raw) 63(filled) | ESP32=
+2026-07-08 10:57:31 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0100 gStd=2.58 BPM=52(raw) 52(filled) | ESP32=
+2026-07-08 10:57:33 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=0.91) | aStd=0.0131 gStd=4.91 BPM=52(raw) 52(filled) | ESP32=
+2026-07-08 10:57:35 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0092 gStd=3.59 BPM=52(raw) 52(filled) | ESP32=
+2026-07-08 10:57:37 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0125 gStd=1.56 BPM=52(raw) 52(filled) | ESP32=
+2026-07-08 10:57:39 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0112 gStd=0.69 BPM=0(raw) 93(filled) | ESP32=
+2026-07-08 10:57:40 | INFO     | server_knn | 
+[STOP] Server berhenti.
+  Total prediksi: 16 | Uptime: 0.6 menit
+  DUDUK     :    13 (81.2%)
+  BERJALAN  :     2 (12.5%)
+  BERLARI   :     1 (6.2%)
+2026-07-08 10:59:48 | INFO     | server_knn | =======================================================
+2026-07-08 10:59:48 | INFO     | server_knn |   AIoT Watch — KNN Inference Server (3 Fitur)
+2026-07-08 10:59:48 | INFO     | server_knn |   Fitur: ['accel_stddev', 'gyro_stddev', 'bpm_filled']
+2026-07-08 10:59:48 | INFO     | server_knn |   Broker: broker.emqx.io:1883
+2026-07-08 10:59:48 | INFO     | server_knn | =======================================================
+2026-07-08 10:59:48 | INFO     | server_knn | Model  : C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\models\knn_model.pkl
+2026-07-08 10:59:48 | INFO     | server_knn | Scaler : C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\models\scaler.pkl
+2026-07-08 10:59:48 | INFO     | server_knn | BPM median: {'DUDUK': 80, 'BERJALAN': 86, 'BERLARI': 130, '_global': 93}
+2026-07-08 10:59:48 | INFO     | server_knn | Fitur  : ['accel_stddev', 'gyro_stddev', 'bpm_filled']
+2026-07-08 10:59:48 | INFO     | server_knn | Server aktif. Tekan Ctrl+C untuk berhenti.
+2026-07-08 10:59:49 | INFO     | server_knn | Terhubung ke broker broker.emqx.io:1883
+2026-07-08 10:59:50 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0077 gStd=0.02 BPM=0(raw) 93(filled) | ESP32=
+2026-07-08 10:59:52 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0052 gStd=0.03 BPM=0(raw) 93(filled) | ESP32=
+2026-07-08 10:59:54 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0065 gStd=0.02 BPM=0(raw) 93(filled) | ESP32=
+2026-07-08 10:59:56 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0056 gStd=0.02 BPM=0(raw) 93(filled) | ESP32=
+2026-07-08 10:59:58 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0050 gStd=0.99 BPM=0(raw) 93(filled) | ESP32=
+2026-07-08 11:00:00 | INFO     | server_knn | [KNN] unknown → BERJALAN (conf=0.91) | aStd=0.1143 gStd=27.81 BPM=0(raw) 93(filled) | ESP32=
+2026-07-08 11:00:02 | INFO     | server_knn | [KNN] unknown → BERJALAN (conf=0.86) | aStd=0.0433 gStd=18.56 BPM=0(raw) 93(filled) | ESP32=
+2026-07-08 11:00:04 | WARNING  | server_knn | Payload tidak valid: {'device_id': 'ESP32_001', 'timestamp': 45497, 'accel_stddev': 0.014922, 'gyro_stddev': 7.160224, 'bpm': 22, 'participant_id': '', 'participant_no': 0}
+2026-07-08 11:00:06 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=0.75) | aStd=0.0084 gStd=2.09 BPM=40(raw) 40(filled) | ESP32=
+2026-07-08 11:00:08 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=0.89) | aStd=0.0065 gStd=3.75 BPM=48(raw) 48(filled) | ESP32=
+2026-07-08 11:00:10 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0091 gStd=0.50 BPM=57(raw) 57(filled) | ESP32=
+2026-07-08 11:00:12 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=0.50) | aStd=0.0422 gStd=6.64 BPM=63(raw) 63(filled) | ESP32=
+2026-07-08 11:00:14 | INFO     | server_knn | [KNN] unknown → BERJALAN (conf=0.68) | aStd=0.0583 gStd=23.19 BPM=71(raw) 71(filled) | ESP32=
+2026-07-08 11:00:16 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0070 gStd=0.09 BPM=71(raw) 71(filled) | ESP32=
+2026-07-08 11:00:18 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0079 gStd=0.14 BPM=0(raw) 93(filled) | ESP32=
+2026-07-08 11:00:20 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0057 gStd=0.08 BPM=0(raw) 93(filled) | ESP32=
+2026-07-08 11:00:22 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0046 gStd=0.33 BPM=0(raw) 93(filled) | ESP32=
+2026-07-08 11:00:24 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0078 gStd=0.02 BPM=0(raw) 93(filled) | ESP32=
+2026-07-08 11:00:26 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0080 gStd=0.13 BPM=0(raw) 93(filled) | ESP32=
+2026-07-08 11:00:28 | INFO     | server_knn | 
+[STOP] Server berhenti.
+  Total prediksi: 18 | Uptime: 0.7 menit
+  DUDUK     :    15 (83.3%)
+  BERJALAN  :     3 (16.7%)
+  BERLARI   :     0 (0.0%)

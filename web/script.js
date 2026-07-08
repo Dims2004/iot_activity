@@ -26,6 +26,7 @@ let sensorChart   = null;
 let activityChart = null;
 let msgCount      = 0;
 const activityHistory = [];
+let activityDataReceived = false; // FLAG: apakah sudah pernah terima data klasifikasi
 
 // Mode tracking
 let knnMode          = false;
@@ -53,6 +54,7 @@ function renderModeUI() {
   const actHeader      = document.getElementById('actChartHeader');
   const actPlaceholder = document.getElementById('actPlaceholder');
   const actChartWrap   = document.getElementById('actChartWrap');
+  const serverStatus   = document.getElementById('serverStatus');
 
   if (knnMode) {
     modeBadge.className   = 'mode-badge knn-active';
@@ -60,16 +62,38 @@ function renderModeUI() {
     knnPanel.style.display       = 'block';
     sensorPanel.style.display    = 'none';
     if (actHeader)      actHeader.textContent        = '📊 ACTIVITY RESULT (Last Hour)';
-    if (actPlaceholder) actPlaceholder.style.display = 'none';
-    if (actChartWrap)   actChartWrap.style.display   = 'block';
+    
+    // TAMPILKAN CHART jika sudah ada data, atau placeholder jika belum
+    if (activityDataReceived) {
+      if (actPlaceholder) actPlaceholder.style.display = 'none';
+      if (actChartWrap)   actChartWrap.style.display   = 'block';
+    } else {
+      if (actPlaceholder) {
+        actPlaceholder.style.display = 'flex';
+        actPlaceholder.querySelector('.ph-text').innerHTML = 
+          'Menunggu data klasifikasi dari server_knn.py<br>Pastikan ESP32 dan server berjalan';
+        actPlaceholder.querySelector('.ph-badge').textContent = '⏳ Menunggu...';
+      }
+      if (actChartWrap)   actChartWrap.style.display   = 'none';
+    }
+    
+    // Tampilkan status server KNN
+    if (serverStatus) serverStatus.style.display = 'inline-flex';
+    
   } else {
     modeBadge.className   = 'mode-badge collection';
     modeLabel.textContent = '● COLLECT PARTICIPANT';
     knnPanel.style.display       = 'none';
     sensorPanel.style.display    = 'block';
     if (actHeader)      actHeader.textContent        = '📊 ACTIVITY RESULT';
-    if (actPlaceholder) actPlaceholder.style.display = 'flex';
+    if (actPlaceholder) {
+      actPlaceholder.style.display = 'flex';
+      actPlaceholder.querySelector('.ph-text').innerHTML = 
+        'Belum ada data klasifikasi<br>Jalankan server_knn.py dan ESP32';
+      actPlaceholder.querySelector('.ph-badge').textContent = 'Menunggu koneksi...';
+    }
     if (actChartWrap)   actChartWrap.style.display   = 'none';
+    if (serverStatus) serverStatus.style.display = 'none';
   }
 }
 
@@ -93,11 +117,18 @@ function updateSensorCard(accel, gyro, bpm) {
 // ============================================================
 function initSensorChart() {
   const canvas = document.getElementById('sensorChart');
-  const w = canvas.parentElement.clientWidth;
+  const container = canvas.parentElement;
+  const w = container.clientWidth || 600;
   canvas.width = w * 2; canvas.height = 320 * 2;
   canvas.style.width = w + 'px'; canvas.style.height = '320px';
   const ctx = canvas.getContext('2d');
   ctx.scale(2, 2);
+  
+  if (sensorChart) {
+    sensorChart.destroy();
+    sensorChart = null;
+  }
+  
   sensorChart = new Chart(ctx, {
     type: 'line',
     data: {
@@ -122,11 +153,18 @@ function initSensorChart() {
 
 function initActivityChart() {
   const canvas = document.getElementById('activityChart');
-  const w = canvas.parentElement.clientWidth;
+  const container = canvas.parentElement;
+  const w = container.clientWidth || 400;
   canvas.width = w * 2; canvas.height = 210 * 2;
   canvas.style.width = w + 'px'; canvas.style.height = '210px';
   const ctx = canvas.getContext('2d');
   ctx.scale(2, 2);
+  
+  if (activityChart) {
+    activityChart.destroy();
+    activityChart = null;
+  }
+  
   activityChart = new Chart(ctx, {
     type: 'bar',
     data: {
@@ -164,7 +202,12 @@ function pushActivityResult(activity) {
   while (activityHistory.length > 0 && activityHistory[0].time < now - 3600000) activityHistory.shift();
   const c = { DUDUK: 0, BERJALAN: 0, BERLARI: 0 };
   activityHistory.forEach(r => { if (c[r.activity] !== undefined) c[r.activity]++; });
-  if (activityChart) { activityChart.data.datasets[0].data = [c.DUDUK, c.BERJALAN, c.BERLARI]; activityChart.update(); }
+  
+  // Update chart data
+  if (activityChart) {
+    activityChart.data.datasets[0].data = [c.DUDUK, c.BERJALAN, c.BERLARI];
+    activityChart.update();
+  }
 }
 
 // ============================================================
@@ -187,6 +230,15 @@ function updateActivity(activity) {
   if (v) v.textContent = meta.label;
   if (i) i.textContent = meta.icon;
   if (s) s.textContent = meta.sub;
+  
+  // Update warna activity name di realtime card
+  const actName = document.getElementById('realtimeActivityName');
+  if (actName) {
+    actName.className = 'realtime-activity-name';
+    if (activity === 'DUDUK') actName.classList.add('duduk');
+    else if (activity === 'BERJALAN') actName.classList.add('berjalan');
+    else if (activity === 'BERLARI') actName.classList.add('berlari');
+  }
 }
 
 function updateBPM(bpm) {
@@ -214,10 +266,20 @@ function updateAccuracy(confidence) {
   }
   const el = document.getElementById('accuracyValue');
   if (el) el.textContent = pct + '%';
+  
+  // Update confidence bar di realtime card
+  const confFill = document.getElementById('realtimeConfidenceFill');
+  if (confFill) {
+    confFill.style.width = pct + '%';
+    confFill.className = 'confidence-fill';
+    if (pct >= 75) confFill.classList.add('high');
+    else if (pct >= 50) confFill.classList.add('medium');
+    else confFill.classList.add('low');
+  }
 }
 
 // ============================================================
-// === BARU: REAL-TIME UI UPDATE FUNCTION ===
+// REAL-TIME UI UPDATE FUNCTION
 // ============================================================
 function updateRealtimeUI(activity, confidence, bpm, user, timestamp) {
   const activityElem = document.getElementById('realtimeActivityValue');
@@ -230,16 +292,17 @@ function updateRealtimeUI(activity, confidence, bpm, user, timestamp) {
 
   // Pilih ikon berdasarkan aktivitas
   let icon = '❓';
+  let activityDisplay = activity || '--';
   if (activity === 'DUDUK') icon = '🪑';
   else if (activity === 'BERJALAN') icon = '🚶';
   else if (activity === 'BERLARI') icon = '🏃';
 
   iconElem.textContent = icon;
-  activityElem.textContent = activity;
+  activityElem.textContent = activityDisplay;
 
   // Update confidence dan BPM
   if (confidenceElem) {
-    confidenceElem.innerHTML = `Confidence: <strong>${(confidence * 100).toFixed(1)}%</strong> | BPM: ${bpm}`;
+    confidenceElem.innerHTML = `Confidence: <strong>${(confidence * 100).toFixed(1)}%</strong> | BPM: ${bpm || '--'}`;
   }
   
   // Update timestamp
@@ -251,7 +314,6 @@ function updateRealtimeUI(activity, confidence, bpm, user, timestamp) {
   // Efek visual flash pada card
   if (card) {
     card.classList.remove('realtime-update');
-    // Force reflow
     void card.offsetWidth;
     card.classList.add('realtime-update');
   }
@@ -311,16 +373,30 @@ function connectMQTT() {
       updateInfo(data);
     }
     else if (topic === CONFIG.topics.classification) {
+      // TANDAI bahwa data klasifikasi sudah diterima
+      if (!activityDataReceived) {
+        activityDataReceived = true;
+        // Tampilkan chart dan sembunyikan placeholder
+        const actPlaceholder = document.getElementById('actPlaceholder');
+        const actChartWrap   = document.getElementById('actChartWrap');
+        if (actPlaceholder) actPlaceholder.style.display = 'none';
+        if (actChartWrap)   actChartWrap.style.display   = 'block';
+      }
+      
       lastKnnTimestamp = Date.now();
       setKnnMode(true);
+      
       const act = (data.activity || '').toUpperCase();
       updateActivity(act);
       pushActivityResult(act);
       updateAccuracy(data.confidence || 0);
       if (data.bpm > 0) updateBPM(data.bpm);
       
-      // === BARU: Update real-time UI card ===
+      // Update real-time UI card
       updateRealtimeUI(act, data.confidence || 0, data.bpm || 0, data.user || '', data.server_ts);
+      
+      // Update info dengan data dari classification
+      updateInfo(data);
     }
   });
 }
@@ -329,8 +405,8 @@ let resizeTimeout;
 window.addEventListener('resize', () => {
   clearTimeout(resizeTimeout);
   resizeTimeout = setTimeout(() => {
-    if (sensorChart)   { sensorChart.destroy();  initSensorChart();   }
-    if (activityChart) { activityChart.destroy(); initActivityChart(); }
+    initSensorChart();
+    initActivityChart();
   }, 250);
 });
 
