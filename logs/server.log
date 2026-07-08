@@ -28625,3 +28625,5 @@ ne bpm=None D=None J=None L=None
   BERLARI   :     2 (9.5%)
 2026-07-08 11:05:04 | INFO     | collect_participants | MQTT terhubung ke broker.emqx.io:1883
 2026-07-08 11:05:18 | INFO     | collect_participants | START → P16 [PSR01]
+2026-07-08 19:23:57 | INFO     | collect_participants | MQTT terhubung ke broker.emqx.io:1883
+2026-07-08 19:26:22 | INFO     | collect_participants | START → P16 [PSR01]
