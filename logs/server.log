@@ -28646,3 +28646,8 @@ ne bpm=None D=None J=None L=None
 2026-07-09 13:25:21 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=0.78) | aStd=0.0259 gStd=3.15 BPM=56(raw) 56(filled) | ESP32=
 2026-07-09 13:25:23 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=0.58) | aStd=0.0508 gStd=24.39 BPM=54(raw) 54(filled) | ESP32=
 2026-07-09 13:25:25 | INFO     | server_knn | [KNN] unknown → DUDUK (conf=1.00) | aStd=0.0086 gStd=0.89 BPM=54(raw) 54(filled) | ESP32=
+2026-07-09 13:30:13 | INFO     | collect_participants | [WATCHDOG] Sesi selesai setelah 600s
+2026-07-09 13:30:14 | INFO     | collect_participants | STOP → P16
+2026-07-09 13:30:14 | INFO     | collect_participants | Raw → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\data\raw\P016_sr_017_BERJALAN_20260709_133014.csv (145 baris)
+2026-07-09 13:30:14 | INFO     | collect_participants | Dataset +145 baris → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\dataset\dataset.csv
+2026-07-09 13:30:14 | INFO     | collect_participants | Summary sesi #46 disimpan → C:\Users\LENOVO\Desktop\Documents\folder kuliah\TA\iot\dataset\sessions_summary.csv
